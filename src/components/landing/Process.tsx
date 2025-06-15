@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MessageSquare, Sliders, Copy } from 'lucide-react';
+import { fadeInVariants, slideInVariants, viewportOptions } from '@/utils/animations';
 
 const Process = () => {
   const steps = [
@@ -32,9 +33,10 @@ const Process = () => {
     <section className="py-20 px-6 bg-black/20">
       <div className="container mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          variants={fadeInVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOptions}
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
@@ -49,10 +51,10 @@ const Process = () => {
           {steps.map((step, index) => (
             <motion.div
               key={step.number}
-              initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.2 }}
+              variants={fadeInVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={viewportOptions}
               className={`flex flex-col lg:flex-row items-center gap-12 ${
                 index % 2 === 1 ? 'lg:flex-row-reverse' : ''
               }`}
@@ -70,10 +72,11 @@ const Process = () => {
               
               <div className="flex-1">
                 <motion.div 
-                  className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8"
+                  className="bg-slate-900/60 border border-white/20 rounded-2xl p-8 will-change-transform"
                   whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  <div className="bg-gray-900/50 rounded-xl p-6 font-mono text-sm">
+                  <div className="bg-gray-900/70 rounded-xl p-6 font-mono text-sm">
                     <div className="text-purple-400 mb-2">// Step {step.number} Preview</div>
                     <div className="text-gray-300">{step.preview}</div>
                   </div>

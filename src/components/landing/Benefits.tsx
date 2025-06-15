@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Target, Wand2, Clock, Palette, Layers } from 'lucide-react';
+import { fadeInVariants, staggerContainer, viewportOptions } from '@/utils/animations';
 
 const Benefits = () => {
   const benefits = [
@@ -37,13 +38,23 @@ const Benefits = () => {
     }
   ];
 
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, ease: [0.25, 0.8, 0.25, 1] }
+    }
+  };
+
   return (
     <section className="py-20 px-6">
       <div className="container mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          variants={fadeInVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOptions}
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
@@ -54,16 +65,18 @@ const Benefits = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOptions}
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
           {benefits.map((benefit, index) => (
             <motion.div
               key={benefit.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
-              className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all duration-300"
+              variants={cardVariants}
+              className="bg-slate-900/40 border border-white/10 rounded-2xl p-8 hover:bg-slate-900/60 transition-all duration-300 hover:scale-[1.02] hover:border-white/20 will-change-transform"
             >
               <div className="bg-gradient-to-r from-purple-500 to-pink-500 w-12 h-12 rounded-lg flex items-center justify-center mb-6">
                 <benefit.icon className="w-6 h-6 text-white" />
@@ -72,7 +85,7 @@ const Benefits = () => {
               <p className="text-gray-300 leading-relaxed">{benefit.description}</p>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

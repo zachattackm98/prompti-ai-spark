@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { fadeInVariants, staggerContainer, viewportOptions } from '@/utils/animations';
 
 const SocialProof = () => {
   const logos = [
@@ -11,37 +12,49 @@ const SocialProof = () => {
     { name: 'Gen-2', logo: '🚀' }
   ];
 
+  const logoVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, ease: [0.25, 0.8, 0.25, 1] }
+    }
+  };
+
   return (
     <section className="py-16 px-6 border-y border-white/10">
       <div className="container mx-auto">
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+          variants={fadeInVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOptions}
           className="text-center"
         >
           <p className="text-gray-400 mb-8">Works perfectly with your favorite AI video platforms</p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+          
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={viewportOptions}
+            className="flex flex-wrap justify-center items-center gap-8 md:gap-12"
+          >
             {logos.map((item, index) => (
               <motion.div
                 key={item.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors"
+                variants={logoVariants}
+                className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors duration-300 will-change-transform"
               >
                 <span className="text-2xl">{item.logo}</span>
                 <span className="text-lg font-medium">{item.name}</span>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
           
           <motion.div 
-            className="mt-12 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full px-6 py-3 inline-block"
-            whileInView={{ opacity: 1, scale: 1 }}
-            initial={{ opacity: 0, scale: 0.9 }}
-            viewport={{ once: true }}
+            variants={fadeInVariants}
+            className="mt-12 bg-slate-900/60 border border-white/10 rounded-full px-6 py-3 inline-block"
           >
             <span className="text-purple-400 font-medium">10,000+ prompts generated</span>
             <span className="text-gray-400 mx-2">•</span>
