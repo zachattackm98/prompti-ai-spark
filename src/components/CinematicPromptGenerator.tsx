@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
@@ -294,7 +293,7 @@ ${generatedPrompt.styleNotes}`;
         whileInView="visible"
         viewport={viewportOptions}
       >
-        <Back Background Animation />
+        <BackgroundAnimation />
 
         <div className="container mx-auto max-w-4xl relative z-10">
           <div className="flex justify-between items-center mb-8">
