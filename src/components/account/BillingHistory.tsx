@@ -98,7 +98,7 @@ const BillingHistory = () => {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-white font-medium">{invoice.description}</span>
-                  <Badge className={getStatusColor(invoice.status)} size="sm">
+                  <Badge className={`${getStatusColor(invoice.status)} text-white text-xs px-2 py-0.5`}>
                     {invoice.status}
                   </Badge>
                 </div>
