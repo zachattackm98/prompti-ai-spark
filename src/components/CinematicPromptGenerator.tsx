@@ -213,7 +213,7 @@ ${generatedPrompt.styleNotes}`;
               <Button
                 onClick={handleNext}
                 disabled={!sceneIdea.trim()}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
               >
                 Next Step <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
@@ -268,8 +268,8 @@ ${generatedPrompt.styleNotes}`;
                     size="sm"
                     onClick={() => setSelectedEmotion(emotion)}
                     className={selectedEmotion === emotion 
-                      ? "bg-gradient-to-r from-purple-600 to-pink-600" 
-                      : "border-slate-600 text-white hover:bg-slate-700"
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700" 
+                      : "border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
                     }
                   >
                     {emotion}
@@ -282,14 +282,14 @@ ${generatedPrompt.styleNotes}`;
               <Button
                 onClick={handlePrevious}
                 variant="outline"
-                className="border-slate-600 text-white hover:bg-slate-700"
+                className="border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
               >
                 <ChevronLeft className="w-4 h-4 mr-2" /> Previous
               </Button>
               <Button
                 onClick={handleNext}
                 disabled={!selectedPlatform || !selectedEmotion}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
               >
                 Next Step <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
@@ -321,14 +321,14 @@ ${generatedPrompt.styleNotes}`;
               <Button
                 onClick={handlePrevious}
                 variant="outline"
-                className="border-slate-600 text-white hover:bg-slate-700"
+                className="border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
               >
                 <ChevronLeft className="w-4 h-4 mr-2" /> Previous
               </Button>
               <Button
                 onClick={handleGenerate}
                 disabled={isLoading}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-8"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8"
               >
                 {isLoading ? (
                   <motion.div
@@ -452,7 +452,7 @@ ${generatedPrompt.styleNotes}`;
                     onClick={() => setShowHistory(!showHistory)}
                     variant="outline"
                     size="sm"
-                    className="border-white/20 text-white hover:bg-white/10"
+                    className="border-white/20 text-white hover:bg-white/10 bg-slate-800/40"
                   >
                     <History className="w-4 h-4 mr-2" />
                     History
@@ -463,7 +463,7 @@ ${generatedPrompt.styleNotes}`;
                       onClick={handleSignOut}
                       variant="outline"
                       size="sm"
-                      className="border-white/20 text-white hover:bg-white/10"
+                      className="border-white/20 text-white hover:bg-white/10 bg-slate-800/40"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
                       Sign Out
@@ -542,7 +542,7 @@ ${generatedPrompt.styleNotes}`;
                         onClick={() => copyToClipboard(generatedPrompt.mainPrompt)}
                         size="sm"
                         variant="outline"
-                        className="mt-3 border-purple-400/30 text-purple-300 hover:bg-purple-900/30"
+                        className="mt-3 border-purple-400/30 text-purple-300 hover:bg-purple-900/30 bg-slate-800/40"
                       >
                         <Copy className="w-4 h-4 mr-2" />
                         Copy Main Prompt
@@ -563,7 +563,7 @@ ${generatedPrompt.styleNotes}`;
                   <div className="flex justify-center gap-4 pt-4">
                     <Button
                       onClick={() => copyToClipboard(`${generatedPrompt.mainPrompt}\n\n${generatedPrompt.technicalSpecs}\n\n${generatedPrompt.styleNotes}`)}
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
                     >
                       <Copy className="w-4 h-4 mr-2" />
                       Copy All
@@ -571,7 +571,7 @@ ${generatedPrompt.styleNotes}`;
                     <Button
                       onClick={downloadPrompt}
                       variant="outline"
-                      className="border-slate-600 text-white hover:bg-slate-700"
+                      className="border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       Download
@@ -586,7 +586,7 @@ ${generatedPrompt.styleNotes}`;
                         setStyleReference('');
                       }}
                       variant="outline"
-                      className="border-slate-600 text-white hover:bg-slate-700"
+                      className="border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
                     >
                       Generate New
                     </Button>
