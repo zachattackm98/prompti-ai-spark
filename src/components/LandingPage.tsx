@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from './landing/Header';
@@ -13,7 +12,7 @@ import FAQ from './landing/FAQ';
 import FinalCTA from './landing/FinalCTA';
 import PopularResources from './landing/PopularResources';
 import Footer from './landing/Footer';
-import ChatGPT from './ChatGPT';
+import ChatGPTSecure from './ChatGPTSecure';
 
 const LandingPage = () => {
   return (
@@ -24,7 +23,7 @@ const LandingPage = () => {
       <Benefits />
       <Process />
       <Features />
-      <ChatGPT />
+      <ChatGPTSecure />
       <Testimonials />
       <Pricing />
       <FAQ />
