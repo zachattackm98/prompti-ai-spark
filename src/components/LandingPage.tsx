@@ -12,7 +12,7 @@ import FAQ from './landing/FAQ';
 import FinalCTA from './landing/FinalCTA';
 import PopularResources from './landing/PopularResources';
 import Footer from './landing/Footer';
-import ChatGPTSecure from './ChatGPTSecure';
+import CinematicPromptGenerator from './CinematicPromptGenerator';
 
 const LandingPage = () => {
   return (
@@ -23,7 +23,7 @@ const LandingPage = () => {
       <Benefits />
       <Process />
       <Features />
-      <ChatGPTSecure />
+      <CinematicPromptGenerator />
       <Testimonials />
       <Pricing />
       <FAQ />
