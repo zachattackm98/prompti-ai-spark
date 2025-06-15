@@ -160,10 +160,9 @@ const ChatGPTSecure = () => {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={user ? "Type your message here..." : "Sign in to start chatting..."}
+                placeholder="Type your message here..."
                 className="flex-1 bg-slate-800 border-white/20 text-white placeholder:text-gray-400 resize-none"
                 rows={2}
-                disabled={!user}
               />
               <Button
                 onClick={handleSendMessage}
@@ -176,7 +175,7 @@ const ChatGPTSecure = () => {
             
             {!user && (
               <p className="text-center text-gray-400 text-sm mt-2">
-                Sign in or create an account to use the ChatGPT feature
+                Type your message and hit send to sign in or create an account
               </p>
             )}
           </Card>
