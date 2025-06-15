@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Palette, Camera, Film, Sparkles, Globe, Shield } from 'lucide-react';
-import { fadeInVariants, staggerContainer, viewportOptions } from '@/utils/animations';
+import { fadeInVariants, staggerContainer, cardVariants, viewportOptions } from '@/utils/animations';
 
 const Features = () => {
   const features = [
@@ -37,15 +37,6 @@ const Features = () => {
       description: "Every generated prompt is tested and refined for consistent, professional results."
     }
   ];
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6, ease: [0.25, 0.8, 0.25, 1] }
-    }
-  };
 
   return (
     <section id="features" className="py-20 px-6">

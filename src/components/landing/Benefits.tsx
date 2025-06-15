@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Target, Wand2, Clock, Palette, Layers } from 'lucide-react';
-import { fadeInVariants, staggerContainer, viewportOptions } from '@/utils/animations';
+import { fadeInVariants, staggerContainer, cardVariants, viewportOptions } from '@/utils/animations';
 
 const Benefits = () => {
   const benefits = [
@@ -37,15 +37,6 @@ const Benefits = () => {
       description: "One prompt, optimized for Sora, Runway, Pika, Veo, and more platforms."
     }
   ];
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6, ease: [0.25, 0.8, 0.25, 1] }
-    }
-  };
 
   return (
     <section className="py-20 px-6">

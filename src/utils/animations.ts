@@ -56,6 +56,20 @@ export const slideInVariants = {
   }
 };
 
+// Additional card variants for components
+export const cardVariants = {
+  hidden: { 
+    opacity: 0, 
+    y: 30,
+    transition: animationConfig
+  },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: animationConfig
+  }
+};
+
 // Viewport options for consistent behavior
 export const viewportOptions = {
   once: true,

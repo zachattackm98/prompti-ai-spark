@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { fadeInVariants, staggerContainer, viewportOptions } from '@/utils/animations';
+import { fadeInVariants, staggerContainer, viewportOptions, animationConfig } from '@/utils/animations';
 
 const SocialProof = () => {
   const logos = [
@@ -13,11 +13,15 @@ const SocialProof = () => {
   ];
 
   const logoVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { 
+      opacity: 0, 
+      y: 20,
+      transition: animationConfig
+    },
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.6, ease: [0.25, 0.8, 0.25, 1] }
+      transition: animationConfig
     }
   };
 

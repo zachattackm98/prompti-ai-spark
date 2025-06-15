@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Check, Sparkles, Crown, Rocket } from 'lucide-react';
-import { fadeInVariants, staggerContainer, viewportOptions } from '@/utils/animations';
+import { fadeInVariants, staggerContainer, cardVariants, viewportOptions } from '@/utils/animations';
 
 const Pricing = () => {
   const plans = [
@@ -56,15 +56,6 @@ const Pricing = () => {
       popular: false
     }
   ];
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6, ease: [0.25, 0.8, 0.25, 1] }
-    }
-  };
 
   return (
     <section id="pricing" className="py-20 px-6">
