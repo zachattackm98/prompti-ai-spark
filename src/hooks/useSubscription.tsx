@@ -5,8 +5,21 @@ import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+interface BillingDetails {
+  current_period_start: string;
+  current_period_end: string;
+  status: string;
+  cancel_at_period_end: boolean;
+  amount: number;
+  currency: string;
+  interval: string;
+  trial_end?: string | null;
+  created: string;
+}
+
 interface SubscriptionContextType {
   subscription: UserSubscription;
+  billingDetails: BillingDetails | null;
   features: typeof TIER_FEATURES[SubscriptionTier];
   hasFeature: (feature: keyof typeof TIER_FEATURES[SubscriptionTier]) => boolean;
   canUseFeature: (feature: keyof typeof TIER_FEATURES[SubscriptionTier]) => boolean;
@@ -23,6 +36,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [billingDetails, setBillingDetails] = useState<BillingDetails | null>(null);
   const [subscription, setSubscription] = useState<UserSubscription>({
     tier: 'starter',
     isActive: true,
@@ -31,6 +45,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
   const checkSubscription = async () => {
     if (!user) {
       setSubscription({ tier: 'starter', isActive: false });
+      setBillingDetails(null);
       return;
     }
 
@@ -49,9 +64,12 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
         isActive: data.subscribed || false,
         expiresAt: data.subscription_end,
       });
+
+      setBillingDetails(data.billing_details);
     } catch (error: any) {
       console.error('Error checking subscription:', error);
       setSubscription({ tier: 'starter', isActive: false });
+      setBillingDetails(null);
     } finally {
       setLoading(false);
     }
@@ -164,6 +182,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
   return (
     <SubscriptionContext.Provider value={{
       subscription,
+      billingDetails,
       features,
       hasFeature,
       canUseFeature,

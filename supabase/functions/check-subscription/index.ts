@@ -59,7 +59,11 @@ serve(async (req) => {
         subscription_end: null,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'email' });
-      return new Response(JSON.stringify({ subscribed: false, subscription_tier: "starter" }), {
+      return new Response(JSON.stringify({ 
+        subscribed: false, 
+        subscription_tier: "starter",
+        billing_details: null
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
@@ -76,6 +80,7 @@ serve(async (req) => {
     const hasActiveSub = subscriptions.data.length > 0;
     let subscriptionTier = "starter";
     let subscriptionEnd = null;
+    let billingDetails = null;
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
@@ -94,7 +99,26 @@ serve(async (req) => {
       } else {
         subscriptionTier = "starter";
       }
-      logStep("Determined subscription tier", { priceId, amount, subscriptionTier });
+
+      // Get billing details
+      billingDetails = {
+        current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        status: subscription.status,
+        cancel_at_period_end: subscription.cancel_at_period_end,
+        amount: amount / 100, // Convert from cents to dollars
+        currency: price.currency,
+        interval: price.recurring?.interval || 'month',
+        trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
+        created: new Date(subscription.created * 1000).toISOString()
+      };
+
+      logStep("Determined subscription tier and billing details", { 
+        priceId, 
+        amount, 
+        subscriptionTier,
+        billingDetails 
+      });
     } else {
       logStep("No active subscription found");
     }
@@ -113,7 +137,8 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
       subscription_tier: subscriptionTier,
-      subscription_end: subscriptionEnd
+      subscription_end: subscriptionEnd,
+      billing_details: billingDetails
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
@@ -121,7 +146,11 @@ serve(async (req) => {
   } catch (error: any) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in check-subscription", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage, subscription_tier: "starter" }), {
+    return new Response(JSON.stringify({ 
+      error: errorMessage, 
+      subscription_tier: "starter",
+      billing_details: null
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

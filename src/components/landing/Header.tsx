@@ -56,6 +56,12 @@ const Header = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
+                <a 
+                  href="/account"
+                  className="text-gray-300 hover:text-white transition-colors duration-300 text-sm"
+                >
+                  Account
+                </a>
                 <span className="text-gray-300 text-sm">Welcome, {user.email}</span>
                 <Button 
                   onClick={handleSignOut}
