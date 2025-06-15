@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Palette, Camera, Film, Sparkles2, Globe, Shield } from 'lucide-react';
+import { Palette, Camera, Film, Sparkles, Globe, Shield } from 'lucide-react';
 
 const Features = () => {
   const features = [
@@ -21,7 +21,7 @@ const Features = () => {
       description: "Reference legendary directors' techniques with one-click style applications."
     },
     {
-      icon: Sparkles2,
+      icon: Sparkles,
       title: "Auto-Enhancement",
       description: "Our AI automatically adds professional touches to make your prompts shine."
     },
