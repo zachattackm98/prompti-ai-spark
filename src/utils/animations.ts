@@ -12,7 +12,7 @@ export const fadeInVariants = {
     y: 20,
     transition: {
       duration: 0.4,
-      ease: [0.25, 0.8, 0.25, 1]
+      ease: [0.25, 0.8, 0.25, 1] as const
     }
   },
   visible: { 
@@ -20,7 +20,7 @@ export const fadeInVariants = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.8, 0.25, 1]
+      ease: [0.25, 0.8, 0.25, 1] as const
     }
   }
 };
@@ -34,7 +34,7 @@ export const staggerContainer = {
       staggerChildren: 0.08,
       delayChildren: 0.1,
       duration: 0.6,
-      ease: [0.25, 0.8, 0.25, 1]
+      ease: [0.25, 0.8, 0.25, 1] as const
     }
   }
 };
@@ -46,7 +46,7 @@ export const scaleInVariants = {
     opacity: 0,
     transition: {
       duration: 0.4,
-      ease: [0.25, 0.8, 0.25, 1]
+      ease: [0.25, 0.8, 0.25, 1] as const
     }
   },
   visible: { 
@@ -54,7 +54,7 @@ export const scaleInVariants = {
     opacity: 1,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.8, 0.25, 1]
+      ease: [0.25, 0.8, 0.25, 1] as const
     }
   }
 };
@@ -66,7 +66,7 @@ export const slideInVariants = {
     opacity: 0,
     transition: {
       duration: 0.4,
-      ease: [0.25, 0.8, 0.25, 1]
+      ease: [0.25, 0.8, 0.25, 1] as const
     }
   },
   visible: { 
@@ -74,7 +74,7 @@ export const slideInVariants = {
     opacity: 1,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.8, 0.25, 1]
+      ease: [0.25, 0.8, 0.25, 1] as const
     }
   }
 };
@@ -86,7 +86,7 @@ export const cardVariants = {
     y: 20,
     transition: {
       duration: 0.4,
-      ease: [0.25, 0.8, 0.25, 1]
+      ease: [0.25, 0.8, 0.25, 1] as const
     }
   },
   visible: { 
@@ -94,7 +94,7 @@ export const cardVariants = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.8, 0.25, 1]
+      ease: [0.25, 0.8, 0.25, 1] as const
     }
   }
 };
@@ -106,7 +106,7 @@ export const logoVariants = {
     scale: 0.9,
     transition: {
       duration: 0.3,
-      ease: [0.25, 0.8, 0.25, 1]
+      ease: [0.25, 0.8, 0.25, 1] as const
     }
   },
   visible: { 
@@ -114,7 +114,7 @@ export const logoVariants = {
     scale: 1,
     transition: {
       duration: 0.5,
-      ease: [0.25, 0.8, 0.25, 1]
+      ease: [0.25, 0.8, 0.25, 1] as const
     }
   }
 };
