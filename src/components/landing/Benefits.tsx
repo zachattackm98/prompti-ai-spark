@@ -39,19 +39,19 @@ const Benefits = () => {
   ];
 
   return (
-    <section className="py-20 px-6">
+    <section className="py-16 sm:py-20 px-4 sm:px-6">
       <div className="container mx-auto">
         <motion.div
           variants={fadeInVariants}
           initial="hidden"
           whileInView="visible"
           viewport={viewportOptions}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6">
             Why Creators Choose AiPromptMachine
           </h2>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto">
             Stop wrestling with prompt engineering. Start creating cinematic masterpieces.
           </p>
         </motion.div>
@@ -61,19 +61,19 @@ const Benefits = () => {
           initial="hidden"
           whileInView="visible"
           viewport={viewportOptions}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
         >
           {benefits.map((benefit, index) => (
             <motion.div
               key={benefit.title}
               variants={cardVariants}
-              className="bg-slate-900/40 border border-white/10 rounded-2xl p-8 hover:bg-slate-900/60 transition-all duration-300 hover:scale-[1.02] hover:border-white/20 will-change-transform"
+              className="bg-slate-900/40 border border-white/10 rounded-2xl p-6 sm:p-8 hover:bg-slate-900/60 transition-all duration-300 hover:scale-[1.02] hover:border-white/20 will-change-transform"
             >
-              <div className="bg-gradient-to-r from-purple-500 to-pink-500 w-12 h-12 rounded-lg flex items-center justify-center mb-6">
-                <benefit.icon className="w-6 h-6 text-white" />
+              <div className="bg-gradient-to-r from-purple-500 to-pink-500 w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-4 sm:mb-6">
+                <benefit.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-4">{benefit.title}</h3>
-              <p className="text-gray-300 leading-relaxed">{benefit.description}</p>
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">{benefit.title}</h3>
+              <p className="text-gray-300 leading-relaxed text-sm sm:text-base">{benefit.description}</p>
             </motion.div>
           ))}
         </motion.div>

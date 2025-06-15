@@ -44,34 +44,34 @@ const LightingStep: React.FC<LightingStepProps> = ({
 
   return (
     <motion.div 
-      className="space-y-6"
+      className="space-y-4 sm:space-y-6"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="text-center space-y-3">
+      <div className="text-center space-y-2 sm:space-y-3">
         <div className="flex items-center justify-center gap-2">
-          <Lightbulb className="w-6 h-6 text-yellow-400" />
-          <h3 className="text-2xl font-bold text-white">Lighting & Visual Style</h3>
-          <Crown className="w-5 h-5 text-yellow-400" />
+          <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+          <h3 className="text-xl sm:text-2xl font-bold text-white">Lighting & Visual Style</h3>
+          <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
         </div>
-        <p className="text-gray-300">Set the perfect lighting and visual atmosphere for your scene</p>
+        <p className="text-gray-300 text-sm sm:text-base">Set the perfect lighting and visual atmosphere for your scene</p>
       </div>
       
-      <div className="space-y-6">
-        <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-yellow-300">Lighting Mood</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-3 sm:space-y-4">
+          <h4 className="text-base sm:text-lg font-semibold text-yellow-300">Lighting Mood</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             {lightingMoods.map((mood) => (
               <Button
                 key={mood}
                 variant={lightingSettings.mood === mood ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleSettingChange('mood', mood)}
-                className={lightingSettings.mood === mood 
+                className={`text-xs sm:text-sm ${lightingSettings.mood === mood 
                   ? "bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:from-yellow-700 hover:to-orange-700" 
                   : "border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
-                }
+                }`}
               >
                 {mood}
               </Button>
@@ -79,19 +79,19 @@ const LightingStep: React.FC<LightingStepProps> = ({
           </div>
         </div>
 
-        <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-yellow-300">Lighting Style</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="space-y-3 sm:space-y-4">
+          <h4 className="text-base sm:text-lg font-semibold text-yellow-300">Lighting Style</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             {lightingStyles.map((style) => (
               <Button
                 key={style}
                 variant={lightingSettings.style === style ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleSettingChange('style', style)}
-                className={lightingSettings.style === style 
+                className={`text-xs sm:text-sm ${lightingSettings.style === style 
                   ? "bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:from-yellow-700 hover:to-orange-700" 
                   : "border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
-                }
+                }`}
               >
                 {style}
               </Button>
@@ -99,19 +99,19 @@ const LightingStep: React.FC<LightingStepProps> = ({
           </div>
         </div>
 
-        <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-yellow-300">Time of Day</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="space-y-3 sm:space-y-4">
+          <h4 className="text-base sm:text-lg font-semibold text-yellow-300">Time of Day</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             {timesOfDay.map((time) => (
               <Button
                 key={time}
                 variant={lightingSettings.timeOfDay === time ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleSettingChange('timeOfDay', time)}
-                className={lightingSettings.timeOfDay === time 
+                className={`text-xs sm:text-sm ${lightingSettings.timeOfDay === time 
                   ? "bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:from-yellow-700 hover:to-orange-700" 
                   : "border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
-                }
+                }`}
               >
                 {time}
               </Button>
@@ -120,16 +120,18 @@ const LightingStep: React.FC<LightingStepProps> = ({
         </div>
       </div>
       
-      <div className="flex justify-between">
+      <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
         <Button
           onClick={onPrevious}
           variant="outline"
+          size="sm"
           className="border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
         >
           <ChevronLeft className="w-4 h-4 mr-2" /> Previous
         </Button>
         <Button
           onClick={onNext}
+          size="sm"
           className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white"
         >
           Next Step <ChevronRight className="w-4 h-4 ml-2" />

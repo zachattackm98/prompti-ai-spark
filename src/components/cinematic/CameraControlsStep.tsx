@@ -44,34 +44,34 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
 
   return (
     <motion.div 
-      className="space-y-6"
+      className="space-y-4 sm:space-y-6"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="text-center space-y-3">
+      <div className="text-center space-y-2 sm:space-y-3">
         <div className="flex items-center justify-center gap-2">
-          <Camera className="w-6 h-6 text-purple-400" />
-          <h3 className="text-2xl font-bold text-white">Camera Controls</h3>
-          <Crown className="w-5 h-5 text-yellow-400" />
+          <Camera className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
+          <h3 className="text-xl sm:text-2xl font-bold text-white">Camera Controls</h3>
+          <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
         </div>
-        <p className="text-gray-300">Fine-tune your cinematic vision with professional camera settings</p>
+        <p className="text-gray-300 text-sm sm:text-base">Fine-tune your cinematic vision with professional camera settings</p>
       </div>
       
-      <div className="space-y-6">
-        <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-purple-300">Camera Angle</h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-3 sm:space-y-4">
+          <h4 className="text-base sm:text-lg font-semibold text-purple-300">Camera Angle</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {cameraAngles.map((angle) => (
               <Button
                 key={angle}
                 variant={cameraSettings.angle === angle ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleSettingChange('angle', angle)}
-                className={cameraSettings.angle === angle 
+                className={`text-xs sm:text-sm ${cameraSettings.angle === angle 
                   ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700" 
                   : "border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
-                }
+                }`}
               >
                 {angle}
               </Button>
@@ -79,19 +79,19 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
           </div>
         </div>
 
-        <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-purple-300">Camera Movement</h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <div className="space-y-3 sm:space-y-4">
+          <h4 className="text-base sm:text-lg font-semibold text-purple-300">Camera Movement</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {cameraMovements.map((movement) => (
               <Button
                 key={movement}
                 variant={cameraSettings.movement === movement ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleSettingChange('movement', movement)}
-                className={cameraSettings.movement === movement 
+                className={`text-xs sm:text-sm ${cameraSettings.movement === movement 
                   ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700" 
                   : "border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
-                }
+                }`}
               >
                 {movement}
               </Button>
@@ -99,19 +99,19 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
           </div>
         </div>
 
-        <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-purple-300">Shot Type</h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <div className="space-y-3 sm:space-y-4">
+          <h4 className="text-base sm:text-lg font-semibold text-purple-300">Shot Type</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {shotTypes.map((shot) => (
               <Button
                 key={shot}
                 variant={cameraSettings.shot === shot ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleSettingChange('shot', shot)}
-                className={cameraSettings.shot === shot 
+                className={`text-xs sm:text-sm ${cameraSettings.shot === shot 
                   ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700" 
                   : "border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
-                }
+                }`}
               >
                 {shot}
               </Button>
@@ -120,16 +120,18 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
         </div>
       </div>
       
-      <div className="flex justify-between">
+      <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
         <Button
           onClick={onPrevious}
           variant="outline"
+          size="sm"
           className="border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
         >
           <ChevronLeft className="w-4 h-4 mr-2" /> Previous
         </Button>
         <Button
           onClick={onNext}
+          size="sm"
           className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
         >
           Next Step <ChevronRight className="w-4 h-4 ml-2" />
