@@ -7,6 +7,7 @@ import { fadeInVariants, viewportOptions } from '@/utils/animations';
 import { Camera, Film, Sparkles, History, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import AuthDialog from './AuthDialog';
 
@@ -16,16 +17,29 @@ import { platforms } from './cinematic/constants';
 import StepIndicator from './cinematic/StepIndicator';
 import SceneStep from './cinematic/SceneStep';
 import PlatformStep from './cinematic/PlatformStep';
+import CameraControlsStep, { CameraSettings } from './cinematic/CameraControlsStep';
+import LightingStep, { LightingSettings } from './cinematic/LightingStep';
 import StyleStep from './cinematic/StyleStep';
 import GeneratedPromptDisplay from './cinematic/GeneratedPromptDisplay';
 import PromptHistoryComponent from './cinematic/PromptHistory';
 import BackgroundAnimation from './cinematic/BackgroundAnimation';
+import UpgradePrompt from './cinematic/UpgradePrompt';
 
 const CinematicPromptGenerator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [sceneIdea, setSceneIdea] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState('');
   const [selectedEmotion, setSelectedEmotion] = useState('');
+  const [cameraSettings, setCameraSettings] = useState<CameraSettings>({
+    angle: '',
+    movement: '',
+    shot: ''
+  });
+  const [lightingSettings, setLightingSettings] = useState<LightingSettings>({
+    mood: '',
+    style: '',
+    timeOfDay: ''
+  });
   const [styleReference, setStyleReference] = useState('');
   const [generatedPrompt, setGeneratedPrompt] = useState<GeneratedPrompt | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,8 +48,17 @@ const CinematicPromptGenerator = () => {
   const [showHistory, setShowHistory] = useState(false);
   const { toast } = useToast();
   const { user, signOut } = useAuth();
+  const { subscription, features, canUseFeature, upgradeRequired } = useSubscription();
 
-  const totalSteps = 3;
+  // Calculate total steps based on subscription tier
+  const getTotalSteps = () => {
+    let steps = 3; // Base steps: Scene, Platform, Style
+    if (canUseFeature('cameraControls')) steps++;
+    if (canUseFeature('lightingOptions')) steps++;
+    return steps;
+  };
+
+  const totalSteps = getTotalSteps();
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -67,13 +90,19 @@ const CinematicPromptGenerator = () => {
     setIsLoading(true);
 
     try {
+      const requestBody = { 
+        sceneIdea,
+        platform: selectedPlatform,
+        emotion: selectedEmotion,
+        styleReference: styleReference || '',
+        cameraSettings: canUseFeature('cameraControls') ? cameraSettings : undefined,
+        lightingSettings: canUseFeature('lightingOptions') ? lightingSettings : undefined,
+        tier: subscription.tier,
+        enhancedPrompts: canUseFeature('enhancedPrompts')
+      };
+
       const { data, error } = await supabase.functions.invoke('cinematic-prompt-generator', {
-        body: { 
-          sceneIdea,
-          platform: selectedPlatform,
-          emotion: selectedEmotion,
-          styleReference: styleReference || ''
-        },
+        body: requestBody,
       });
 
       if (error) throw error;
@@ -122,6 +151,7 @@ const CinematicPromptGenerator = () => {
     const content = `CINEMATIC VIDEO PROMPT
 Generated: ${new Date().toLocaleDateString()}
 Platform: ${generatedPrompt.platform}
+Subscription: ${subscription.tier.toUpperCase()}
 
 MAIN PROMPT:
 ${generatedPrompt.mainPrompt}
@@ -146,6 +176,8 @@ ${generatedPrompt.styleNotes}`;
     setSceneIdea('');
     setSelectedPlatform('');
     setSelectedEmotion('');
+    setCameraSettings({ angle: '', movement: '', shot: '' });
+    setLightingSettings({ mood: '', style: '', timeOfDay: '' });
     setStyleReference('');
     setGeneratedPrompt(null);
     setPromptHistory([]);
@@ -158,7 +190,17 @@ ${generatedPrompt.styleNotes}`;
     setSceneIdea('');
     setSelectedPlatform('');
     setSelectedEmotion('');
+    setCameraSettings({ angle: '', movement: '', shot: '' });
+    setLightingSettings({ mood: '', style: '', timeOfDay: '' });
     setStyleReference('');
+  };
+
+  const handleUpgrade = () => {
+    // This would typically redirect to a payment/upgrade page
+    toast({
+      title: "Upgrade Coming Soon!",
+      description: "Subscription management will be available soon.",
+    });
   };
 
   React.useEffect(() => {
@@ -168,39 +210,79 @@ ${generatedPrompt.styleNotes}`;
   }, [user]);
 
   const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <SceneStep
-            sceneIdea={sceneIdea}
-            setSceneIdea={setSceneIdea}
-            onNext={handleNext}
-          />
-        );
-      case 2:
-        return (
-          <PlatformStep
-            selectedPlatform={selectedPlatform}
-            setSelectedPlatform={setSelectedPlatform}
-            selectedEmotion={selectedEmotion}
-            setSelectedEmotion={setSelectedEmotion}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-          />
-        );
-      case 3:
-        return (
-          <StyleStep
-            styleReference={styleReference}
-            setStyleReference={setStyleReference}
-            onPrevious={handlePrevious}
-            onGenerate={handleGenerate}
-            isLoading={isLoading}
-          />
-        );
-      default:
-        return null;
+    let stepCounter = 1;
+    
+    if (currentStep === stepCounter) {
+      return (
+        <SceneStep
+          sceneIdea={sceneIdea}
+          setSceneIdea={setSceneIdea}
+          onNext={handleNext}
+        />
+      );
     }
+    stepCounter++;
+
+    if (currentStep === stepCounter) {
+      return (
+        <PlatformStep
+          selectedPlatform={selectedPlatform}
+          setSelectedPlatform={setSelectedPlatform}
+          selectedEmotion={selectedEmotion}
+          setSelectedEmotion={setSelectedEmotion}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          availablePlatforms={features.platforms}
+          availableEmotions={features.emotions}
+        />
+      );
+    }
+    stepCounter++;
+
+    // Camera Controls Step (Creator+ only)
+    if (canUseFeature('cameraControls')) {
+      if (currentStep === stepCounter) {
+        return (
+          <CameraControlsStep
+            cameraSettings={cameraSettings}
+            setCameraSettings={setCameraSettings}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+          />
+        );
+      }
+      stepCounter++;
+    }
+
+    // Lighting Step (Creator+ only)
+    if (canUseFeature('lightingOptions')) {
+      if (currentStep === stepCounter) {
+        return (
+          <LightingStep
+            lightingSettings={lightingSettings}
+            setLightingSettings={setLightingSettings}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+          />
+        );
+      }
+      stepCounter++;
+    }
+
+    // Style Step (final step)
+    if (currentStep === stepCounter) {
+      return (
+        <StyleStep
+          styleReference={styleReference}
+          setStyleReference={setStyleReference}
+          onPrevious={handlePrevious}
+          onGenerate={handleGenerate}
+          isLoading={isLoading}
+        />
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -212,7 +294,7 @@ ${generatedPrompt.styleNotes}`;
         whileInView="visible"
         viewport={viewportOptions}
       >
-        <BackgroundAnimation />
+        <Back Background Animation />
 
         <div className="container mx-auto max-w-4xl relative z-10">
           <div className="flex justify-between items-center mb-8">
@@ -270,7 +352,10 @@ ${generatedPrompt.styleNotes}`;
                     History
                   </Button>
                   <div className="flex items-center gap-4">
-                    <p className="text-gray-300">Welcome, {user.email}</p>
+                    <div className="text-right">
+                      <p className="text-gray-300 text-sm">Welcome, {user.email}</p>
+                      <p className="text-xs text-purple-300 capitalize">{subscription.tier} Plan</p>
+                    </div>
                     <Button
                       onClick={handleSignOut}
                       variant="outline"
@@ -319,6 +404,28 @@ ${generatedPrompt.styleNotes}`;
               )}
             </Card>
           </motion.div>
+
+          {/* Show upgrade prompts for premium features */}
+          {user && !generatedPrompt && (
+            <div className="mt-6 space-y-4">
+              {!canUseFeature('cameraControls') && (
+                <UpgradePrompt
+                  feature="Professional Camera Controls"
+                  requiredTier="creator"
+                  currentTier={subscription.tier}
+                  onUpgrade={handleUpgrade}
+                />
+              )}
+              {!canUseFeature('lightingOptions') && (
+                <UpgradePrompt
+                  feature="Advanced Lighting & Visual Styles"
+                  requiredTier="creator"
+                  currentTier={subscription.tier}
+                  onUpgrade={handleUpgrade}
+                />
+              )}
+            </div>
+          )}
 
           <PromptHistoryComponent promptHistory={promptHistory} showHistory={showHistory} />
         </div>

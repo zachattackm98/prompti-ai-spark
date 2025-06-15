@@ -2,8 +2,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { platforms, emotions } from './constants';
+import { ChevronLeft, ChevronRight, Lock } from 'lucide-react';
+import { platforms } from './constants';
 
 interface PlatformStepProps {
   selectedPlatform: string;
@@ -12,6 +12,8 @@ interface PlatformStepProps {
   setSelectedEmotion: (emotion: string) => void;
   onNext: () => void;
   onPrevious: () => void;
+  availablePlatforms: string[];
+  availableEmotions: string[];
 }
 
 const PlatformStep: React.FC<PlatformStepProps> = ({
@@ -20,8 +22,22 @@ const PlatformStep: React.FC<PlatformStepProps> = ({
   selectedEmotion,
   setSelectedEmotion,
   onNext,
-  onPrevious
+  onPrevious,
+  availablePlatforms,
+  availableEmotions
 }) => {
+  const handlePlatformSelect = (platformId: string) => {
+    if (availablePlatforms.includes(platformId)) {
+      setSelectedPlatform(platformId);
+    }
+  };
+
+  const handleEmotionSelect = (emotion: string) => {
+    if (availableEmotions.includes(emotion)) {
+      setSelectedEmotion(emotion);
+    }
+  };
+
   return (
     <motion.div 
       className="space-y-6"
@@ -35,47 +51,76 @@ const PlatformStep: React.FC<PlatformStepProps> = ({
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {platforms.map((platform) => (
-          <motion.div
-            key={platform.id}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className={`p-5 rounded-xl border-2 cursor-pointer transition-all ${
-              selectedPlatform === platform.id
-                ? 'border-purple-400 bg-purple-900/30'
-                : 'border-slate-600 bg-slate-800/40 hover:border-purple-400/50'
-            }`}
-            onClick={() => setSelectedPlatform(platform.id)}
-          >
-            <div className="flex items-start space-x-4">
-              <span className="text-3xl">{platform.icon}</span>
-              <div className="flex-1">
-                <h4 className="font-semibold text-white text-lg">{platform.name}</h4>
-                <p className="text-purple-300 font-medium text-sm mb-2">{platform.style}</p>
-                <p className="text-sm text-gray-400 leading-relaxed">{platform.description}</p>
+        {platforms.map((platform) => {
+          const isAvailable = availablePlatforms.includes(platform.id);
+          return (
+            <motion.div
+              key={platform.id}
+              whileHover={isAvailable ? { scale: 1.02 } : {}}
+              whileTap={isAvailable ? { scale: 0.98 } : {}}
+              className={`p-5 rounded-xl border-2 cursor-pointer transition-all relative ${
+                !isAvailable
+                  ? 'border-slate-700 bg-slate-800/20 opacity-60'
+                  : selectedPlatform === platform.id
+                  ? 'border-purple-400 bg-purple-900/30'
+                  : 'border-slate-600 bg-slate-800/40 hover:border-purple-400/50'
+              }`}
+              onClick={() => handlePlatformSelect(platform.id)}
+            >
+              {!isAvailable && (
+                <div className="absolute top-2 right-2">
+                  <Lock className="w-4 h-4 text-gray-500" />
+                </div>
+              )}
+              <div className="flex items-start space-x-4">
+                <span className="text-3xl">{platform.icon}</span>
+                <div className="flex-1">
+                  <h4 className={`font-semibold text-lg ${isAvailable ? 'text-white' : 'text-gray-500'}`}>
+                    {platform.name}
+                  </h4>
+                  <p className={`font-medium text-sm mb-2 ${isAvailable ? 'text-purple-300' : 'text-gray-600'}`}>
+                    {platform.style}
+                  </p>
+                  <p className={`text-sm leading-relaxed ${isAvailable ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {platform.description}
+                  </p>
+                  {!isAvailable && (
+                    <p className="text-xs text-orange-400 mt-2 font-medium">
+                      Upgrade to access this platform
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
 
       <div className="space-y-4">
         <h4 className="text-lg font-semibold text-white">Select Emotion/Mood</h4>
         <div className="flex flex-wrap gap-2">
-          {emotions.map((emotion) => (
-            <Button
-              key={emotion}
-              variant={selectedEmotion === emotion ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedEmotion(emotion)}
-              className={selectedEmotion === emotion 
-                ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700" 
-                : "border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
-              }
-            >
-              {emotion}
-            </Button>
-          ))}
+          {['Dramatic', 'Mysterious', 'Uplifting', 'Melancholic', 'Intense', 'Serene', 'Suspenseful', 'Romantic', 'Epic', 'Intimate'].map((emotion) => {
+            const isAvailable = availableEmotions.includes(emotion);
+            return (
+              <Button
+                key={emotion}
+                variant={selectedEmotion === emotion ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleEmotionSelect(emotion)}
+                disabled={!isAvailable}
+                className={
+                  !isAvailable
+                    ? "border-slate-700 text-gray-500 cursor-not-allowed opacity-50"
+                    : selectedEmotion === emotion 
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700" 
+                    : "border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
+                }
+              >
+                {emotion}
+                {!isAvailable && <Lock className="w-3 h-3 ml-1" />}
+              </Button>
+            );
+          })}
         </div>
       </div>
       

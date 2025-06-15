@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Check, Sparkles, Crown, Rocket } from 'lucide-react';
+import { Check, Sparkles, Crown, Rocket, Camera, Lightbulb } from 'lucide-react';
 import { fadeInVariants, staggerContainer, cardVariants, viewportOptions } from '@/utils/animations';
 
 const Pricing = () => {
@@ -14,8 +14,9 @@ const Pricing = () => {
       description: "Perfect for trying out Prompti.ai",
       features: [
         "5 prompts per month",
-        "Basic style options",
-        "Standard video platforms",
+        "2 AI video platforms (Veo3, Sora)",
+        "4 basic emotions/moods",
+        "Standard prompt quality",
         "Email support"
       ],
       cta: "Start Free",
@@ -29,10 +30,12 @@ const Pricing = () => {
       description: "For serious content creators",
       features: [
         "Unlimited prompts",
-        "50+ cinematic styles", 
-        "All video platforms",
+        "All 4 AI video platforms",
+        "10 cinematic emotions/moods", 
+        "Professional camera controls",
+        "Advanced lighting & visual styles",
+        "Enhanced prompt quality",
         "Priority support",
-        "Custom style creation",
         "Batch processing"
       ],
       cta: "Start Creating",
@@ -47,10 +50,11 @@ const Pricing = () => {
       features: [
         "Everything in Creator",
         "Team collaboration",
-        "Brand style guides",
+        "Priority access to new platforms",
+        "Custom brand style guides",
         "API access",
         "White-label options",
-        "Dedicated support"
+        "Dedicated support manager"
       ],
       cta: "Contact Sales",
       popular: false
@@ -71,7 +75,7 @@ const Pricing = () => {
             Choose Your Creative Journey
           </h2>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Start free, upgrade when you're ready to unlock your full creative potential.
+            Start free, upgrade when you're ready to unlock professional cinematic features.
           </p>
         </motion.div>
 
@@ -114,9 +118,17 @@ const Pricing = () => {
               
               <ul className="space-y-4 mb-8">
                 {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-green-400 mr-3 flex-shrink-0" />
-                    {feature}
+                  <li key={i} className="flex items-start text-gray-300">
+                    <div className="flex-shrink-0 mt-0.5">
+                      {feature.includes('camera controls') ? (
+                        <Camera className="w-4 h-4 text-purple-400 mr-3" />
+                      ) : feature.includes('lighting') ? (
+                        <Lightbulb className="w-4 h-4 text-yellow-400 mr-3" />
+                      ) : (
+                        <Check className="w-4 h-4 text-green-400 mr-3" />
+                      )}
+                    </div>
+                    <span className="text-sm">{feature}</span>
                   </li>
                 ))}
               </ul>

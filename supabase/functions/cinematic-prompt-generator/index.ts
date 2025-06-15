@@ -21,7 +21,16 @@ serve(async (req) => {
   }
 
   try {
-    const { sceneIdea, platform, emotion, styleReference } = await req.json();
+    const { 
+      sceneIdea, 
+      platform, 
+      emotion, 
+      styleReference, 
+      cameraSettings,
+      lightingSettings,
+      tier = 'starter',
+      enhancedPrompts = false
+    } = await req.json();
 
     if (!openAIApiKey) {
       throw new Error('OpenAI API key not configured');
@@ -60,7 +69,8 @@ serve(async (req) => {
 
     const selectedPlatform = platformPrompts[platform as keyof typeof platformPrompts] || platformPrompts.veo3;
 
-    const systemPrompt = `${selectedPlatform.system}
+    // Build enhanced system prompt based on tier and features
+    let systemPrompt = `${selectedPlatform.system}
 
 Your task is to transform user scene ideas into three distinct components:
 
@@ -77,7 +87,32 @@ Guidelines:
 - Make it production-ready and professional
 
 Current scene emotion/mood: ${emotion}
-${styleReference ? `Style reference: ${styleReference}` : ''}`;
+User subscription tier: ${tier.toUpperCase()}`;
+
+    // Add enhanced features for higher tiers
+    if (cameraSettings && (cameraSettings.angle || cameraSettings.movement || cameraSettings.shot)) {
+      systemPrompt += `\n\nCAMERA SPECIFICATIONS:
+- Camera Angle: ${cameraSettings.angle || 'Not specified'}
+- Camera Movement: ${cameraSettings.movement || 'Not specified'}  
+- Shot Type: ${cameraSettings.shot || 'Not specified'}
+Please incorporate these camera specifications into your technical recommendations.`;
+    }
+
+    if (lightingSettings && (lightingSettings.mood || lightingSettings.style || lightingSettings.timeOfDay)) {
+      systemPrompt += `\n\nLIGHTING SPECIFICATIONS:
+- Lighting Mood: ${lightingSettings.mood || 'Not specified'}
+- Lighting Style: ${lightingSettings.style || 'Not specified'}
+- Time of Day: ${lightingSettings.timeOfDay || 'Not specified'}
+Please incorporate these lighting specifications into your style and technical recommendations.`;
+    }
+
+    if (enhancedPrompts) {
+      systemPrompt += `\n\nENHANCED PROMPTS: This user has premium access. Provide more detailed, technical, and professional-grade prompts with advanced cinematography techniques, specific color science references, and industry-standard terminology.`;
+    }
+
+    if (styleReference) {
+      systemPrompt += `\n\nStyle reference: ${styleReference}`;
+    }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -91,7 +126,7 @@ ${styleReference ? `Style reference: ${styleReference}` : ''}`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Scene idea: ${sceneIdea}` }
         ],
-        max_tokens: 1000,
+        max_tokens: enhancedPrompts ? 1500 : 1000,
         temperature: 0.7,
       }),
     });
