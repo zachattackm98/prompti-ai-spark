@@ -1,14 +1,8 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Lightbulb, Crown } from 'lucide-react';
-
-export interface LightingSettings {
-  mood: string;
-  style: string;
-  timeOfDay: string;
-}
+import { LightingSettings } from './useCinematicForm';
 
 interface LightingStepProps {
   lightingSettings: LightingSettings;

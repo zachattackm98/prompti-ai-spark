@@ -1,14 +1,8 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Camera, Crown } from 'lucide-react';
-
-export interface CameraSettings {
-  angle: string;
-  movement: string;
-  shot: string;
-}
+import { CameraSettings } from './useCinematicForm';
 
 interface CameraControlsStepProps {
   cameraSettings: CameraSettings;
