@@ -70,7 +70,7 @@ const Features = () => {
               className="group will-change-transform"
             >
               <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-8 h-full hover:bg-slate-900/60 transition-all duration-300 hover:scale-[1.02] hover:border-white/20">
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 w-12 h-12 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 will-change-transform">
+                <div className="bg-gradient-to-r from-purple-500 to-pink-500 w-12 h-12 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-4">{feature.title}</h3>

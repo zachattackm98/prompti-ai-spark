@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Star, Quote } from 'lucide-react';
+import { fadeInVariants, staggerContainer, cardVariants, viewportOptions } from '@/utils/animations';
 
 const Testimonials = () => {
   const testimonials = [
@@ -32,9 +33,10 @@ const Testimonials = () => {
     <section className="py-20 px-6 bg-black/20">
       <div className="container mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          variants={fadeInVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOptions}
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
@@ -45,16 +47,18 @@ const Testimonials = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOptions}
+          className="grid md:grid-cols-3 gap-8"
+        >
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.2 }}
-              whileHover={{ y: -5 }}
-              className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 relative"
+              variants={cardVariants}
+              className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 relative hover:scale-[1.02] transition-all duration-300 will-change-transform"
             >
               <Quote className="w-8 h-8 text-purple-400 mb-4" />
               
@@ -79,7 +83,7 @@ const Testimonials = () => {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

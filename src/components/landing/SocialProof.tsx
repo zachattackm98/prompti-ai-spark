@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { fadeInVariants, staggerContainer, viewportOptions, animationConfig } from '@/utils/animations';
+import { fadeInVariants, staggerContainer, logoVariants, viewportOptions } from '@/utils/animations';
 
 const SocialProof = () => {
   const logos = [
@@ -11,19 +11,6 @@ const SocialProof = () => {
     { name: 'Veo', logo: '🎥' },
     { name: 'Gen-2', logo: '🚀' }
   ];
-
-  const logoVariants = {
-    hidden: { 
-      opacity: 0, 
-      y: 20,
-      transition: animationConfig
-    },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: animationConfig
-    }
-  };
 
   return (
     <section className="py-16 px-6 border-y border-white/10">

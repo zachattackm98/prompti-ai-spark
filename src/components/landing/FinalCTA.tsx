@@ -16,13 +16,12 @@ const FinalCTA = () => {
           viewport={viewportOptions}
           className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-white/20 rounded-3xl p-12 text-center max-w-4xl mx-auto relative overflow-hidden"
         >
-          {/* Background gradient overlay instead of backdrop-blur */}
           <div className="absolute inset-0 bg-slate-900/60 rounded-3xl"></div>
           
           <div className="relative z-10">
             <motion.div
               variants={scaleInVariants}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-8 will-change-transform"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-8"
             >
               <Sparkles className="w-8 h-8 text-white" />
             </motion.div>
@@ -44,7 +43,7 @@ const FinalCTA = () => {
             
             <motion.div 
               variants={fadeInVariants}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center will-change-transform"
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
             >
               <Button 
                 size="lg" 

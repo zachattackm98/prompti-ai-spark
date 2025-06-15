@@ -7,6 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { fadeInVariants, viewportOptions } from '@/utils/animations';
 
 const FAQ = () => {
   const faqs = [
@@ -40,9 +41,10 @@ const FAQ = () => {
     <section id="faq" className="py-20 px-6 bg-black/20">
       <div className="container mx-auto max-w-4xl">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          variants={fadeInVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOptions}
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
@@ -54,10 +56,10 @@ const FAQ = () => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
+          variants={fadeInVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOptions}
         >
           <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (

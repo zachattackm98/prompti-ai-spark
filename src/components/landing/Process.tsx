@@ -51,7 +51,7 @@ const Process = () => {
           {steps.map((step, index) => (
             <motion.div
               key={step.number}
-              variants={fadeInVariants}
+              variants={slideInVariants}
               initial="hidden"
               whileInView="visible"
               viewport={viewportOptions}
@@ -72,9 +72,9 @@ const Process = () => {
               
               <div className="flex-1">
                 <motion.div 
-                  className="bg-slate-900/60 border border-white/20 rounded-2xl p-8 will-change-transform"
+                  className="bg-slate-900/60 border border-white/20 rounded-2xl p-8"
                   whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.3, ease: [0.25, 0.8, 0.25, 1] }}
                 >
                   <div className="bg-gray-900/70 rounded-xl p-6 font-mono text-sm">
                     <div className="text-purple-400 mb-2">// Step {step.number} Preview</div>
