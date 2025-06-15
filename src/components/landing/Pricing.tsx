@@ -4,8 +4,13 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Check, Sparkles, Crown, Rocket, Camera, Lightbulb } from 'lucide-react';
 import { fadeInVariants, staggerContainer, cardVariants, viewportOptions } from '@/utils/animations';
+import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 
 const Pricing = () => {
+  const { user } = useAuth();
+  const { subscription, createCheckout, openCustomerPortal, loading } = useSubscription();
+
   const plans = [
     {
       name: "Starter",
@@ -20,7 +25,8 @@ const Pricing = () => {
         "Email support"
       ],
       cta: "Start Free",
-      popular: false
+      popular: false,
+      tier: "starter" as const
     },
     {
       name: "Creator",
@@ -39,7 +45,8 @@ const Pricing = () => {
         "Batch processing"
       ],
       cta: "Start Creating",
-      popular: true
+      popular: true,
+      tier: "creator" as const
     },
     {
       name: "Studio",
@@ -57,9 +64,47 @@ const Pricing = () => {
         "Dedicated support manager"
       ],
       cta: "Contact Sales",
-      popular: false
+      popular: false,
+      tier: "studio" as const
     }
   ];
+
+  const handlePlanClick = async (planTier: string) => {
+    if (planTier === 'starter') {
+      // Starter is free, no action needed
+      return;
+    }
+
+    if (!user) {
+      // Redirect to sign up if not authenticated
+      document.getElementById('auth-dialog-trigger')?.click();
+      return;
+    }
+
+    if (subscription.tier === planTier && subscription.isActive) {
+      // Already subscribed to this plan, open customer portal
+      await openCustomerPortal();
+    } else {
+      // Subscribe to new plan
+      await createCheckout(planTier as 'creator' | 'studio');
+    }
+  };
+
+  const getButtonText = (plan: typeof plans[0]) => {
+    if (plan.tier === 'starter') return plan.cta;
+    
+    if (!user) return plan.cta;
+    
+    if (subscription.tier === plan.tier && subscription.isActive) {
+      return 'Manage Subscription';
+    }
+    
+    return plan.cta;
+  };
+
+  const isCurrentPlan = (planTier: string) => {
+    return subscription.tier === planTier && subscription.isActive;
+  };
 
   return (
     <section id="pricing" className="py-20 px-6">
@@ -77,6 +122,16 @@ const Pricing = () => {
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Start free, upgrade when you're ready to unlock professional cinematic features.
           </p>
+          {user && subscription && (
+            <p className="text-purple-300 mt-4">
+              Current Plan: <span className="font-semibold capitalize">{subscription.tier}</span>
+              {subscription.isActive && subscription.expiresAt && (
+                <span className="text-sm text-gray-400 ml-2">
+                  (Expires: {new Date(subscription.expiresAt).toLocaleDateString()})
+                </span>
+              )}
+            </p>
+          )}
         </motion.div>
 
         <motion.div
@@ -93,6 +148,8 @@ const Pricing = () => {
               className={`relative bg-slate-900/40 border rounded-2xl p-8 will-change-transform hover:scale-[1.02] transition-all duration-300 ${
                 plan.popular 
                   ? 'border-purple-500 bg-slate-900/60 md:scale-105' 
+                  : isCurrentPlan(plan.tier)
+                  ? 'border-green-500 bg-slate-900/60'
                   : 'border-white/10 hover:border-white/20'
               }`}
             >
@@ -103,9 +160,21 @@ const Pricing = () => {
                   </div>
                 </div>
               )}
+
+              {isCurrentPlan(plan.tier) && (
+                <div className="absolute -top-4 right-4">
+                  <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    Your Plan
+                  </div>
+                </div>
+              )}
               
               <div className="text-center mb-8">
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4 ${
+                  isCurrentPlan(plan.tier) 
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500'
+                    : 'bg-gradient-to-r from-purple-500 to-pink-500'
+                }`}>
                   <plan.icon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
@@ -134,14 +203,18 @@ const Pricing = () => {
               </ul>
               
               <Button 
+                onClick={() => handlePlanClick(plan.tier)}
+                disabled={loading}
                 className={`w-full transition-all duration-300 ${
-                  plan.popular 
+                  isCurrentPlan(plan.tier)
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                    : plan.popular 
                     ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' 
                     : 'bg-slate-800 border border-white/20 hover:bg-slate-700'
                 }`}
                 size="lg"
               >
-                {plan.cta}
+                {loading ? 'Processing...' : getButtonText(plan)}
               </Button>
             </motion.div>
           ))}

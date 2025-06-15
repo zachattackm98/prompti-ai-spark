@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Crown, Sparkles, ArrowRight } from 'lucide-react';
 import { SubscriptionTier } from '@/types/subscription';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface UpgradePromptProps {
   feature: string;
@@ -27,9 +28,16 @@ const tierColors = {
 const UpgradePrompt: React.FC<UpgradePromptProps> = ({
   feature,
   requiredTier,
-  currentTier,
-  onUpgrade
+  currentTier
 }) => {
+  const { createCheckout, loading } = useSubscription();
+
+  const handleUpgrade = async () => {
+    if (requiredTier === 'creator' || requiredTier === 'studio') {
+      await createCheckout(requiredTier);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -62,11 +70,12 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
       </div>
       
       <Button
-        onClick={onUpgrade}
+        onClick={handleUpgrade}
+        disabled={loading}
         className={`bg-gradient-to-r ${tierColors[requiredTier]} hover:opacity-90 text-white font-medium`}
       >
         <Crown className="w-4 h-4 mr-2" />
-        Upgrade Now
+        {loading ? 'Processing...' : 'Upgrade Now'}
       </Button>
     </motion.div>
   );
