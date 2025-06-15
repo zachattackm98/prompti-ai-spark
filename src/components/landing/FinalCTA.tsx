@@ -54,8 +54,8 @@ const FinalCTA = () => {
               </Button>
               <Button 
                 size="lg" 
-                variant="ghost"
-                className="border border-white/30 text-white bg-white/5 hover:bg-white/15 hover:text-white text-lg px-8 py-6 transition-all duration-300"
+                variant="outline"
+                className="border-2 border-white/40 text-white bg-white/10 hover:bg-white/20 hover:text-white text-lg px-8 py-6 transition-all duration-300"
               >
                 Watch Demo Video
               </Button>
