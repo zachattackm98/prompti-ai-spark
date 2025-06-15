@@ -51,13 +51,19 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
 
     setLoading(true);
     try {
+      console.log('[SUBSCRIPTION] Checking subscription for user:', user.email);
       const { data, error } = await supabase.functions.invoke('check-subscription', {
         headers: {
           Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[SUBSCRIPTION] Error from check-subscription function:', error);
+        throw error;
+      }
+
+      console.log('[SUBSCRIPTION] Response from check-subscription:', data);
 
       setSubscription({
         tier: data.subscription_tier || 'starter',
@@ -67,7 +73,12 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
 
       setBillingDetails(data.billing_details);
     } catch (error: any) {
-      console.error('Error checking subscription:', error);
+      console.error('[SUBSCRIPTION] Error checking subscription:', error);
+      toast({
+        title: "Error",
+        description: "Failed to check subscription status. Please try again.",
+        variant: "destructive",
+      });
       setSubscription({ tier: 'starter', isActive: false });
       setBillingDetails(null);
     } finally {
@@ -86,23 +97,48 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
     }
 
     setLoading(true);
+    console.log('[SUBSCRIPTION] Creating checkout for plan:', planType);
+    
     try {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session?.access_token) {
+        throw new Error('No valid session found');
+      }
+
+      console.log('[SUBSCRIPTION] Invoking create-checkout function...');
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { planType },
         headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          Authorization: `Bearer ${session.data.session.access_token}`,
+          'Content-Type': 'application/json',
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[SUBSCRIPTION] Error from create-checkout function:', error);
+        throw error;
+      }
 
-      // Open Stripe checkout in a new tab
-      window.open(data.url, '_blank');
+      console.log('[SUBSCRIPTION] Response from create-checkout:', data);
+
+      if (!data?.url) {
+        throw new Error('No checkout URL received from server');
+      }
+
+      console.log('[SUBSCRIPTION] Opening checkout URL:', data.url);
+      // Try to open in the same window first, fallback to new tab if blocked
+      try {
+        window.location.href = data.url;
+      } catch (popupError) {
+        console.log('[SUBSCRIPTION] Redirect failed, trying new tab:', popupError);
+        window.open(data.url, '_blank');
+      }
     } catch (error: any) {
-      console.error('Error creating checkout:', error);
+      console.error('[SUBSCRIPTION] Error creating checkout:', error);
+      const errorMessage = error.message || 'Failed to create checkout session';
       toast({
-        title: "Error",
-        description: "Failed to create checkout session. Please try again.",
+        title: "Checkout Error",
+        description: errorMessage + ". Please try again or contact support.",
         variant: "destructive",
       });
     } finally {
