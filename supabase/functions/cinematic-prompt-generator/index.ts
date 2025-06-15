@@ -38,27 +38,27 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    // Platform-specific system prompts
+    // Platform-specific system prompts with updated platforms
     const platformPrompts = {
+      'veo3': {
+        system: "You are an expert in Veo3 AI video generation. Create production-quality prompts optimized for Veo3's cinematic realism capabilities, focusing on photorealistic scenes, professional cinematography, and cinematic storytelling.",
+        technical: "4K resolution, cinematic realism, photorealistic rendering, professional lighting, smooth camera movements, 16:9 aspect ratio"
+      },
+      'sora': {
+        system: "You are an expert in Sora AI video generation. Create detailed prompts that leverage Sora's photorealism strengths, emphasizing realistic physics, natural lighting, and lifelike character movements.",
+        technical: "Photorealistic quality, natural physics simulation, realistic lighting and shadows, high-definition detail, temporal consistency"
+      },
       'runway': {
-        system: "You are an expert in Runway ML video generation. Create production-quality prompts optimized for Runway's cinematic capabilities, focusing on camera movements, lighting, and professional cinematography techniques.",
-        technical: "4K resolution, 24fps, cinematic aspect ratio 16:9, professional color grading, smooth camera movements"
+        system: "You are an expert in Runway AI video generation. Create artistic prompts optimized for Runway's painterly style capabilities, focusing on creative visual effects, artistic rendering, and stylized cinematography.",
+        technical: "Painterly style rendering, artistic visual effects, creative color grading, stylized motion, enhanced artistic flair"
       },
       'pika': {
-        system: "You are an expert in Pika Labs video generation. Create engaging prompts that leverage Pika's strengths in creative storytelling and dynamic visual effects.",
-        technical: "HD quality, creative transitions, dynamic camera work, enhanced visual effects, storytelling focus"
-      },
-      'stable-video': {
-        system: "You are an expert in Stable Video Diffusion. Create detailed prompts that work well with stable diffusion video generation, emphasizing visual consistency and artistic style.",
-        technical: "High-quality generation, consistent visual style, artistic rendering, stable motion flow"
-      },
-      'luma': {
-        system: "You are an expert in Luma AI video generation. Create professional prompts optimized for Luma's advanced 3D understanding and realistic video synthesis.",
-        technical: "Professional quality, realistic 3D depth, advanced lighting simulation, photorealistic rendering"
+        system: "You are an expert in Pika AI video generation. Create engaging prompts perfect for Pika's quick loops and stylized video generation, focusing on dynamic movements, social media optimization, and eye-catching visuals.",
+        technical: "Quick loop format, stylized rendering, dynamic motion, social media optimized, engaging visual effects, short-form content"
       }
     };
 
-    const selectedPlatform = platformPrompts[platform as keyof typeof platformPrompts] || platformPrompts.runway;
+    const selectedPlatform = platformPrompts[platform as keyof typeof platformPrompts] || platformPrompts.veo3;
 
     const systemPrompt = `${selectedPlatform.system}
 
@@ -113,18 +113,19 @@ ${styleReference ? `Style reference: ${styleReference}` : ''}`;
       platform: platform
     };
 
-    // Save to database
+    // For now, we'll skip saving to database since the prompt_history table doesn't exist yet
+    // This prevents database errors while maintaining functionality
     try {
-      await supabase
-        .from('prompt_history')
-        .insert({
-          user_id: user.id,
-          scene_idea: sceneIdea,
-          platform: platform,
-          style: styleReference || '',
-          emotion: emotion,
-          generated_prompt: JSON.stringify(prompt)
-        });
+      // await supabase
+      //   .from('prompt_history')
+      //   .insert({
+      //     user_id: user.id,
+      //     scene_idea: sceneIdea,
+      //     platform: platform,
+      //     style: styleReference || '',
+      //     emotion: emotion,
+      //     generated_prompt: JSON.stringify(prompt)
+      //   });
     } catch (dbError) {
       console.error('Error saving to database:', dbError);
       // Continue anyway - don't fail the request if saving fails
