@@ -40,7 +40,7 @@ const Footer = () => {
               whileHover={{ scale: 1.05 }}
             >
               <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg"></div>
-              <span className="text-xl font-bold text-white">Prompti.ai</span>
+              <span className="text-xl font-bold text-white">AiPromptMachine</span>
             </motion.div>
             <p className="text-gray-400 leading-relaxed">
               Transform your creative vision into cinematic video prompts with the power of AI.
@@ -68,7 +68,7 @@ const Footer = () => {
         
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © 2024 Prompti.ai. All rights reserved.
+            © 2024 AiPromptMachine. All rights reserved.
           </p>
           
           <div className="flex space-x-6 mt-4 md:mt-0">

@@ -12,23 +12,23 @@ import { fadeInVariants, viewportOptions } from '@/utils/animations';
 const FAQ = () => {
   const faqs = [
     {
-      question: "How is Prompti.ai different from writing prompts myself?",
-      answer: "Prompti.ai uses advanced AI trained on thousands of successful video prompts to structure your ideas professionally. Instead of guessing what works, you get prompts optimized for each platform's specific requirements, saving hours of trial and error."
+      question: "How is AiPromptMachine different from writing prompts myself?",
+      answer: "AiPromptMachine uses advanced AI trained on thousands of successful video prompts to structure your ideas professionally. Instead of guessing what works, you get prompts optimized for each platform's specific requirements, saving hours of trial and error."
     },
     {
       question: "Which AI video platforms does it work with?",
-      answer: "Prompti.ai generates prompts optimized for all major platforms including Sora, Runway Gen-2, Pika Labs, Veo, Stable Video Diffusion, and more. Each prompt is automatically formatted for maximum compatibility."
+      answer: "AiPromptMachine generates prompts optimized for all major platforms including Sora, Runway Gen-2, Pika Labs, Veo, Stable Video Diffusion, and more. Each prompt is automatically formatted for maximum compatibility."
     },
     {
       question: "Do I need any technical knowledge to use it?",
-      answer: "Not at all! Prompti.ai is designed for creators, not engineers. Simply describe your scene idea in plain English, choose your style preferences, and we handle all the technical prompt engineering behind the scenes."
+      answer: "Not at all! AiPromptMachine is designed for creators, not engineers. Simply describe your scene idea in plain English, choose your style preferences, and we handle all the technical prompt engineering behind the scenes."
     },
     {
       question: "Can I customize the generated prompts?",
       answer: "Absolutely! Every prompt can be fine-tuned for tone, style, camera angles, lighting, and more. You can also save your favorite settings as custom presets for faster future generation."
     },
     {
-      question: "How much time does Prompti.ai actually save?",
+      question: "How much time does AiPromptMachine actually save?",
       answer: "Most users report saving 2-3 hours per prompt. What used to require research, writing, testing, and refinement now takes under 2 minutes. That's a 90%+ time reduction while improving quality."
     },
     {

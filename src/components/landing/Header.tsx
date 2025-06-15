@@ -29,7 +29,7 @@ const Header = () => {
             transition={{ duration: 0.2 }}
           >
             <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg"></div>
-            <span className="text-xl font-bold text-white">Prompti.ai</span>
+            <span className="text-xl font-bold text-white">AiPromptMachine</span>
           </motion.div>
           
           <nav className="hidden md:flex items-center space-x-8">
@@ -84,7 +84,7 @@ const Header = () => {
                   onClick={() => setShowAuthDialog(true)}
                   className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
                 >
-                  Try Prompti.ai
+                  Try AiPromptMachine
                 </Button>
               </>
             )}

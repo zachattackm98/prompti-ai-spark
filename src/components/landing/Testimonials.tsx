@@ -11,7 +11,7 @@ const Testimonials = () => {
       role: "Content Creator",
       avatar: "SC",
       rating: 5,
-      text: "Prompti.ai transformed my workflow. What used to take me 2 hours of research and writing now takes 2 minutes. The quality is incredible."
+      text: "AiPromptMachine transformed my workflow. What used to take me 2 hours of research and writing now takes 2 minutes. The quality is incredible."
     },
     {
       name: "Marcus Rodriguez", 
@@ -25,7 +25,7 @@ const Testimonials = () => {
       role: "Marketing Agency",
       avatar: "ET", 
       rating: 5,
-      text: "Our client video campaigns have never looked better. Prompti.ai helps us create consistently professional content at scale."
+      text: "Our client video campaigns have never looked better. AiPromptMachine helps us create consistently professional content at scale."
     }
   ];
 
@@ -43,7 +43,7 @@ const Testimonials = () => {
             Loved by Creators Worldwide
           </h2>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Join thousands of creators who've elevated their video content with Prompti.ai
+            Join thousands of creators who've elevated their video content with AiPromptMachine
           </p>
         </motion.div>
 

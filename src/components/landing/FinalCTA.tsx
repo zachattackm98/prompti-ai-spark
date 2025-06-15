@@ -37,7 +37,7 @@ const FinalCTA = () => {
               variants={fadeInVariants}
               className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto"
             >
-              Join thousands of creators who've transformed their video content with Prompti.ai. 
+              Join thousands of creators who've transformed their video content with AiPromptMachine. 
               Start your free trial today and see the difference professional prompts make.
             </motion.p>
             
