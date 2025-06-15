@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserSubscription, SubscriptionTier, TIER_FEATURES } from '@/types/subscription';
 import { useAuth } from './useAuth';
@@ -105,9 +104,9 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
         throw new Error('No valid session found');
       }
 
-      console.log('[SUBSCRIPTION] Invoking create-checkout function...');
+      console.log('[SUBSCRIPTION] Invoking create-checkout function with body:', { planType });
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { planType },
+        body: JSON.stringify({ planType }),
         headers: {
           Authorization: `Bearer ${session.data.session.access_token}`,
           'Content-Type': 'application/json',
