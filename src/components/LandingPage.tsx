@@ -13,6 +13,7 @@ import FAQ from './landing/FAQ';
 import FinalCTA from './landing/FinalCTA';
 import PopularResources from './landing/PopularResources';
 import Footer from './landing/Footer';
+import ChatGPT from './ChatGPT';
 
 const LandingPage = () => {
   return (
@@ -23,6 +24,7 @@ const LandingPage = () => {
       <Benefits />
       <Process />
       <Features />
+      <ChatGPT />
       <Testimonials />
       <Pricing />
       <FAQ />
