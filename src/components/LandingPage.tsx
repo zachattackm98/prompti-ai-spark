@@ -26,18 +26,22 @@ const LandingPage = () => {
   const hasActivePaidSubscription = user && subscription?.isActive && 
     (subscription.tier === 'creator' || subscription.tier === 'studio');
 
-  // Debug logging
+  // Enhanced debug logging
   console.log('[LANDING] User:', user?.email || 'not logged in');
   console.log('[LANDING] Subscription:', subscription);
   console.log('[LANDING] Has active paid subscription:', hasActivePaidSubscription);
+  console.log('[LANDING] Subscription tier:', subscription?.tier);
+  console.log('[LANDING] Subscription isActive:', subscription?.isActive);
+  console.log('[LANDING] Will render Benefits section:', !hasActivePaidSubscription);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <Header />
       
       {hasActivePaidSubscription ? (
-        // Simplified view for paid subscribers - BENEFITS SECTION COMPLETELY REMOVED
+        // Simplified view for paid subscribers - Benefits section excluded
         <>
+          {console.log('[LANDING] Rendering PAID subscriber view')}
           <SubscriberWelcome user={user} subscription={subscription} />
           <Process />
           <Features />
@@ -49,6 +53,7 @@ const LandingPage = () => {
       ) : (
         // Full landing page for non-logged-in users and free tier users
         <>
+          {console.log('[LANDING] Rendering FREE/NON-SUBSCRIBER view')}
           {user && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
