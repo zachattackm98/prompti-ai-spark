@@ -1,5 +1,4 @@
 
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -143,33 +142,33 @@ serve(async (req) => {
       throw new Error("Failed to lookup customer in Stripe");
     }
 
-    // Define pricing configuration
-    const pricingConfig = {
+    // Define pre-existing Stripe Price IDs
+    const priceConfig = {
       creator: {
         name: "Creator Plan",
-        amount: 1900, // $19.00
+        priceId: "price_1RaQzNICZdHRMUzHItWsxCd2", // $19/month
         description: "Unlimited prompts, all platforms, advanced features"
       },
       studio: {
         name: "Studio Plan", 
-        amount: 4900, // $49.00
+        priceId: "price_1RaRHXICZdHRMUzHVqbk8v4i", // $49/month
         description: "Everything in Creator plus team collaboration and API access"
       }
     };
 
-    const selectedPlan = pricingConfig[planType as keyof typeof pricingConfig];
+    const selectedPlan = priceConfig[planType as keyof typeof priceConfig];
     if (!selectedPlan) {
       logStep("ERROR: Invalid plan configuration", { planType });
       throw new Error(`Invalid plan type: ${planType}`);
     }
 
-    logStep("Creating checkout session", { plan: selectedPlan });
+    logStep("Using pre-existing price", { plan: selectedPlan });
 
     // Get origin for redirect URLs
     const origin = req.headers.get("origin") || req.headers.get("referer") || "http://localhost:3000";
     logStep("Using origin for redirects", { origin });
 
-    // Create checkout session with comprehensive error handling
+    // Create checkout session with pre-existing Price ID
     let session;
     try {
       logStep("Preparing checkout session configuration...");
@@ -179,15 +178,7 @@ serve(async (req) => {
         customer_email: customerId ? undefined : user.email,
         line_items: [
           {
-            price_data: {
-              currency: "usd",
-              product_data: { 
-                name: selectedPlan.name,
-                description: selectedPlan.description
-              },
-              unit_amount: selectedPlan.amount,
-              recurring: { interval: "month" },
-            },
+            price: selectedPlan.priceId, // Use pre-existing Price ID
             quantity: 1,
           },
         ],
@@ -307,4 +298,3 @@ serve(async (req) => {
     });
   }
 });
-
