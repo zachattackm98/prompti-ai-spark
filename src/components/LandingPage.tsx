@@ -26,47 +26,50 @@ const LandingPage = () => {
   const hasActivePaidSubscription = user && subscription?.isActive && 
     (subscription.tier === 'creator' || subscription.tier === 'studio');
 
-  // For users with active paid subscriptions, show simplified view
-  if (hasActivePaidSubscription) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <Header />
-        <SubscriberWelcome user={user} subscription={subscription} />
-        <CinematicPromptGenerator />
-        <Footer />
-      </div>
-    );
-  }
-
-  // For non-logged-in users and free tier users, show full landing page
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <Header />
-      {user && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-green-500/20 border-b border-green-500/30 py-3"
-        >
-          <div className="container mx-auto px-4 text-center">
-            <p className="text-green-300 font-medium">
-              Welcome back! Ready to create amazing video prompts?
-            </p>
-          </div>
-        </motion.div>
+      
+      {hasActivePaidSubscription ? (
+        // Simplified view for paid subscribers
+        <>
+          <SubscriberWelcome user={user} subscription={subscription} />
+          <Features />
+          <CinematicPromptGenerator />
+          <Pricing />
+          <FAQ />
+          <Footer />
+        </>
+      ) : (
+        // Full landing page for non-logged-in users and free tier users
+        <>
+          {user && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-green-500/20 border-b border-green-500/30 py-3"
+            >
+              <div className="container mx-auto px-4 text-center">
+                <p className="text-green-300 font-medium">
+                  Welcome back! Ready to create amazing video prompts?
+                </p>
+              </div>
+            </motion.div>
+          )}
+          <Hero />
+          <SocialProof />
+          <Benefits />
+          <Process />
+          <Features />
+          <CinematicPromptGenerator />
+          <Testimonials />
+          <Pricing />
+          <FAQ />
+          <FinalCTA />
+          <PopularResources />
+          <Footer />
+        </>
       )}
-      <Hero />
-      <SocialProof />
-      <Benefits />
-      <Process />
-      <Features />
-      <CinematicPromptGenerator />
-      <Testimonials />
-      <Pricing />
-      <FAQ />
-      <FinalCTA />
-      <PopularResources />
-      <Footer />
     </div>
   );
 };
