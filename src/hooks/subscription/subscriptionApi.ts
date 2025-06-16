@@ -63,9 +63,9 @@ export const createCheckoutSession = async (planType: 'creator' | 'studio') => {
   console.log('[SUBSCRIPTION] Invoking create-checkout function with planType:', planType);
 
   try {
-    // Use the correct Supabase syntax - pass data directly as body
+    // Correct Supabase syntax - pass data as the first parameter, not in body
     const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: JSON.stringify({ planType }),
+      body: { planType }, // Pass as plain object, not JSON string
       headers: {
         Authorization: `Bearer ${session.data.session.access_token}`,
         'Content-Type': 'application/json',
