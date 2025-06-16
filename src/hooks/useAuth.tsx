@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('[AUTH] Auth state changed:', event, session?.user?.email || 'no user');
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -31,6 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('[AUTH] Initial session check:', session?.user?.email || 'no session');
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -62,8 +64,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    console.log('[AUTH] Attempting to sign out');
+    
+    // Check if we have a valid session before attempting sign out
+    if (!session) {
+      console.log('[AUTH] No active session, clearing local state');
+      setUser(null);
+      setSession(null);
+      return { error: null };
+    }
+
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('[AUTH] Sign out error:', error);
+        // If the error is related to an invalid session, clear local state anyway
+        if (error.message.includes('session') || error.message.includes('token')) {
+          console.log('[AUTH] Session-related error, clearing local state');
+          setUser(null);
+          setSession(null);
+          return { error: null };
+        }
+      } else {
+        console.log('[AUTH] Sign out successful');
+      }
+      
+      return { error };
+    } catch (err) {
+      console.error('[AUTH] Sign out exception:', err);
+      // Clear local state even if sign out fails
+      setUser(null);
+      setSession(null);
+      return { error: null };
+    }
   };
 
   const value = {
