@@ -41,13 +41,13 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
     <SubscriptionContext.Provider value={{
       subscription,
       billingDetails,
-      ...subscriptionHelpers,
+      loading,
       checkSubscription,
       progressiveVerification,
       createCheckout,
       createOptimisticCheckout,
       openCustomerPortal,
-      loading,
+      ...subscriptionHelpers,
     }}>
       {children}
     </SubscriptionContext.Provider>

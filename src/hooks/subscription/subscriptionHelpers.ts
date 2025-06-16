@@ -19,10 +19,43 @@ export const createSubscriptionHelpers = (subscription: UserSubscription) => {
     return tierOrder[subscription.tier] < tierOrder[targetTier];
   };
 
+  const isSubscribed = subscription.isActive && subscription.tier !== 'starter';
+
+  const getRemainingFeatures = (currentTier: string): string[] => {
+    const tierOrder = { starter: 0, creator: 1, studio: 2 };
+    const currentTierLevel = tierOrder[currentTier as SubscriptionTier] || 0;
+    
+    const allFeatures = ['cameraControls', 'lightingOptions', 'visualStyles', 'enhancedPrompts', 'batchProcessing', 'teamCollaboration', 'apiAccess'];
+    
+    return allFeatures.filter(feature => {
+      // Check which tiers have this feature
+      const creatorHas = TIER_FEATURES.creator[feature as keyof typeof TIER_FEATURES.creator];
+      const studioHas = TIER_FEATURES.studio[feature as keyof typeof TIER_FEATURES.studio];
+      
+      // Return features that are available in higher tiers but not current tier
+      if (currentTierLevel < 1 && creatorHas) return true;
+      if (currentTierLevel < 2 && studioHas && !creatorHas) return true;
+      return false;
+    });
+  };
+
+  const getUpgradeMessage = (feature: string, requiredTier: string): string => {
+    const tierNames = {
+      creator: 'Creator',
+      studio: 'Studio'
+    };
+    
+    const tierName = tierNames[requiredTier as keyof typeof tierNames] || requiredTier;
+    return `Upgrade to ${tierName} to unlock ${feature}`;
+  };
+
   return {
     features,
     hasFeature,
     canUseFeature,
     upgradeRequired,
+    isSubscribed,
+    getRemainingFeatures,
+    getUpgradeMessage,
   };
 };
