@@ -24,12 +24,19 @@ const SceneStep: React.FC<SceneStepProps> = ({ sceneIdea, setSceneIdea, onNext }
         <p className="text-gray-300 text-sm sm:text-base">Tell us about the cinematic moment you want to create</p>
       </div>
       
-      <Textarea
-        value={sceneIdea}
-        onChange={(e) => setSceneIdea(e.target.value)}
-        placeholder="e.g., A lone astronaut floating in space, Earth visible in the background, golden hour lighting..."
-        className="bg-slate-800/60 border-purple-400/30 text-white placeholder:text-gray-400 min-h-[100px] sm:min-h-[120px] focus:border-purple-400/60 focus:ring-purple-400/20 text-sm sm:text-base"
-      />
+      <div className="w-full max-w-full overflow-hidden">
+        <Textarea
+          value={sceneIdea}
+          onChange={(e) => setSceneIdea(e.target.value)}
+          placeholder="e.g., A lone astronaut floating in space, Earth visible in the background, golden hour lighting..."
+          className="bg-slate-800/60 border-purple-400/30 text-white placeholder:text-gray-400 min-h-[100px] sm:min-h-[120px] focus:border-purple-400/60 focus:ring-purple-400/20 text-sm sm:text-base w-full max-w-full resize-none"
+          style={{ 
+            fontSize: '16px',
+            WebkitAppearance: 'none',
+            WebkitBorderRadius: '0'
+          }}
+        />
+      </div>
       
       <div className="flex justify-end">
         <Button
