@@ -1,10 +1,10 @@
-
 import { 
   createCheckoutSession,
   openCustomerPortal as apiOpenCustomerPortal,
   handleCheckoutRedirect,
   showToast
 } from './subscriptionApi';
+import { toast } from '@/hooks/use-toast';
 
 export const useSubscriptionOperations = (
   user: any,
@@ -163,20 +163,18 @@ export const useSubscriptionOperations = (
         const data = await apiOpenCustomerPortal();
         
         if (data?.url) {
-          // Show toast with direct link as fallback
-          showToast(
-            "Popup Blocked",
-            "Click here to open billing portal",
-            "default",
-            {
-              action: {
-                label: "Open Portal",
-                onClick: () => {
-                  window.location.href = data.url;
-                }
+          // Show toast with direct link as fallback using toast directly for action support
+          toast({
+            title: "Popup Blocked",
+            description: "Click here to open billing portal",
+            variant: "default",
+            action: {
+              label: "Open Portal",
+              onClick: () => {
+                window.location.href = data.url;
               }
             }
-          );
+          });
         } else {
           throw new Error('No portal URL received');
         }
@@ -191,7 +189,7 @@ export const useSubscriptionOperations = (
           // Show success message
           showToast(
             "Portal Opened",
-            "Billing portal opened in new window",
+            "Billing portal opened in new window"
           );
         } else {
           // Close the blank popup if we can't get the URL
