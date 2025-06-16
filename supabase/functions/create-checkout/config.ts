@@ -10,12 +10,12 @@ export const corsHeaders = {
 export const priceConfig: Record<string, PlanConfig> = {
   creator: {
     name: "Creator Plan",
-    priceId: "price_1RaQzNICZdHRMUzHItWsxCd2", // $19/month
+    priceId: "price_1QZeK6ICZdHRMUzHsv8nw9Hv", // Test mode price for $19/month
     description: "Unlimited prompts, all platforms, advanced features"
   },
   studio: {
     name: "Studio Plan", 
-    priceId: "price_1RaRHXICZdHRMUzHVqbk8v4i", // $49/month
+    priceId: "price_1QZeKbICZdHRMUzHxXVGKE5H", // Test mode price for $49/month
     description: "Everything in Creator plus team collaboration and API access"
   }
 };

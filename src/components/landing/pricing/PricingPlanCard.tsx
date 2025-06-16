@@ -10,7 +10,7 @@ interface PricingPlanCardProps {
   plan: PricingPlan;
   isCurrentPlan: boolean;
   loading: boolean;
-  onPlanClick: (planTier: string) => void;
+  onPlanClick: (plan: PricingPlan) => void;
   getButtonText: (plan: PricingPlan) => string;
 }
 
@@ -82,7 +82,7 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
       </ul>
       
       <Button 
-        onClick={() => onPlanClick(plan.tier)}
+        onClick={() => onPlanClick(plan)}
         disabled={loading}
         className={`w-full transition-all duration-300 ${
           isCurrentPlan
