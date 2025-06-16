@@ -152,13 +152,52 @@ export const useSubscriptionOperations = (
     setLoading(true);
     
     try {
-      const data = await apiOpenCustomerPortal();
+      // Pre-open a blank window to avoid popup blockers
+      const popupWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
       
-      if (data?.url) {
-        console.log('[SUBSCRIPTION] Opening customer portal in new tab');
-        window.open(data.url, '_blank');
+      // Check if popup was blocked
+      if (!popupWindow || popupWindow.closed || typeof popupWindow.closed === 'undefined') {
+        console.log('[SUBSCRIPTION] Popup blocked, using fallback method');
+        
+        // Get the portal URL first
+        const data = await apiOpenCustomerPortal();
+        
+        if (data?.url) {
+          // Show toast with direct link as fallback
+          showToast(
+            "Popup Blocked",
+            "Click here to open billing portal",
+            "default",
+            {
+              action: {
+                label: "Open Portal",
+                onClick: () => {
+                  window.location.href = data.url;
+                }
+              }
+            }
+          );
+        } else {
+          throw new Error('No portal URL received');
+        }
       } else {
-        throw new Error('No portal URL received');
+        // Popup opened successfully, now get the URL and redirect
+        const data = await apiOpenCustomerPortal();
+        
+        if (data?.url) {
+          console.log('[SUBSCRIPTION] Redirecting popup to customer portal');
+          popupWindow.location.href = data.url;
+          
+          // Show success message
+          showToast(
+            "Portal Opened",
+            "Billing portal opened in new window",
+          );
+        } else {
+          // Close the blank popup if we can't get the URL
+          popupWindow.close();
+          throw new Error('No portal URL received');
+        }
       }
     } catch (error: any) {
       console.error('[SUBSCRIPTION] Error opening customer portal:', error);
