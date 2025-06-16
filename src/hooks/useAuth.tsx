@@ -25,51 +25,74 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('[AUTH] Initializing auth provider');
+    console.log('[AUTH] Current URL:', window.location.href);
+    console.log('[AUTH] Hash:', window.location.hash);
+
     // Check for auth hash parameters in URL
     const handleAuthHash = async () => {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = hashParams.get('access_token');
-      const refreshToken = hashParams.get('refresh_token');
-      const type = hashParams.get('type');
+      const hash = window.location.hash;
+      console.log('[AUTH] Checking hash:', hash);
 
-      if (accessToken && refreshToken && type === 'signup') {
-        console.log('[AUTH] Processing signup confirmation from URL hash');
-        try {
-          const { data, error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
+      if (hash && hash.includes('access_token')) {
+        console.log('[AUTH] Found access_token in hash, parsing parameters');
+        
+        // Parse hash parameters - remove the # and split by &
+        const hashParams = new URLSearchParams(hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        const type = hashParams.get('type');
+        const expiresAt = hashParams.get('expires_at');
 
-          if (error) {
-            console.error('[AUTH] Error setting session from hash:', error);
+        console.log('[AUTH] Parsed hash params:', {
+          accessToken: accessToken ? 'present' : 'missing',
+          refreshToken: refreshToken ? 'present' : 'missing',
+          type,
+          expiresAt
+        });
+
+        if (accessToken && refreshToken && type === 'signup') {
+          console.log('[AUTH] Processing signup confirmation from URL hash');
+          try {
+            const { data, error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+
+            if (error) {
+              console.error('[AUTH] Error setting session from hash:', error);
+              toast({
+                title: "Confirmation Error",
+                description: "There was an error confirming your account. Please try signing in.",
+                variant: "destructive",
+              });
+            } else if (data.session) {
+              console.log('[AUTH] Signup confirmation successful, user:', data.session.user.email);
+              setConfirmationSuccess(true);
+              
+              toast({
+                title: "Account Confirmed!",
+                description: "Your account has been successfully confirmed. Welcome!",
+              });
+              
+              // Clean up the URL hash
+              console.log('[AUTH] Cleaning up URL hash');
+              window.history.replaceState(null, '', window.location.pathname);
+              
+              // Set a longer delay before redirect to account page
+              setTimeout(() => {
+                console.log('[AUTH] Redirecting to account page');
+                window.location.href = '/account';
+              }, 3000);
+            }
+          } catch (error) {
+            console.error('[AUTH] Exception during hash processing:', error);
             toast({
               title: "Confirmation Error",
               description: "There was an error confirming your account. Please try signing in.",
               variant: "destructive",
             });
-          } else if (data.session) {
-            console.log('[AUTH] Signup confirmation successful');
-            setConfirmationSuccess(true);
-            toast({
-              title: "Account Confirmed!",
-              description: "Your account has been successfully confirmed. Welcome!",
-            });
-            
-            // Clean up the URL hash
-            window.history.replaceState(null, '', window.location.pathname);
-            
-            // Redirect to account page after a short delay
-            setTimeout(() => {
-              window.location.href = '/account';
-            }, 2000);
           }
-        } catch (error) {
-          console.error('[AUTH] Exception during hash processing:', error);
-          toast({
-            title: "Confirmation Error",
-            description: "There was an error confirming your account. Please try signing in.",
-            variant: "destructive",
-          });
         }
       }
     };
@@ -92,6 +115,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             // Only redirect if not already handling confirmation
             setTimeout(() => {
               if (window.location.pathname === '/') {
+                console.log('[AUTH] Redirecting to account from signin');
                 window.location.href = '/account';
               }
             }, 100);
