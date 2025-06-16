@@ -138,7 +138,7 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
       
       <Button 
         onClick={() => onPlanClick(plan)}
-        disabled={loading && !isPending}
+        disabled={false}
         className={`w-full transition-all duration-300 ${
           isPending
             ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'

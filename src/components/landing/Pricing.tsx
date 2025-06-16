@@ -1,11 +1,12 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { fadeInVariants, staggerContainer, viewportOptions } from '@/utils/animations';
-import { pricingPlans } from './pricing/pricingData';
-import { usePricingLogic } from './pricing/usePricingLogic';
+import { containerVariants } from '@/utils/animations';
 import PricingHeader from './pricing/PricingHeader';
 import PricingPlanCard from './pricing/PricingPlanCard';
+import { usePricingLogic } from './pricing/usePricingLogic';
+import { pricingPlans } from './pricing/pricingData';
+import AuthDialog from '@/components/AuthDialog';
 
 const Pricing = () => {
   const {
@@ -14,24 +15,26 @@ const Pricing = () => {
     loading,
     handlePlanClick,
     getButtonText,
-    isCurrentPlan
+    isCurrentPlan,
+    showAuthDialog,
+    setShowAuthDialog,
   } = usePricingLogic();
 
   return (
-    <section id="pricing" className="py-20 px-6">
-      <div className="container mx-auto">
-        <PricingHeader user={user} subscription={subscription} />
-
+    <section id="pricing" className="py-20 px-4">
+      <div className="container mx-auto max-w-6xl">
+        <PricingHeader />
+        
         <motion.div
-          variants={staggerContainer}
+          variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={viewportOptions}
-          className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto"
+          viewport={{ once: true }}
+          className="grid md:grid-cols-3 gap-8 mb-12"
         >
-          {pricingPlans.map((plan) => (
+          {pricingPlans.map((plan, index) => (
             <PricingPlanCard
-              key={plan.name}
+              key={plan.tier}
               plan={plan}
               isCurrentPlan={isCurrentPlan(plan.tier)}
               loading={loading}
@@ -40,19 +43,27 @@ const Pricing = () => {
             />
           ))}
         </motion.div>
-        
+
         <motion.div 
-          variants={fadeInVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOptions}
-          className="text-center mt-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+          className="text-center"
         >
-          <p className="text-gray-400">
-            All plans include 7-day free trial • No credit card required • Cancel anytime
+          <p className="text-gray-400 mb-4">
+            All plans include our core AI prompt generation features
+          </p>
+          <p className="text-sm text-gray-500">
+            No hidden fees • Cancel anytime • 30-day money-back guarantee
           </p>
         </motion.div>
       </div>
+
+      <AuthDialog 
+        open={showAuthDialog} 
+        onOpenChange={setShowAuthDialog}
+      />
     </section>
   );
 };

@@ -9,16 +9,14 @@ export const usePricingLogic = () => {
   const { user } = useAuth();
   const { subscription, createOptimisticCheckout, loading } = useSubscription();
   const { toast } = useToast();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
   const handlePlanClick = async (plan: PricingPlan) => {
     console.log('[PRICING] Plan clicked:', plan.name, 'tier:', plan.tier);
     
     if (!user) {
-      toast({
-        title: "Sign in required",
-        description: "Please sign in to subscribe to a plan.",
-        variant: "destructive",
-      });
+      console.log('[PRICING] User not authenticated, showing auth dialog');
+      setShowAuthDialog(true);
       return;
     }
 
@@ -79,7 +77,7 @@ export const usePricingLogic = () => {
 
   const getButtonText = (plan: PricingPlan) => {
     if (!user) {
-      return plan.tier === 'starter' ? 'Get Started Free' : 'Sign In to Subscribe';
+      return 'Sign In to Get Started';
     }
     
     // For starter plan, check if user's actual subscription is starter
@@ -110,5 +108,7 @@ export const usePricingLogic = () => {
     handlePlanClick,
     getButtonText,
     isCurrentPlan,
+    showAuthDialog,
+    setShowAuthDialog,
   };
 };
