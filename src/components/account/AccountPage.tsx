@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
@@ -73,22 +74,22 @@ const AccountPage = () => {
   const TierIcon = getTierIcon(subscription.tier);
 
   return (
-    <div className="container mx-auto px-6 py-8 max-w-6xl">
+    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-7xl">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="mb-6 sm:mb-8"
       >
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Account & Subscription</h1>
-            <p className="text-gray-400">Manage your account, billing, and subscription settings</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Account & Subscription</h1>
+            <p className="text-gray-400 text-sm sm:text-base">Manage your account, billing, and subscription settings</p>
           </div>
           <Button
             onClick={handleRefreshSubscription}
             disabled={refreshing}
             variant="outline"
-            className="border-white/20 text-white hover:bg-white/10 bg-slate-800/60"
+            className="border-purple-500/30 text-white hover:bg-purple-500/20 bg-slate-800/80 backdrop-blur-sm w-full sm:w-auto"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh Status
@@ -96,29 +97,29 @@ const AccountPage = () => {
         </div>
       </motion.div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
         {/* Main Account Info */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-6">
           {/* Current Plan Card */}
-          <Card className="bg-gradient-to-br from-slate-900/80 to-slate-800/60 border border-purple-500/20 p-6">
-            <div className="flex items-center justify-between mb-6">
+          <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/70 border border-purple-500/30 p-4 sm:p-6 backdrop-blur-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${getTierColor(subscription.tier)} flex items-center justify-center`}>
-                  <TierIcon className="w-6 h-6 text-white" />
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-r ${getTierColor(subscription.tier)} flex items-center justify-center flex-shrink-0`}>
+                  <TierIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white capitalize">
+                <div className="min-w-0">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white capitalize">
                     {subscription.tier} Plan
                   </h3>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
                     <Badge 
                       variant={subscription.isActive ? "default" : "secondary"}
-                      className={subscription.isActive ? "bg-green-600" : ""}
+                      className={`${subscription.isActive ? "bg-green-600 hover:bg-green-700" : ""} text-xs`}
                     >
                       {subscription.isActive ? "Active" : "Inactive"}
                     </Badge>
                     {subscription.tier !== 'starter' && (
-                      <Badge variant="outline" className="border-purple-400/50 text-purple-300">
+                      <Badge variant="outline" className="border-purple-400/50 text-purple-300 text-xs">
                         Premium Features
                       </Badge>
                     )}
@@ -129,10 +130,11 @@ const AccountPage = () => {
                 <Button
                   onClick={openCustomerPortal}
                   disabled={loading}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white w-full sm:w-auto flex-shrink-0"
                 >
                   <Settings className="w-4 h-4 mr-2" />
-                  Manage Billing
+                  <span className="hidden sm:inline">Manage Billing</span>
+                  <span className="sm:hidden">Billing</span>
                   <ExternalLink className="w-3 h-3 ml-2" />
                 </Button>
               )}
@@ -140,17 +142,17 @@ const AccountPage = () => {
 
             <Separator className="bg-white/10 mb-6" />
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <h4 className="text-sm font-medium text-gray-400 mb-2">Account Details</h4>
-                <div className="space-y-2">
+                <h4 className="text-sm font-medium text-gray-400 mb-3">Account Details</h4>
+                <div className="space-y-3">
                   <div className="flex items-center gap-2 text-white">
-                    <User className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm">{user?.email}</span>
+                    <User className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <span className="text-sm truncate">{user?.email}</span>
                   </div>
                   {subscription.expiresAt && (
-                    <div className="flex items-center gap-2 text-white">
-                      <Calendar className="w-4 h-4 text-gray-400" />
+                    <div className="flex items-start gap-2 text-white">
+                      <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
                       <span className="text-sm">
                         Renews {new Date(subscription.expiresAt).toLocaleDateString('en-US', {
                           year: 'numeric',
@@ -165,10 +167,10 @@ const AccountPage = () => {
 
               {subscription.tier !== 'starter' && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-400 mb-2">Billing Cycle</h4>
-                  <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-gray-400 mb-3">Billing Cycle</h4>
+                  <div className="space-y-3">
                     <div className="flex items-center gap-2 text-white">
-                      <CreditCard className="w-4 h-4 text-gray-400" />
+                      <CreditCard className="w-4 h-4 text-gray-400 flex-shrink-0" />
                       <span className="text-sm">Monthly Billing</span>
                     </div>
                     {subscription.expiresAt && (
@@ -195,7 +197,7 @@ const AccountPage = () => {
           <SubscriptionStats />
 
           {/* Quick Actions */}
-          <Card className="bg-slate-900/60 border border-white/20 p-6">
+          <Card className="bg-slate-900/70 border border-white/20 p-4 sm:p-6 backdrop-blur-sm">
             <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
             <div className="space-y-3">
               {subscription.tier === 'starter' && (
@@ -209,7 +211,7 @@ const AccountPage = () => {
                   </Button>
                   <Button 
                     variant="outline"
-                    className="w-full border-white/20 text-white hover:bg-white/10 bg-slate-800/60"
+                    className="w-full border-purple-500/30 text-white hover:bg-purple-500/20 bg-slate-800/80 backdrop-blur-sm"
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   >
                     <TrendingUp className="w-4 h-4 mr-2" />
@@ -223,7 +225,7 @@ const AccountPage = () => {
                   onClick={openCustomerPortal}
                   disabled={loading}
                   variant="outline"
-                  className="w-full border-white/20 text-white hover:bg-white/10 bg-slate-800/60"
+                  className="w-full border-purple-500/30 text-white hover:bg-purple-500/20 bg-slate-800/80 backdrop-blur-sm"
                 >
                   <CreditCard className="w-4 h-4 mr-2" />
                   Update Payment Method
@@ -232,7 +234,7 @@ const AccountPage = () => {
 
               <Button
                 variant="outline"
-                className="w-full border-white/20 text-white hover:bg-white/10 bg-slate-800/60"
+                className="w-full border-purple-500/30 text-white hover:bg-purple-500/20 bg-slate-800/80 backdrop-blur-sm"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Download Invoice
@@ -241,14 +243,14 @@ const AccountPage = () => {
           </Card>
 
           {/* Support Card */}
-          <Card className="bg-slate-900/60 border border-white/20 p-6">
+          <Card className="bg-slate-900/70 border border-white/20 p-4 sm:p-6 backdrop-blur-sm">
             <h3 className="text-lg font-semibold text-white mb-4">Need Help?</h3>
             <p className="text-gray-400 text-sm mb-4">
               Have questions about your subscription or billing?
             </p>
             <Button
               variant="outline"
-              className="w-full border-white/20 text-white hover:bg-white/10 bg-slate-800/60"
+              className="w-full border-purple-500/30 text-white hover:bg-purple-500/20 bg-slate-800/80 backdrop-blur-sm"
               onClick={() => window.open('mailto:support@prompti.ai', '_blank')}
             >
               Contact Support

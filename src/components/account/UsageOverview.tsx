@@ -69,10 +69,10 @@ const UsageOverview = () => {
   ];
 
   return (
-    <Card className="bg-slate-900/40 border border-white/10 p-6">
-      <h3 className="text-lg font-semibold text-white mb-6">Usage Overview</h3>
+    <Card className="bg-slate-900/50 border border-white/10 p-4 sm:p-6 backdrop-blur-sm">
+      <h3 className="text-lg font-semibold text-white mb-4 sm:mb-6">Usage Overview</h3>
       
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {usageItems.map((item, index) => {
           const Icon = item.icon;
           const isUnlimited = item.limit === -1;
@@ -81,11 +81,11 @@ const UsageOverview = () => {
           return (
             <div key={index} className={`space-y-3 ${item.disabled ? 'opacity-50' : ''}`}>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Icon className={`w-4 h-4 ${item.color}`} />
-                  <span className="text-sm text-gray-300">{item.label}</span>
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <Icon className={`w-4 h-4 ${item.color} flex-shrink-0`} />
+                  <span className="text-sm text-gray-300 truncate">{item.label}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   {item.disabled ? (
                     <Badge variant="outline" className="border-gray-600 text-gray-400 text-xs">
                       Locked
@@ -110,7 +110,7 @@ const UsageOverview = () => {
               {item.showList && item.list && !item.disabled && (
                 <div className="flex flex-wrap gap-1">
                   {item.list.map((platform, i) => (
-                    <Badge key={i} variant="secondary" className="text-xs">
+                    <Badge key={i} variant="secondary" className="text-xs bg-slate-700 hover:bg-slate-600">
                       {platform}
                     </Badge>
                   ))}
