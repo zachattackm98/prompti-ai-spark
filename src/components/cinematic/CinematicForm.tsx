@@ -61,7 +61,7 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
 
   return (
     <>
-      {user && subscription.tier === 'starter' && (
+      {user && (
         <UsageDisplay onUpgrade={handleUpgrade} />
       )}
 
