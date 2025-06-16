@@ -80,9 +80,9 @@ const Header = () => {
                   </div>
                   <Button 
                     onClick={handleSignOut}
-                    variant="ghost" 
+                    variant="outline" 
                     size="sm"
-                    className="text-white hover:bg-white/10 transition-all duration-300 px-2 lg:px-4"
+                    className="border-white/20 text-white hover:bg-white/10 bg-slate-800/40 transition-all duration-300 px-2 lg:px-4"
                   >
                     Sign Out
                   </Button>
@@ -91,9 +91,9 @@ const Header = () => {
                 <>
                   <Button 
                     onClick={handleAuthClick}
-                    variant="ghost" 
+                    variant="outline" 
                     size="sm"
-                    className="text-white hover:bg-white/10 transition-all duration-300 px-2 lg:px-4"
+                    className="border-white/20 text-white hover:bg-white/10 bg-slate-800/40 transition-all duration-300 px-2 lg:px-4"
                   >
                     Sign In
                   </Button>
@@ -167,7 +167,7 @@ const Header = () => {
                         onClick={handleSignOut}
                         variant="outline" 
                         size="sm"
-                        className="w-full border-white/20 text-white hover:bg-white/10"
+                        className="w-full border-white/20 text-white hover:bg-white/10 bg-slate-800/40"
                       >
                         Sign Out
                       </Button>
@@ -178,7 +178,7 @@ const Header = () => {
                         onClick={handleAuthClick}
                         variant="outline" 
                         size="sm"
-                        className="w-full border-white/20 text-white hover:bg-white/10"
+                        className="w-full border-white/20 text-white hover:bg-white/10 bg-slate-800/40"
                       >
                         Sign In
                       </Button>

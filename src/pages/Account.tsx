@@ -1,6 +1,7 @@
 
 import React from 'react';
 import AccountPage from '@/components/account/AccountPage';
+import Header from '@/components/landing/Header';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 
@@ -21,7 +22,10 @@ const Account = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <AccountPage />
+      <Header />
+      <div className="pt-20">
+        <AccountPage />
+      </div>
     </div>
   );
 };

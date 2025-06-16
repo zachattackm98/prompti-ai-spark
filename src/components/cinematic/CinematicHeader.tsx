@@ -75,8 +75,7 @@ const CinematicHeader: React.FC<CinematicHeaderProps> = ({
               className="border-white/20 text-white hover:bg-white/10 bg-slate-800/40 w-full sm:w-auto text-xs sm:text-sm"
             >
               <History className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">History</span>
-              <span className="sm:hidden">History</span>
+              History
             </Button>
             
             {/* User Info and Sign Out */}
@@ -100,8 +99,7 @@ const CinematicHeader: React.FC<CinematicHeaderProps> = ({
                 className="border-white/20 text-white hover:bg-white/10 bg-slate-800/40 w-full sm:w-auto text-xs sm:text-sm"
               >
                 <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Sign Out</span>
-                <span className="sm:hidden">Out</span>
+                Sign Out
               </Button>
             </div>
           </>
