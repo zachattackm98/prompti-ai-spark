@@ -60,13 +60,19 @@ export const createCheckoutSession = async (planType: 'creator' | 'studio') => {
     throw new Error('No valid session found');
   }
 
-  const requestBody = { planType };
-  console.log('[SUBSCRIPTION] Request body:', requestBody);
+  // Create the request payload - more explicit approach
+  const requestPayload = {
+    planType: planType
+  };
+  
+  console.log('[SUBSCRIPTION] Request payload:', requestPayload);
 
   try {
     console.log('[SUBSCRIPTION] Invoking create-checkout function');
+    
+    // Use a more explicit approach for the function call
     const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: JSON.stringify(requestBody), // Must be stringified for edge functions
+      body: requestPayload, // Don't stringify here - let Supabase handle it
       headers: {
         Authorization: `Bearer ${session.data.session.access_token}`,
         'Content-Type': 'application/json',

@@ -81,19 +81,34 @@ serve(async (req) => {
       throw new Error(`Authentication process failed: ${authError.message}`);
     }
 
-    // Parse request body
+    // Parse request body - simplified approach
     let planType;
     try {
-      const bodyText = await req.text();
-      logStep("Raw request body received", { bodyLength: bodyText.length, body: bodyText });
+      logStep("Parsing request body...");
       
-      if (!bodyText || bodyText.trim() === '') {
-        logStep("ERROR: Empty request body");
-        throw new Error("Request body is empty");
-      }
+      // Try to get the request body
+      let requestBody;
+      try {
+        requestBody = await req.json();
+        logStep("Request body parsed as JSON", requestBody);
+      } catch (jsonError) {
+        // If JSON parsing fails, try text parsing
+        const bodyText = await req.text();
+        logStep("Raw request body received", { bodyLength: bodyText.length, body: bodyText });
+        
+        if (!bodyText || bodyText.trim() === '') {
+          logStep("ERROR: Empty request body");
+          throw new Error("Request body is empty");
+        }
 
-      const requestBody = JSON.parse(bodyText);
-      logStep("Request body parsed successfully", requestBody);
+        try {
+          requestBody = JSON.parse(bodyText);
+          logStep("Request body parsed from text", requestBody);
+        } catch (parseError) {
+          logStep("ERROR: Failed to parse request body", parseError);
+          throw new Error("Invalid JSON in request body");
+        }
+      }
 
       planType = requestBody.planType;
       if (!planType) {
@@ -194,36 +209,18 @@ serve(async (req) => {
         billing_address_collection: 'required' as const,
       };
 
-      // Log the exact configuration being sent to Stripe (but redact sensitive info)
-      const configForLogging = {
-        ...sessionConfig,
+      logStep("Session config prepared", {
         customer: customerId ? "EXISTING_CUSTOMER_ID" : undefined,
         customer_email: customerId ? undefined : "USER_EMAIL",
         metadata: {
           ...sessionConfig.metadata,
           user_email: "USER_EMAIL"
         }
-      };
+      });
       
-      logStep("Session config prepared", configForLogging);
       logStep("About to call stripe.checkout.sessions.create()...");
       
-      // Create the session with a timeout
-      const createSessionWithTimeout = async () => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000);
-        
-        try {
-          const session = await stripe.checkout.sessions.create(sessionConfig);
-          clearTimeout(timeoutId);
-          return session;
-        } catch (error) {
-          clearTimeout(timeoutId);
-          throw error;
-        }
-      };
-      
-      session = await createSessionWithTimeout();
+      session = await stripe.checkout.sessions.create(sessionConfig);
 
       logStep("Checkout session created successfully", { 
         sessionId: session.id, 
@@ -238,10 +235,7 @@ serve(async (req) => {
         type: stripeError.type,
         code: stripeError.code,
         statusCode: stripeError.statusCode,
-        requestId: stripeError.requestId,
-        headers: stripeError.headers,
-        detail: stripeError.detail,
-        stack: stripeError.stack?.substring(0, 500) // Truncate stack trace
+        requestId: stripeError.requestId
       });
       
       // Provide more specific error information
