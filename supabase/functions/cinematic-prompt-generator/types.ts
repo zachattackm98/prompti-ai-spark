@@ -1,0 +1,40 @@
+
+export interface PromptRequest {
+  sceneIdea: string;
+  platform: string;
+  emotion: string;
+  styleReference?: string;
+  cameraSettings?: {
+    angle?: string;
+    movement?: string;
+    shot?: string;
+  };
+  lightingSettings?: {
+    mood?: string;
+    style?: string;
+    timeOfDay?: string;
+  };
+  tier?: string;
+  enhancedPrompts?: boolean;
+}
+
+export interface GeneratedPrompt {
+  mainPrompt: string;
+  technicalSpecs: string;
+  styleNotes: string;
+  platform: string;
+}
+
+export interface PlatformConfig {
+  system: string;
+  technical: string;
+}
+
+export interface UsageData {
+  id: string;
+  user_id: string;
+  prompt_count: number;
+  reset_date: string;
+  created_at: string;
+  updated_at: string;
+}
