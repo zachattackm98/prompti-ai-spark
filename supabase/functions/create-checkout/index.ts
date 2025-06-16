@@ -81,34 +81,13 @@ serve(async (req) => {
       throw new Error(`Authentication process failed: ${authError.message}`);
     }
 
-    // Parse request body - simplified approach
+    // Parse request body - read only once
     let planType;
     try {
-      logStep("Parsing request body...");
+      logStep("Reading request body...");
       
-      // Try to get the request body
-      let requestBody;
-      try {
-        requestBody = await req.json();
-        logStep("Request body parsed as JSON", requestBody);
-      } catch (jsonError) {
-        // If JSON parsing fails, try text parsing
-        const bodyText = await req.text();
-        logStep("Raw request body received", { bodyLength: bodyText.length, body: bodyText });
-        
-        if (!bodyText || bodyText.trim() === '') {
-          logStep("ERROR: Empty request body");
-          throw new Error("Request body is empty");
-        }
-
-        try {
-          requestBody = JSON.parse(bodyText);
-          logStep("Request body parsed from text", requestBody);
-        } catch (parseError) {
-          logStep("ERROR: Failed to parse request body", parseError);
-          throw new Error("Invalid JSON in request body");
-        }
-      }
+      const requestBody = await req.json();
+      logStep("Request body parsed", requestBody);
 
       planType = requestBody.planType;
       if (!planType) {
@@ -124,7 +103,7 @@ serve(async (req) => {
       logStep("Plan type validated", { planType });
     } catch (parseError) {
       logStep("ERROR: Request body parsing failed", parseError);
-      throw parseError;
+      throw new Error(`Failed to parse request body: ${parseError.message}`);
     }
 
     // Initialize Stripe with error handling
@@ -212,13 +191,11 @@ serve(async (req) => {
       logStep("Session config prepared", {
         customer: customerId ? "EXISTING_CUSTOMER_ID" : undefined,
         customer_email: customerId ? undefined : "USER_EMAIL",
-        metadata: {
-          ...sessionConfig.metadata,
-          user_email: "USER_EMAIL"
-        }
+        priceId: selectedPlan.priceId,
+        planType: planType
       });
       
-      logStep("About to call stripe.checkout.sessions.create()...");
+      logStep("Creating Stripe checkout session...");
       
       session = await stripe.checkout.sessions.create(sessionConfig);
 
@@ -234,18 +211,11 @@ serve(async (req) => {
         message: stripeError.message, 
         type: stripeError.type,
         code: stripeError.code,
-        statusCode: stripeError.statusCode,
-        requestId: stripeError.requestId
+        statusCode: stripeError.statusCode
       });
       
       // Provide more specific error information
-      if (stripeError.message?.includes('timeout') || stripeError.name === 'AbortError') {
-        throw new Error("Stripe session creation timed out - please try again");
-      } else if (stripeError.code === 'card_declined') {
-        throw new Error("Payment method declined");
-      } else if (stripeError.code === 'expired_card') {
-        throw new Error("Payment method expired");
-      } else if (stripeError.type === 'invalid_request_error') {
+      if (stripeError.type === 'invalid_request_error') {
         throw new Error(`Invalid request to Stripe: ${stripeError.message}`);
       } else {
         throw new Error(`Stripe error: ${stripeError.message}`);
@@ -274,9 +244,6 @@ serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorDetails = {
       message: errorMessage,
-      stack: error.stack,
-      name: error.name,
-      type: error.type || 'unknown',
       timestamp: new Date().toISOString()
     };
     
