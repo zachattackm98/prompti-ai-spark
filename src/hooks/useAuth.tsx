@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -108,8 +107,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             });
             
             setTimeout(() => {
-              console.log('[AUTH] Redirecting to account page');
-              window.location.href = '/account';
+              console.log('[AUTH] Redirecting to home page');
+              window.location.href = '/';
             }, 3000);
           } else if (type === 'recovery') {
             console.log('[AUTH] Processing password reset, redirecting to reset page');
@@ -148,8 +147,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.log('[AUTH] User signed in successfully');
           if (!confirmationSuccess && window.location.pathname === '/') {
             setTimeout(() => {
-              console.log('[AUTH] Redirecting to account from signin');
-              window.location.href = '/account';
+              console.log('[AUTH] Redirecting to home page from signin');
+              window.location.href = '/';
             }, 100);
           }
         } else if (event === 'SIGNED_OUT') {
