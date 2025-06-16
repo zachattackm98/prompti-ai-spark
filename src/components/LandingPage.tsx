@@ -34,6 +34,7 @@ const LandingPage = () => {
         // Simplified view for paid subscribers
         <>
           <SubscriberWelcome user={user} subscription={subscription} />
+          <Process />
           <Features />
           <CinematicPromptGenerator />
           <Pricing />
