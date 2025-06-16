@@ -10,13 +10,15 @@ import {
   TrendingUp 
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
+import { usePromptUsage } from '@/hooks/usePromptUsage';
 
 const SubscriptionStats = () => {
   const { subscription, features } = useSubscription();
+  const { usage, remainingPrompts, usagePercentage, isStarterPlan } = usePromptUsage();
 
-  // Mock data - in a real app, this would come from your API
+  // Calculate stats based on actual usage data
   const stats = {
-    promptsUsed: subscription.tier === 'starter' ? 3 : 47,
+    promptsUsed: isStarterPlan ? (usage?.prompt_count || 0) : 47, // Mock for non-starter
     promptsLimit: features.maxPrompts === -1 ? null : features.maxPrompts,
     daysUntilRenewal: subscription.expiresAt ? 
       Math.ceil((new Date(subscription.expiresAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 
@@ -45,7 +47,7 @@ const SubscriptionStats = () => {
           </div>
           {stats.promptsLimit && (
             <Progress 
-              value={(stats.promptsUsed / stats.promptsLimit) * 100} 
+              value={isStarterPlan ? usagePercentage : (stats.promptsUsed / stats.promptsLimit) * 100} 
               className="h-2"
             />
           )}
@@ -53,6 +55,11 @@ const SubscriptionStats = () => {
             <Badge variant="outline" className="border-green-400/50 text-green-300 text-xs">
               Unlimited
             </Badge>
+          )}
+          {isStarterPlan && remainingPrompts > 0 && (
+            <p className="text-xs text-gray-500 mt-1">
+              {remainingPrompts} prompts remaining this month
+            </p>
           )}
         </div>
 

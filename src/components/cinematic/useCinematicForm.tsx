@@ -1,8 +1,8 @@
 
-import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { GeneratedPrompt } from './types';
+import { useToast } from '@/hooks/use-toast';
+import { usePromptUsage } from '@/hooks/usePromptUsage';
 
 export interface CameraSettings {
   angle: string;
@@ -16,6 +16,13 @@ export interface LightingSettings {
   timeOfDay: string;
 }
 
+export interface GeneratedPrompt {
+  mainPrompt: string;
+  technicalSpecs: string;
+  styleNotes: string;
+  platform: string;
+}
+
 export const useCinematicForm = (
   user: any,
   subscription: any,
@@ -23,10 +30,14 @@ export const useCinematicForm = (
   setShowAuthDialog: (show: boolean) => void,
   loadPromptHistory: () => void
 ) => {
+  const { toast } = useToast();
+  const { hasReachedLimit, refetchUsage, isStarterPlan } = usePromptUsage();
+  
+  // Form state
   const [currentStep, setCurrentStep] = useState(1);
   const [sceneIdea, setSceneIdea] = useState('');
-  const [selectedPlatform, setSelectedPlatform] = useState('');
-  const [selectedEmotion, setSelectedEmotion] = useState('');
+  const [selectedPlatform, setSelectedPlatform] = useState('veo3');
+  const [selectedEmotion, setSelectedEmotion] = useState('cinematic');
   const [cameraSettings, setCameraSettings] = useState<CameraSettings>({
     angle: '',
     movement: '',
@@ -40,11 +51,10 @@ export const useCinematicForm = (
   const [styleReference, setStyleReference] = useState('');
   const [generatedPrompt, setGeneratedPrompt] = useState<GeneratedPrompt | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
-  // Calculate total steps based on subscription tier
+  // Calculate total steps based on available features
   const getTotalSteps = () => {
-    let steps = 3; // Base steps: Scene, Platform, Style
+    let steps = 3; // Scene, Platform, Style (base steps)
     if (canUseFeature('cameraControls')) steps++;
     if (canUseFeature('lightingOptions')) steps++;
     return steps;
@@ -64,16 +74,26 @@ export const useCinematicForm = (
     }
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(async () => {
     if (!user) {
       setShowAuthDialog(true);
       return;
     }
 
-    if (!sceneIdea.trim() || !selectedPlatform || !selectedEmotion) {
+    // Check usage limits for starter users
+    if (isStarterPlan && hasReachedLimit) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields before generating.",
+        title: "Usage Limit Reached",
+        description: "You've reached your monthly limit of 5 prompts. Upgrade to Creator or Studio plan for unlimited prompts.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!sceneIdea.trim()) {
+      toast({
+        title: "Scene idea required",
+        description: "Please provide a scene idea to generate your prompt.",
         variant: "destructive",
       });
       return;
@@ -82,56 +102,90 @@ export const useCinematicForm = (
     setIsLoading(true);
 
     try {
-      const requestBody = { 
-        sceneIdea,
-        platform: selectedPlatform,
-        emotion: selectedEmotion,
-        styleReference: styleReference || '',
-        cameraSettings: canUseFeature('cameraControls') ? cameraSettings : undefined,
-        lightingSettings: canUseFeature('lightingOptions') ? lightingSettings : undefined,
-        tier: subscription.tier,
-        enhancedPrompts: canUseFeature('enhancedPrompts')
-      };
-
       const { data, error } = await supabase.functions.invoke('cinematic-prompt-generator', {
-        body: requestBody,
+        body: {
+          sceneIdea,
+          platform: selectedPlatform,
+          emotion: selectedEmotion,
+          styleReference,
+          cameraSettings: canUseFeature('cameraControls') ? cameraSettings : undefined,
+          lightingSettings: canUseFeature('lightingOptions') ? lightingSettings : undefined,
+          tier: subscription.tier,
+          enhancedPrompts: subscription.tier !== 'starter'
+        }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle specific error cases
+        if (error.message === 'USAGE_LIMIT_EXCEEDED') {
+          toast({
+            title: "Usage Limit Exceeded",
+            description: "You've reached your monthly limit of 5 prompts. Upgrade to get unlimited access!",
+            variant: "destructive",
+          });
+          // Refresh usage data
+          await refetchUsage();
+          return;
+        }
+        throw error;
+      }
+
+      if (data?.error) {
+        if (data.error === 'USAGE_LIMIT_EXCEEDED') {
+          toast({
+            title: "Usage Limit Exceeded",
+            description: data.message || "You've reached your monthly prompt limit.",
+            variant: "destructive",
+          });
+          // Refresh usage data
+          await refetchUsage();
+          return;
+        }
+        throw new Error(data.error);
+      }
 
       setGeneratedPrompt(data.prompt);
       
+      // Refresh usage data after successful generation
+      if (isStarterPlan) {
+        await refetchUsage();
+      }
+      
+      // Load updated history
+      loadPromptHistory();
+
       toast({
         title: "Prompt Generated!",
-        description: "Your cinematic video prompt is ready.",
+        description: "Your cinematic prompt has been generated successfully.",
       });
-
-      loadPromptHistory();
     } catch (error: any) {
       console.error('Error generating prompt:', error);
       toast({
-        title: "Error",
-        description: "Failed to generate prompt. Please try again.",
+        title: "Generation Failed",
+        description: error.message || "Failed to generate prompt. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [
+    user, sceneIdea, selectedPlatform, selectedEmotion, styleReference,
+    cameraSettings, lightingSettings, subscription.tier, canUseFeature,
+    setShowAuthDialog, loadPromptHistory, toast, isStarterPlan, hasReachedLimit, refetchUsage
+  ]);
 
   const handleGenerateNew = () => {
     setGeneratedPrompt(null);
     setCurrentStep(1);
     setSceneIdea('');
-    setSelectedPlatform('');
-    setSelectedEmotion('');
+    setSelectedPlatform('veo3');
+    setSelectedEmotion('cinematic');
     setCameraSettings({ angle: '', movement: '', shot: '' });
     setLightingSettings({ mood: '', style: '', timeOfDay: '' });
     setStyleReference('');
   };
 
   return {
-    // State
     currentStep,
     totalSteps,
     sceneIdea,
@@ -142,16 +196,12 @@ export const useCinematicForm = (
     styleReference,
     generatedPrompt,
     isLoading,
-    
-    // Setters
     setSceneIdea,
     setSelectedPlatform,
     setSelectedEmotion,
     setCameraSettings,
     setLightingSettings,
     setStyleReference,
-    
-    // Handlers
     handleNext,
     handlePrevious,
     handleGenerate,

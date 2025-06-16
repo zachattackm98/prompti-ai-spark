@@ -47,6 +47,35 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
+    // Check and enforce prompt limits for starter users
+    if (tier === 'starter') {
+      console.log('Checking prompt usage for starter user:', user.id);
+      
+      // Get current usage for this user
+      const { data: usageData, error: usageError } = await supabase
+        .rpc('get_or_create_prompt_usage', { user_uuid: user.id });
+
+      if (usageError) {
+        console.error('Error getting prompt usage:', usageError);
+        throw new Error('Failed to check prompt usage');
+      }
+
+      console.log('Current prompt usage:', usageData);
+
+      // Check if user has exceeded the limit (5 prompts for starter)
+      if (usageData && usageData.prompt_count >= 5) {
+        return new Response(JSON.stringify({ 
+          error: 'USAGE_LIMIT_EXCEEDED',
+          message: 'You have reached your monthly limit of 5 prompts. Upgrade to Creator or Studio plan for unlimited prompts.',
+          currentUsage: usageData.prompt_count,
+          limit: 5
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     // Platform-specific system prompts with updated platforms
     const platformPrompts = {
       'veo3': {
@@ -114,6 +143,7 @@ Please incorporate these lighting specifications into your style and technical r
       systemPrompt += `\n\nStyle reference: ${styleReference}`;
     }
 
+    // Generate the prompt using OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -147,6 +177,21 @@ Please incorporate these lighting specifications into your style and technical r
       styleNotes: sections[3]?.trim() || `${emotion} mood with professional cinematic quality`,
       platform: platform
     };
+
+    // Increment prompt count for starter users after successful generation
+    if (tier === 'starter') {
+      console.log('Incrementing prompt count for starter user:', user.id);
+      
+      const { data: newCount, error: incrementError } = await supabase
+        .rpc('increment_prompt_count', { user_uuid: user.id });
+
+      if (incrementError) {
+        console.error('Error incrementing prompt count:', incrementError);
+        // Don't fail the request, but log the error
+      } else {
+        console.log('New prompt count:', newCount);
+      }
+    }
 
     // For now, we'll skip saving to database since the prompt_history table doesn't exist yet
     // This prevents database errors while maintaining functionality

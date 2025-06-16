@@ -36,6 +36,33 @@ export type Database = {
         }
         Relationships: []
       }
+      prompt_usage: {
+        Row: {
+          created_at: string | null
+          id: string
+          prompt_count: number
+          reset_date: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          prompt_count?: number
+          reset_date?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          prompt_count?: number
+          reset_date?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
           created_at: string
@@ -77,7 +104,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_or_create_prompt_usage: {
+        Args: { user_uuid: string }
+        Returns: {
+          created_at: string | null
+          id: string
+          prompt_count: number
+          reset_date: string
+          updated_at: string | null
+          user_id: string
+        }
+      }
+      increment_prompt_count: {
+        Args: { user_uuid: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

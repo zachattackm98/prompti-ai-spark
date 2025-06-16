@@ -7,6 +7,7 @@ import { usePromptActions } from './promptActions';
 import StepIndicator from './StepIndicator';
 import StepRenderer from './StepRenderer';
 import GeneratedPromptDisplay from './GeneratedPromptDisplay';
+import UsageDisplay from './UsageDisplay';
 
 interface CinematicFormProps {
   user: any;
@@ -50,8 +51,20 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
 
   const { copyToClipboard, downloadPrompt } = usePromptActions(subscription);
 
+  const handleUpgrade = () => {
+    // Navigate to pricing section
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
+      {user && subscription.tier === 'starter' && (
+        <UsageDisplay onUpgrade={handleUpgrade} />
+      )}
+
       <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
       <motion.div
