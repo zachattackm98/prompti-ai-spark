@@ -82,8 +82,9 @@ export const usePricingLogic = () => {
       return plan.tier === 'starter' ? 'Get Started Free' : 'Sign In to Subscribe';
     }
     
+    // For starter plan, check if user's actual subscription is starter
     if (plan.tier === 'starter') {
-      return 'Current Plan';
+      return subscription.tier === 'starter' ? 'Current Plan' : 'Starter Free';
     }
     
     if (isCurrentPlan(plan.tier)) {
