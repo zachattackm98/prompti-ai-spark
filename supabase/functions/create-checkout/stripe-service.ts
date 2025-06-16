@@ -52,7 +52,17 @@ export class StripeService {
         return tier;
       }
     }
+    logStep("WARNING: Unknown price ID, defaulting to starter", { priceId });
     return 'starter';
+  }
+
+  private getTierDisplayName(tier: string): string {
+    const displayNames: Record<string, string> = {
+      'starter': 'Starter',
+      'creator': 'Creator',
+      'studio': 'Studio'
+    };
+    return displayNames[tier] || tier;
   }
 
   async checkAndCancelExistingSubscription(customerId: string, requestedTier: string): Promise<void> {
@@ -75,7 +85,10 @@ export class StripeService {
 
       for (const subscription of subscriptions.data) {
         const priceId = subscription.items.data[0]?.price?.id;
-        if (!priceId) continue;
+        if (!priceId) {
+          logStep("WARNING: Subscription found without price ID", { subscriptionId: subscription.id });
+          continue;
+        }
 
         const currentTier = this.getTierFromPriceId(priceId);
         const currentTierLevel = tierHierarchy[currentTier] || 0;
@@ -85,45 +98,73 @@ export class StripeService {
           currentTier,
           currentTierLevel,
           requestedTierLevel,
-          priceId
+          priceId,
+          cancelAtPeriodEnd: subscription.cancel_at_period_end
         });
 
-        // Cancel existing subscription if upgrading to higher tier
-        if (requestedTierLevel > currentTierLevel) {
-          logStep("Upgrading subscription - cancelling existing", {
-            from: currentTier,
-            to: requestedTier,
-            subscriptionId: subscription.id
-          });
-
-          await this.stripe.subscriptions.update(subscription.id, {
-            cancel_at_period_end: false, // Cancel immediately
-            proration_behavior: 'create_prorations' // Create prorations for unused time
-          });
-
-          // Actually cancel the subscription now
-          await this.stripe.subscriptions.cancel(subscription.id, {
-            prorate: true,
-            invoice_now: true
-          });
-
-          logStep("Successfully cancelled existing subscription", {
-            subscriptionId: subscription.id,
-            previousTier: currentTier
-          });
-
-        } else if (requestedTierLevel === currentTierLevel) {
-          logStep("User already has this tier", { currentTier: currentTier });
-          throw new Error(`You already have an active ${currentTier} subscription`);
+        // Handle tier comparisons
+        if (requestedTierLevel === currentTierLevel) {
+          const tierDisplayName = this.getTierDisplayName(currentTier);
+          logStep("User already has this tier", { currentTier });
+          throw new Error(`You already have an active ${tierDisplayName} subscription. Use the customer portal to manage your existing subscription.`);
 
         } else if (requestedTierLevel < currentTierLevel) {
+          const currentTierDisplay = this.getTierDisplayName(currentTier);
+          const requestedTierDisplay = this.getTierDisplayName(requestedTier);
           logStep("Attempting to downgrade", { from: currentTier, to: requestedTier });
-          throw new Error(`Cannot downgrade from ${currentTier} to ${requestedTier}. Please use the customer portal to manage your subscription.`);
+          throw new Error(`Cannot downgrade from ${currentTierDisplay} to ${requestedTierDisplay} through checkout. Please use the customer portal to manage your subscription.`);
+
+        } else if (requestedTierLevel > currentTierLevel) {
+          // Upgrading to higher tier - schedule cancellation at period end
+          const currentTierDisplay = this.getTierDisplayName(currentTier);
+          const requestedTierDisplay = this.getTierDisplayName(requestedTier);
+          
+          logStep("Upgrading subscription - scheduling cancellation at period end", {
+            from: currentTier,
+            to: requestedTier,
+            subscriptionId: subscription.id,
+            currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString()
+          });
+
+          // Check if already scheduled for cancellation
+          if (subscription.cancel_at_period_end) {
+            logStep("Subscription already scheduled for cancellation", {
+              subscriptionId: subscription.id,
+              cancelAt: new Date(subscription.current_period_end * 1000).toISOString()
+            });
+            // Continue with checkout - new subscription will start after current period
+          } else {
+            // Schedule current subscription for cancellation at period end
+            await this.stripe.subscriptions.update(subscription.id, {
+              cancel_at_period_end: true,
+              metadata: {
+                cancelled_for_upgrade: 'true',
+                upgrade_to_tier: requestedTier,
+                upgrade_timestamp: new Date().toISOString()
+              }
+            });
+
+            logStep("Successfully scheduled existing subscription for cancellation", {
+              subscriptionId: subscription.id,
+              previousTier: currentTier,
+              upgradeToTier: requestedTier,
+              willCancelAt: new Date(subscription.current_period_end * 1000).toISOString()
+            });
+          }
+
+          // Add informative message for user
+          logStep("UPGRADE_INFO: Current subscription continues until period end", {
+            currentTier: currentTierDisplay,
+            newTier: requestedTierDisplay,
+            currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString()
+          });
         }
       }
 
     } catch (error: any) {
-      if (error.message.includes('already have') || error.message.includes('Cannot downgrade')) {
+      if (error.message.includes('already have') || 
+          error.message.includes('Cannot downgrade') || 
+          error.message.includes('customer portal')) {
         throw error; // Re-throw user-facing errors
       }
       logStep("ERROR: Failed to check/cancel existing subscriptions", error);
@@ -144,9 +185,13 @@ export class StripeService {
       throw new Error(`Invalid plan type: ${planType}`);
     }
 
-    logStep("Using pre-existing price", { plan: selectedPlan });
+    logStep("Using plan configuration", { 
+      planType, 
+      priceId: selectedPlan.priceId,
+      displayName: this.getTierDisplayName(planType)
+    });
 
-    // If customer exists, check and cancel existing subscriptions
+    // If customer exists, check and handle existing subscriptions
     if (customerId) {
       await this.checkAndCancelExistingSubscription(customerId, planType);
     }
@@ -170,19 +215,23 @@ export class StripeService {
           user_id: userId,
           plan_type: planType,
           user_email: userEmail,
-          upgrade_flow: customerId ? 'true' : 'false'
+          upgrade_flow: customerId ? 'true' : 'false',
+          checkout_timestamp: new Date().toISOString()
         },
         allow_promotion_codes: true,
         billing_address_collection: 'required',
-        // Enable proration for upgrades
         subscription_data: {
-          proration_behavior: 'create_prorations'
+          metadata: {
+            user_id: userId,
+            plan_type: planType,
+            created_via: 'lovable_checkout'
+          }
         }
       };
 
       logStep("Session config prepared", {
-        customer: customerId ? "EXISTING_CUSTOMER_ID" : undefined,
-        customer_email: customerId ? undefined : "USER_EMAIL",
+        customer: customerId ? "EXISTING_CUSTOMER" : "NEW_CUSTOMER",
+        customer_email: customerId ? undefined : "PROVIDED",
         priceId: selectedPlan.priceId,
         planType: planType,
         upgradeFlow: customerId ? true : false

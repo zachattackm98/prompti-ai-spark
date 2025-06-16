@@ -24,13 +24,13 @@ export const useSubscriptionEffects = (
 
       console.log('[SUBSCRIPTION] Subscription data received:', data);
       
-      // Handle cancellation state properly
+      // Handle subscription state properly
       const isSubscribed = data.subscribed || false;
       const isCancelling = data.billing_details?.cancel_at_period_end || false;
       const subscriptionTier = data.subscription_tier || 'starter';
       
-      // If subscription is cancelled but still active, we need special handling
-      const effectivelyActive = isSubscribed && !isCancelling;
+      // For active subscriptions, even if scheduled for cancellation, they're still active until period end
+      const effectivelyActive = isSubscribed;
       
       console.log('[SUBSCRIPTION] Processing subscription state:', {
         isSubscribed,
@@ -56,19 +56,13 @@ export const useSubscriptionEffects = (
       });
 
       // Store successful subscription data in localStorage for persistence
-      // But only if not cancelling to avoid stale cache
-      if (!isCancelling) {
-        localStorage.setItem('subscription_cache', JSON.stringify({
-          tier: subscriptionTier,
-          isActive: effectivelyActive,
-          isCancelling: false,
-          expiresAt: data.subscription_end,
-          timestamp: Date.now()
-        }));
-      } else {
-        // Clear cache if subscription is being cancelled
-        clearSubscriptionCache();
-      }
+      localStorage.setItem('subscription_cache', JSON.stringify({
+        tier: subscriptionTier,
+        isActive: effectivelyActive,
+        isCancelling: isCancelling,
+        expiresAt: data.subscription_end,
+        timestamp: Date.now()
+      }));
 
     } catch (error: any) {
       console.error('[SUBSCRIPTION] Error checking subscription:', error);
@@ -96,15 +90,15 @@ export const useSubscriptionEffects = (
         "destructive"
       );
       
-      // Try to load from cache as fallback, but be careful with cancelled subscriptions
+      // Try to load from cache as fallback
       const cachedData = localStorage.getItem('subscription_cache');
       if (cachedData) {
         try {
           const cached = JSON.parse(cachedData);
           const cacheAge = Date.now() - cached.timestamp;
           
-          // Only use cache if it's recent (less than 5 minutes) and not for cancelled subscriptions
-          if (cacheAge < 5 * 60 * 1000 && !cached.isCancelling) {
+          // Only use cache if it's recent (less than 5 minutes)
+          if (cacheAge < 5 * 60 * 1000) {
             console.log('[SUBSCRIPTION] Loading from cache:', cached);
             setSubscription({
               tier: cached.tier,
@@ -113,7 +107,7 @@ export const useSubscriptionEffects = (
               expiresAt: cached.expiresAt,
             });
           } else {
-            console.log('[SUBSCRIPTION] Cache too old or for cancelled subscription, clearing');
+            console.log('[SUBSCRIPTION] Cache too old, clearing');
             clearSubscriptionCache();
             setSubscription({ tier: 'starter', isActive: false });
           }
@@ -131,7 +125,6 @@ export const useSubscriptionEffects = (
     }
   };
 
-  // Simplified verification system - no more progressive verification for cancellations
   const verifySubscriptionStatus = async () => {
     console.log('[SUBSCRIPTION] Starting subscription verification');
     
@@ -158,7 +151,7 @@ export const useSubscriptionEffects = (
       
       showToast(
         "Payment Successful!",
-        "Your subscription is being activated. We're updating your account status..."
+        "Your subscription is being processed. Your new plan will be active shortly."
       );
       
       // Remove URL params immediately
@@ -167,16 +160,21 @@ export const useSubscriptionEffects = (
       // Clear all cache and pending states
       clearSubscriptionCache();
       
-      // Give Stripe a moment to process, then verify
+      // Give Stripe and our webhook time to process, then verify
       setTimeout(() => {
         verifySubscriptionStatus();
-      }, 2000);
+      }, 3000);
+      
+      // Additional verification after a longer delay to ensure everything is synced
+      setTimeout(() => {
+        verifySubscriptionStatus();
+      }, 10000);
       
     } else if (checkout === 'cancelled') {
       console.log('[SUBSCRIPTION] Checkout cancelled detected');
       showToast(
         "Payment Cancelled",
-        "Your subscription process was cancelled.",
+        "Your subscription process was cancelled. No charges were made.",
         "destructive"
       );
       window.history.replaceState({}, document.title, window.location.pathname);
