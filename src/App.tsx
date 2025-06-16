@@ -9,6 +9,7 @@ import { SubscriptionProvider } from "@/hooks/useSubscription";
 import Index from "./pages/Index";
 import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
+import ResetPasswordPage from "./components/auth/ResetPasswordPage";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/account" element={<Account />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </TooltipProvider>

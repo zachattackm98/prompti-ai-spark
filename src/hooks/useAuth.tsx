@@ -13,6 +13,8 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
+  updatePassword: (password: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -90,6 +92,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             toast({
               title: "Confirmation Error",
               description: "There was an error confirming your account. Please try signing in.",
+              variant: "destructive",
+            });
+          }
+        } else if (accessToken && refreshToken && type === 'recovery') {
+          console.log('[AUTH] Processing password reset from URL hash');
+          try {
+            const { data, error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+
+            if (error) {
+              console.error('[AUTH] Error setting session from recovery hash:', error);
+              toast({
+                title: "Password Reset Error",
+                description: "There was an error with your password reset link. Please try again.",
+                variant: "destructive",
+              });
+            } else if (data.session) {
+              console.log('[AUTH] Password reset session established, redirecting to reset page');
+              
+              // Clean up the URL hash
+              window.history.replaceState(null, '', window.location.pathname);
+              
+              // Redirect to password reset page
+              setTimeout(() => {
+                window.location.href = '/reset-password';
+              }, 100);
+            }
+          } catch (error) {
+            console.error('[AUTH] Exception during recovery hash processing:', error);
+            toast({
+              title: "Password Reset Error",
+              description: "There was an error with your password reset link. Please try again.",
               variant: "destructive",
             });
           }
@@ -200,6 +236,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    const redirectUrl = `${window.location.origin}/`;
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    });
+    return { error };
+  };
+
+  const updatePassword = async (password: string) => {
+    const { error } = await supabase.auth.updateUser({
+      password: password
+    });
+    return { error };
+  };
+
   const value = {
     user,
     session,
@@ -209,6 +261,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp,
     signIn,
     signOut,
+    resetPassword,
+    updatePassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
