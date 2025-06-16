@@ -60,14 +60,14 @@ export const createCheckoutSession = async (planType: 'creator' | 'studio') => {
     throw new Error('No valid session found');
   }
 
-  console.log('[SUBSCRIPTION] Session found, preparing request body');
   const requestBody = { planType };
   console.log('[SUBSCRIPTION] Request body:', requestBody);
+  console.log('[SUBSCRIPTION] Request body JSON:', JSON.stringify(requestBody));
 
   try {
     console.log('[SUBSCRIPTION] Invoking create-checkout function');
     const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: requestBody, // Pass the object directly, Supabase will stringify it
+      body: JSON.stringify(requestBody), // Explicitly stringify the body
       headers: {
         Authorization: `Bearer ${session.data.session.access_token}`,
         'Content-Type': 'application/json',

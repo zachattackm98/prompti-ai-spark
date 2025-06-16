@@ -81,8 +81,7 @@ serve(async (req) => {
       throw new Error(`Authentication process failed: ${authError.message}`);
     }
 
-    // Parse request body with better error handling
-    let requestBody;
+    // Parse request body - simplified approach
     let planType;
     try {
       const bodyText = await req.text();
@@ -93,13 +92,8 @@ serve(async (req) => {
         throw new Error("Request body is empty");
       }
 
-      try {
-        requestBody = JSON.parse(bodyText);
-        logStep("Request body parsed successfully", requestBody);
-      } catch (jsonError) {
-        logStep("ERROR: Invalid JSON in request body", { error: jsonError.message, body: bodyText });
-        throw new Error("Invalid JSON in request body");
-      }
+      const requestBody = JSON.parse(bodyText);
+      logStep("Request body parsed successfully", requestBody);
 
       planType = requestBody.planType;
       if (!planType) {
