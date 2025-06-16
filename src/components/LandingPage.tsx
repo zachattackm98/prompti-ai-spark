@@ -39,9 +39,9 @@ const LandingPage = () => {
       <Header />
       
       {hasActivePaidSubscription ? (
-        // Simplified view for paid subscribers - Benefits section excluded
+        // Simplified view for paid subscribers - NO BENEFITS SECTION
         <>
-          {console.log('[LANDING] Rendering PAID subscriber view')}
+          {console.log('[LANDING] Rendering PAID subscriber view - Benefits section EXCLUDED')}
           <SubscriberWelcome user={user} subscription={subscription} />
           <Process />
           <Features />
@@ -53,7 +53,7 @@ const LandingPage = () => {
       ) : (
         // Full landing page for non-logged-in users and free tier users
         <>
-          {console.log('[LANDING] Rendering FREE/NON-SUBSCRIBER view')}
+          {console.log('[LANDING] Rendering FREE/NON-SUBSCRIBER view - Benefits section INCLUDED')}
           {user && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
