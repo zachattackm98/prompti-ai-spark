@@ -1,3 +1,4 @@
+
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -105,11 +106,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               title: "Account Confirmed!",
               description: "Your account has been successfully confirmed. Welcome!",
             });
-            
-            setTimeout(() => {
-              console.log('[AUTH] Redirecting to home page');
-              window.location.href = '/';
-            }, 3000);
           } else if (type === 'recovery') {
             console.log('[AUTH] Processing password reset, redirecting to reset page');
             toast({
@@ -120,7 +116,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setTimeout(() => {
               window.location.href = '/reset-password';
             }, 100);
+            return; // Exit early for password reset
           }
+          
+          // Single redirect point for all successful auth (except password reset)
+          setTimeout(() => {
+            console.log('[AUTH] Redirecting to home page');
+            window.location.href = '/';
+          }, type === 'signup' ? 3000 : 100);
         }
       } catch (error) {
         console.error('[AUTH] Exception during token processing:', error);
@@ -135,7 +138,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Handle auth parameters first
     handleAuthParams();
 
-    // Set up auth state listener
+    // Set up auth state listener - simplified without redundant redirects
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('[AUTH] Auth state changed:', event, session?.user?.email || 'no user');
@@ -143,15 +146,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        if (event === 'SIGNED_IN' && session?.user) {
-          console.log('[AUTH] User signed in successfully');
-          if (!confirmationSuccess && window.location.pathname === '/') {
-            setTimeout(() => {
-              console.log('[AUTH] Redirecting to home page from signin');
-              window.location.href = '/';
-            }, 100);
-          }
-        } else if (event === 'SIGNED_OUT') {
+        if (event === 'SIGNED_OUT') {
           console.log('[AUTH] User signed out');
           setConfirmationSuccess(false);
         }
@@ -167,7 +162,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, [toast, confirmationSuccess]);
+  }, [toast]);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     const redirectUrl = `${window.location.origin}/`;
