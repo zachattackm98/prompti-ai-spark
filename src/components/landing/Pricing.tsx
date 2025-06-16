@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { containerVariants } from '@/utils/animations';
+import { staggerContainer } from '@/utils/animations';
 import PricingHeader from './pricing/PricingHeader';
 import PricingPlanCard from './pricing/PricingPlanCard';
 import { usePricingLogic } from './pricing/usePricingLogic';
@@ -23,10 +23,10 @@ const Pricing = () => {
   return (
     <section id="pricing" className="py-20 px-4">
       <div className="container mx-auto max-w-6xl">
-        <PricingHeader />
+        <PricingHeader user={user} subscription={subscription} />
         
         <motion.div
-          variants={containerVariants}
+          variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
