@@ -28,7 +28,13 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
     setBillingDetails
   );
 
-  const { createCheckout, createOptimisticCheckout, openCustomerPortal } = useSubscriptionOperations(
+  const { 
+    createCheckout, 
+    createOptimisticCheckout, 
+    openCustomerPortal,
+    fetchBillingData,
+    downloadInvoice
+  } = useSubscriptionOperations(
     user,
     setLoading,
     subscription,
@@ -47,6 +53,8 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
       createCheckout,
       createOptimisticCheckout,
       openCustomerPortal,
+      fetchBillingData,
+      downloadInvoice,
       ...subscriptionHelpers,
     }}>
       {children}

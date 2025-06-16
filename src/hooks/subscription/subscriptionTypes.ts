@@ -1,6 +1,7 @@
 
 import { UserSubscription } from '@/types/subscription';
 import { BillingDetails } from './subscriptionApi';
+import { BillingData } from './billingOperations';
 
 export interface SubscriptionContextType {
   subscription: UserSubscription;
@@ -15,6 +16,8 @@ export interface SubscriptionContextType {
   createCheckout: (planType: 'creator' | 'studio') => Promise<void>;
   createOptimisticCheckout: (planType: 'creator' | 'studio') => Promise<void>;
   openCustomerPortal: () => Promise<void>;
+  fetchBillingData: () => Promise<BillingData | null>;
+  downloadInvoice: (invoiceId: string, downloadUrl: string) => Promise<void>;
   
   // Feature helpers
   isSubscribed: boolean;

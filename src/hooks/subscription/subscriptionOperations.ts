@@ -1,6 +1,7 @@
 
 import { useCheckoutOperations } from './checkoutOperations';
 import { usePortalOperations } from './portalOperations';
+import { useBillingOperations } from './billingOperations';
 
 export const useSubscriptionOperations = (
   user: any,
@@ -20,9 +21,16 @@ export const useSubscriptionOperations = (
     setLoading
   );
 
+  const { fetchBillingData, downloadInvoice } = useBillingOperations(
+    user,
+    setLoading
+  );
+
   return {
     createCheckout,
     createOptimisticCheckout,
     openCustomerPortal,
+    fetchBillingData,
+    downloadInvoice,
   };
 };
