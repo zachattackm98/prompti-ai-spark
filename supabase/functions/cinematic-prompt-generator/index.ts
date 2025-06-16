@@ -14,6 +14,13 @@ const corsHeaders = {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+// Tier limits
+const TIER_LIMITS = {
+  starter: 5,
+  creator: 500,
+  studio: 1000
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -47,33 +54,44 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    // Check and enforce prompt limits for starter users
-    if (tier === 'starter') {
-      console.log('Checking prompt usage for starter user:', user.id);
+    // Check and enforce prompt limits for all tiers
+    const tierLimit = TIER_LIMITS[tier as keyof typeof TIER_LIMITS] || TIER_LIMITS.starter;
+    console.log(`Checking prompt usage for ${tier} user:`, user.id, 'limit:', tierLimit);
+    
+    // Get current usage for this user
+    const { data: usageData, error: usageError } = await supabase
+      .rpc('get_or_create_prompt_usage', { user_uuid: user.id });
+
+    if (usageError) {
+      console.error('Error getting prompt usage:', usageError);
+      throw new Error('Failed to check prompt usage');
+    }
+
+    console.log('Current prompt usage:', usageData);
+
+    // Check if user has exceeded the limit
+    if (usageData && usageData.prompt_count >= tierLimit) {
+      const tierName = tier.charAt(0).toUpperCase() + tier.slice(1);
+      let upgradeMessage = '';
       
-      // Get current usage for this user
-      const { data: usageData, error: usageError } = await supabase
-        .rpc('get_or_create_prompt_usage', { user_uuid: user.id });
-
-      if (usageError) {
-        console.error('Error getting prompt usage:', usageError);
-        throw new Error('Failed to check prompt usage');
+      if (tier === 'starter') {
+        upgradeMessage = 'Upgrade to Creator (500 prompts/month) or Studio (1000 prompts/month) plan for more prompts.';
+      } else if (tier === 'creator') {
+        upgradeMessage = 'Upgrade to Studio plan for 1000 prompts per month.';
+      } else {
+        upgradeMessage = 'You have reached your monthly limit. Your usage will reset next month.';
       }
-
-      console.log('Current prompt usage:', usageData);
-
-      // Check if user has exceeded the limit (5 prompts for starter)
-      if (usageData && usageData.prompt_count >= 5) {
-        return new Response(JSON.stringify({ 
-          error: 'USAGE_LIMIT_EXCEEDED',
-          message: 'You have reached your monthly limit of 5 prompts. Upgrade to Creator or Studio plan for unlimited prompts.',
-          currentUsage: usageData.prompt_count,
-          limit: 5
-        }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
+      
+      return new Response(JSON.stringify({ 
+        error: 'USAGE_LIMIT_EXCEEDED',
+        message: `You have reached your monthly limit of ${tierLimit} prompts on the ${tierName} plan. ${upgradeMessage}`,
+        currentUsage: usageData.prompt_count,
+        limit: tierLimit,
+        tier: tier
+      }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Platform-specific system prompts with updated platforms
@@ -178,19 +196,17 @@ Please incorporate these lighting specifications into your style and technical r
       platform: platform
     };
 
-    // Increment prompt count for starter users after successful generation
-    if (tier === 'starter') {
-      console.log('Incrementing prompt count for starter user:', user.id);
-      
-      const { data: newCount, error: incrementError } = await supabase
-        .rpc('increment_prompt_count', { user_uuid: user.id });
+    // Increment prompt count for all tiers after successful generation
+    console.log(`Incrementing prompt count for ${tier} user:`, user.id);
+    
+    const { data: newCount, error: incrementError } = await supabase
+      .rpc('increment_prompt_count', { user_uuid: user.id });
 
-      if (incrementError) {
-        console.error('Error incrementing prompt count:', incrementError);
-        // Don't fail the request, but log the error
-      } else {
-        console.log('New prompt count:', newCount);
-      }
+    if (incrementError) {
+      console.error('Error incrementing prompt count:', incrementError);
+      // Don't fail the request, but log the error
+    } else {
+      console.log('New prompt count:', newCount);
     }
 
     // For now, we'll skip saving to database since the prompt_history table doesn't exist yet

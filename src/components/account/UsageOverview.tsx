@@ -8,17 +8,18 @@ import {
   Video, 
   Palette, 
   Camera,
-  Lightbulb,
-  Infinity
+  Lightbulb
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
+import { usePromptUsage } from '@/hooks/usePromptUsage';
 
 const UsageOverview = () => {
   const { subscription, features } = useSubscription();
+  const { usage, promptLimit } = usePromptUsage();
 
   // Mock usage data - in a real app, this would come from your API
   const usageData = {
-    promptsGenerated: subscription.tier === 'starter' ? 3 : 47,
+    promptsGenerated: usage?.prompt_count || 0,
     platformsUsed: ['Veo3', 'Sora', subscription.tier !== 'starter' ? 'Runway' : null].filter(Boolean),
     cameraControlsUsed: subscription.tier !== 'starter' ? 12 : 0,
     lightingEffectsUsed: subscription.tier !== 'starter' ? 8 : 0,
@@ -30,7 +31,7 @@ const UsageOverview = () => {
       icon: FileText,
       label: 'Prompts Generated',
       value: usageData.promptsGenerated,
-      limit: features.maxPrompts,
+      limit: promptLimit,
       color: 'text-blue-400'
     },
     {
@@ -75,7 +76,6 @@ const UsageOverview = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {usageItems.map((item, index) => {
           const Icon = item.icon;
-          const isUnlimited = item.limit === -1;
           const progressValue = item.limit && item.limit > 0 ? (item.value / item.limit) * 100 : 0;
           
           return (
@@ -90,11 +90,6 @@ const UsageOverview = () => {
                     <Badge variant="outline" className="border-gray-600 text-gray-400 text-xs">
                       Locked
                     </Badge>
-                  ) : isUnlimited ? (
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm font-medium text-white">{item.value}</span>
-                      <Infinity className="w-3 h-3 text-green-400" />
-                    </div>
                   ) : (
                     <span className="text-sm font-medium text-white">
                       {item.value}{item.limit ? `/${item.limit}` : ''}

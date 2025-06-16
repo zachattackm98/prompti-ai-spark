@@ -14,12 +14,12 @@ import { usePromptUsage } from '@/hooks/usePromptUsage';
 
 const SubscriptionStats = () => {
   const { subscription, features } = useSubscription();
-  const { usage, remainingPrompts, usagePercentage, isStarterPlan } = usePromptUsage();
+  const { usage, remainingPrompts, usagePercentage, promptLimit } = usePromptUsage();
 
   // Calculate stats based on actual usage data
   const stats = {
-    promptsUsed: isStarterPlan ? (usage?.prompt_count || 0) : 47, // Mock for non-starter
-    promptsLimit: features.maxPrompts === -1 ? null : features.maxPrompts,
+    promptsUsed: usage?.prompt_count || 0,
+    promptsLimit: promptLimit,
     daysUntilRenewal: subscription.expiresAt ? 
       Math.ceil((new Date(subscription.expiresAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 
       null,
@@ -42,23 +42,21 @@ const SubscriptionStats = () => {
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-400">Prompts This Month</span>
             <span className="text-sm font-medium text-white">
-              {stats.promptsUsed}{stats.promptsLimit ? `/${stats.promptsLimit}` : ''}
+              {stats.promptsUsed}/{stats.promptsLimit}
             </span>
           </div>
-          {stats.promptsLimit && (
-            <Progress 
-              value={isStarterPlan ? usagePercentage : (stats.promptsUsed / stats.promptsLimit) * 100} 
-              className="h-2"
-            />
-          )}
-          {!stats.promptsLimit && (
-            <Badge variant="outline" className="border-green-400/50 text-green-300 text-xs">
-              Unlimited
-            </Badge>
-          )}
-          {isStarterPlan && remainingPrompts > 0 && (
+          <Progress 
+            value={usagePercentage} 
+            className="h-2"
+          />
+          {remainingPrompts > 0 && (
             <p className="text-xs text-gray-500 mt-1">
               {remainingPrompts} prompts remaining this month
+            </p>
+          )}
+          {remainingPrompts === 0 && (
+            <p className="text-xs text-orange-400 mt-1">
+              Monthly limit reached
             </p>
           )}
         </div>

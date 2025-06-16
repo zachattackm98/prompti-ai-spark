@@ -7,22 +7,45 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Crown, AlertCircle, TrendingUp } from 'lucide-react';
 import { usePromptUsage } from '@/hooks/usePromptUsage';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface UsageDisplayProps {
   onUpgrade?: () => void;
 }
 
 const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
+  const { subscription } = useSubscription();
   const { 
     usage, 
     loading, 
     remainingPrompts, 
     hasReachedLimit, 
     usagePercentage, 
-    isStarterPlan 
+    promptLimit
   } = usePromptUsage();
 
-  if (!isStarterPlan) return null;
+  const tierConfig = {
+    starter: {
+      name: 'Starter Plan',
+      color: 'border-purple-400/50 text-purple-300',
+      gradient: 'from-slate-900/80 via-slate-900/60 to-purple-900/20',
+      border: 'border-purple-500/20'
+    },
+    creator: {
+      name: 'Creator Plan',
+      color: 'border-blue-400/50 text-blue-300',
+      gradient: 'from-slate-900/80 via-slate-900/60 to-blue-900/20',
+      border: 'border-blue-500/20'
+    },
+    studio: {
+      name: 'Studio Plan',
+      color: 'border-yellow-400/50 text-yellow-300',
+      gradient: 'from-slate-900/80 via-slate-900/60 to-yellow-900/20',
+      border: 'border-yellow-500/20'
+    }
+  };
+
+  const config = tierConfig[subscription.tier];
 
   return (
     <motion.div
@@ -30,19 +53,19 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
       animate={{ opacity: 1, y: 0 }}
       className="mb-6"
     >
-      <Card className="bg-gradient-to-r from-slate-900/80 via-slate-900/60 to-purple-900/20 border border-purple-500/20 p-4 backdrop-blur-sm">
+      <Card className={`bg-gradient-to-r ${config.gradient} border ${config.border} p-4 backdrop-blur-sm`}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="border-purple-400/50 text-purple-300">
-                Starter Plan
+              <Badge variant="outline" className={`border-opacity-50 ${config.color}`}>
+                {config.name}
               </Badge>
               {hasReachedLimit && (
                 <AlertCircle className="w-4 h-4 text-orange-400" />
               )}
             </div>
           </div>
-          {onUpgrade && (
+          {onUpgrade && subscription.tier !== 'studio' && (
             <Button
               onClick={onUpgrade}
               size="sm"
@@ -58,7 +81,7 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-300">Monthly Prompts Used</span>
             <span className="text-white font-medium">
-              {loading ? '...' : `${usage?.prompt_count || 0}/5`}
+              {loading ? '...' : `${usage?.prompt_count || 0}/${promptLimit}`}
             </span>
           </div>
 
@@ -87,16 +110,18 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
                 <span>Ready to create more?</span>
               </div>
               <p className="text-xs text-gray-400 mb-3">
-                Upgrade to Creator or Studio plan for unlimited prompts and advanced features.
+                {subscription.tier === 'starter' && 'Upgrade to Creator (500/month) or Studio (1000/month) for more prompts.'}
+                {subscription.tier === 'creator' && 'Upgrade to Studio plan for 1000 prompts per month.'}
+                {subscription.tier === 'studio' && 'Your usage will reset next month.'}
               </p>
-              {onUpgrade && (
+              {onUpgrade && subscription.tier !== 'studio' && (
                 <Button
                   onClick={onUpgrade}
                   size="sm"
                   className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
                 >
                   <Crown className="w-3 h-3 mr-2" />
-                  Upgrade Now
+                  {subscription.tier === 'starter' ? 'Upgrade Now' : 'Upgrade to Studio'}
                 </Button>
               )}
             </div>

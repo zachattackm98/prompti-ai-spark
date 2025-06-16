@@ -31,7 +31,7 @@ export const useCinematicForm = (
   loadPromptHistory: () => void
 ) => {
   const { toast } = useToast();
-  const { hasReachedLimit, refetchUsage, isStarterPlan } = usePromptUsage();
+  const { hasReachedLimit, refetchUsage } = usePromptUsage();
   
   // Form state
   const [currentStep, setCurrentStep] = useState(1);
@@ -80,11 +80,23 @@ export const useCinematicForm = (
       return;
     }
 
-    // Check usage limits for starter users
-    if (isStarterPlan && hasReachedLimit) {
+    // Check usage limits for all tiers
+    if (hasReachedLimit) {
+      const tierNames = { starter: 'Starter', creator: 'Creator', studio: 'Studio' };
+      const limits = { starter: 5, creator: 500, studio: 1000 };
+      
+      let upgradeMessage = '';
+      if (subscription.tier === 'starter') {
+        upgradeMessage = 'Upgrade to Creator (500 prompts/month) or Studio (1000 prompts/month) for more prompts.';
+      } else if (subscription.tier === 'creator') {
+        upgradeMessage = 'Upgrade to Studio plan for 1000 prompts per month.';
+      } else {
+        upgradeMessage = 'Your usage will reset next month.';
+      }
+
       toast({
         title: "Usage Limit Reached",
-        description: "You've reached your monthly limit of 5 prompts. Upgrade to Creator or Studio plan for unlimited prompts.",
+        description: `You've reached your monthly limit of ${limits[subscription.tier]} prompts on the ${tierNames[subscription.tier]} plan. ${upgradeMessage}`,
         variant: "destructive",
       });
       return;
@@ -120,7 +132,7 @@ export const useCinematicForm = (
         if (error.message === 'USAGE_LIMIT_EXCEEDED') {
           toast({
             title: "Usage Limit Exceeded",
-            description: "You've reached your monthly limit of 5 prompts. Upgrade to get unlimited access!",
+            description: "You've reached your monthly prompt limit. Please upgrade for more prompts!",
             variant: "destructive",
           });
           // Refresh usage data
@@ -147,9 +159,7 @@ export const useCinematicForm = (
       setGeneratedPrompt(data.prompt);
       
       // Refresh usage data after successful generation
-      if (isStarterPlan) {
-        await refetchUsage();
-      }
+      await refetchUsage();
       
       // Load updated history
       loadPromptHistory();
@@ -171,7 +181,7 @@ export const useCinematicForm = (
   }, [
     user, sceneIdea, selectedPlatform, selectedEmotion, styleReference,
     cameraSettings, lightingSettings, subscription.tier, canUseFeature,
-    setShowAuthDialog, loadPromptHistory, toast, isStarterPlan, hasReachedLimit, refetchUsage
+    setShowAuthDialog, loadPromptHistory, toast, hasReachedLimit, refetchUsage
   ]);
 
   const handleGenerateNew = () => {

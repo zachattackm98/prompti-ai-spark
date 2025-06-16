@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useSubscription } from './useSubscription';
+import { TIER_FEATURES } from '@/types/subscription';
 
 interface PromptUsage {
   id: string;
@@ -21,7 +22,7 @@ export const usePromptUsage = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchUsage = async () => {
-    if (!user || subscription.tier !== 'starter') return;
+    if (!user) return;
 
     setLoading(true);
     setError(null);
@@ -41,29 +42,33 @@ export const usePromptUsage = () => {
   };
 
   useEffect(() => {
-    if (user && subscription.tier === 'starter') {
+    if (user) {
       fetchUsage();
     } else {
       setUsage(null);
     }
-  }, [user, subscription.tier]);
+  }, [user]);
+
+  const getPromptLimit = () => {
+    return TIER_FEATURES[subscription.tier].maxPrompts;
+  };
 
   const getRemainingPrompts = () => {
-    if (subscription.tier !== 'starter') return -1; // Unlimited
-    if (!usage) return 5; // Default limit
-    return Math.max(0, 5 - usage.prompt_count);
+    const limit = getPromptLimit();
+    if (!usage) return limit;
+    return Math.max(0, limit - usage.prompt_count);
   };
 
   const hasReachedLimit = () => {
-    if (subscription.tier !== 'starter') return false;
     if (!usage) return false;
-    return usage.prompt_count >= 5;
+    const limit = getPromptLimit();
+    return usage.prompt_count >= limit;
   };
 
   const getUsagePercentage = () => {
-    if (subscription.tier !== 'starter') return 0;
     if (!usage) return 0;
-    return Math.min(100, (usage.prompt_count / 5) * 100);
+    const limit = getPromptLimit();
+    return Math.min(100, (usage.prompt_count / limit) * 100);
   };
 
   return {
@@ -74,6 +79,7 @@ export const usePromptUsage = () => {
     remainingPrompts: getRemainingPrompts(),
     hasReachedLimit: hasReachedLimit(),
     usagePercentage: getUsagePercentage(),
+    promptLimit: getPromptLimit(),
     isStarterPlan: subscription.tier === 'starter'
   };
 };
