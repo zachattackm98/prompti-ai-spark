@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import Header from './landing/Header';
 import Hero from './landing/Hero';
 import SocialProof from './landing/SocialProof';
@@ -15,10 +16,29 @@ import FinalCTA from './landing/FinalCTA';
 import PopularResources from './landing/PopularResources';
 import Footer from './landing/Footer';
 import CinematicPromptGenerator from './CinematicPromptGenerator';
+import SubscriberWelcome from './landing/SubscriberWelcome';
 
 const LandingPage = () => {
   const { user } = useAuth();
+  const { subscription } = useSubscription();
 
+  // Check if user has an active paid subscription
+  const hasActivePaidSubscription = user && subscription?.isActive && 
+    (subscription.tier === 'creator' || subscription.tier === 'studio');
+
+  // For users with active paid subscriptions, show simplified view
+  if (hasActivePaidSubscription) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <Header />
+        <SubscriberWelcome user={user} subscription={subscription} />
+        <CinematicPromptGenerator />
+        <Footer />
+      </div>
+    );
+  }
+
+  // For non-logged-in users and free tier users, show full landing page
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <Header />
