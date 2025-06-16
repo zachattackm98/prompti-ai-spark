@@ -1,47 +1,90 @@
 
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { PricingPlan } from './types';
+import { useToast } from '@/hooks/use-toast';
 
 export const usePricingLogic = () => {
   const { user } = useAuth();
-  const { subscription, createCheckout, openCustomerPortal, loading } = useSubscription();
+  const { subscription, createCheckout, loading } = useSubscription();
+  const { toast } = useToast();
 
-  const handlePlanClick = async (planTier: string) => {
-    if (planTier === 'starter') {
-      // Starter is free, no action needed
-      return;
-    }
-
+  const handlePlanClick = async (plan: PricingPlan) => {
+    console.log('[PRICING] Plan clicked:', plan.name, 'tier:', plan.tier);
+    
     if (!user) {
-      // Redirect to sign up if not authenticated
-      document.getElementById('auth-dialog-trigger')?.click();
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to subscribe to a plan.",
+        variant: "destructive",
+      });
       return;
     }
 
-    if (subscription.tier === planTier && subscription.isActive) {
-      // Already subscribed to this plan, open customer portal
-      await openCustomerPortal();
-    } else {
-      // Subscribe to new plan
-      await createCheckout(planTier as 'creator' | 'studio');
+    // Handle free plan
+    if (plan.tier === 'starter') {
+      toast({
+        title: "You're on the Starter plan",
+        description: "You already have access to the free Starter features.",
+      });
+      return;
+    }
+
+    // Handle current plan
+    if (isCurrentPlan(plan.tier)) {
+      toast({
+        title: "Current Plan",
+        description: `You're already subscribed to the ${plan.name}.`,
+      });
+      return;
+    }
+
+    // Create checkout for paid plans
+    if (plan.tier === 'creator' || plan.tier === 'studio') {
+      console.log('[PRICING] Creating checkout for tier:', plan.tier);
+      
+      try {
+        await createCheckout(plan.tier);
+        
+        // Show success message for test mode
+        toast({
+          title: "Test Mode Active",
+          description: "You're using Stripe test mode. Use test card 4242 4242 4242 4242 to complete the payment.",
+        });
+      } catch (error) {
+        console.error('[PRICING] Checkout failed:', error);
+        toast({
+          title: "Checkout Error",
+          description: "Failed to start checkout process. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
   const getButtonText = (plan: PricingPlan) => {
-    if (plan.tier === 'starter') return plan.cta;
-    
-    if (!user) return plan.cta;
-    
-    if (subscription.tier === plan.tier && subscription.isActive) {
-      return 'Manage Subscription';
+    if (!user) {
+      return plan.tier === 'starter' ? 'Get Started Free' : 'Sign In to Subscribe';
     }
     
-    return plan.cta;
+    if (plan.tier === 'starter') {
+      return 'Current Plan';
+    }
+    
+    if (isCurrentPlan(plan.tier)) {
+      return 'Current Plan';
+    }
+    
+    if (loading) {
+      return 'Processing...';
+    }
+    
+    return `Upgrade to ${plan.name}`;
   };
 
-  const isCurrentPlan = (planTier: string) => {
-    return subscription.tier === planTier && subscription.isActive;
+  const isCurrentPlan = (tier: string) => {
+    return subscription.tier === tier;
   };
 
   return {
@@ -50,6 +93,6 @@ export const usePricingLogic = () => {
     loading,
     handlePlanClick,
     getButtonText,
-    isCurrentPlan
+    isCurrentPlan,
   };
 };
