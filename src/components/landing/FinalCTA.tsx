@@ -38,7 +38,7 @@ const FinalCTA = () => {
               className="text-lg sm:text-xl text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto"
             >
               Join thousands of creators who've transformed their video content with AiPromptMachine. 
-              Start your free trial today and see the difference professional prompts make.
+              Start for free today and see the difference professional prompts make.
             </motion.p>
             
             <motion.div 
@@ -49,7 +49,7 @@ const FinalCTA = () => {
                 size="lg" 
                 className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300"
               >
-                Start Free Trial
+                Start For Free
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
               </Button>
               <Button 
@@ -65,7 +65,7 @@ const FinalCTA = () => {
               variants={fadeInVariants}
               className="text-gray-400 text-xs sm:text-sm mt-4 sm:mt-6"
             >
-              No credit card required • 7-day free trial • Cancel anytime
+              No credit card required • Cancel anytime
             </motion.p>
           </div>
         </motion.div>
