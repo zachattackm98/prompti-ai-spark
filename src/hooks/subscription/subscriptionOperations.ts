@@ -5,6 +5,7 @@ import {
   showToast
 } from './subscriptionApi';
 import { toast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
 export const useSubscriptionOperations = (
   user: any,
@@ -168,12 +169,16 @@ export const useSubscriptionOperations = (
             title: "Popup Blocked",
             description: "Click here to open billing portal",
             variant: "default",
-            action: {
-              label: "Open Portal",
-              onClick: () => {
-                window.location.href = data.url;
-              }
-            }
+            action: (
+              <ToastAction
+                altText="Open Portal"
+                onClick={() => {
+                  window.location.href = data.url;
+                }}
+              >
+                Open Portal
+              </ToastAction>
+            )
           });
         } else {
           throw new Error('No portal URL received');
