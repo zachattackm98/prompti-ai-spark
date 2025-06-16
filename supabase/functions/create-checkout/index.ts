@@ -81,13 +81,22 @@ serve(async (req) => {
       throw new Error(`Authentication process failed: ${authError.message}`);
     }
 
-    // Parse request body - read only once
+    // Parse request body with better error handling
     let planType;
     try {
       logStep("Reading request body...");
       
-      const requestBody = await req.json();
-      logStep("Request body parsed", requestBody);
+      // Get request body as text first to debug
+      const bodyText = await req.text();
+      logStep("Raw request body", { length: bodyText.length, body: bodyText.substring(0, 200) });
+      
+      if (!bodyText || bodyText.trim() === '') {
+        logStep("ERROR: Empty request body received");
+        throw new Error("Request body is empty");
+      }
+
+      const requestBody = JSON.parse(bodyText);
+      logStep("Request body parsed successfully", requestBody);
 
       planType = requestBody.planType;
       if (!planType) {
@@ -102,7 +111,7 @@ serve(async (req) => {
       
       logStep("Plan type validated", { planType });
     } catch (parseError) {
-      logStep("ERROR: Request body parsing failed", parseError);
+      logStep("ERROR: Request body parsing failed", { error: parseError.message });
       throw new Error(`Failed to parse request body: ${parseError.message}`);
     }
 
