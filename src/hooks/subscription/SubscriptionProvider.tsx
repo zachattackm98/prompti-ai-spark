@@ -25,6 +25,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
 
   const checkSubscription = async () => {
     if (!user) {
+      console.log('[SUBSCRIPTION] No user found, setting starter subscription');
       setSubscription({ tier: 'starter', isActive: false });
       setBillingDetails(null);
       return;
@@ -35,20 +36,39 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
       console.log('[SUBSCRIPTION] Checking subscription for user:', user.email);
       const data = await apiCheckSubscription();
 
+      console.log('[SUBSCRIPTION] Subscription data received:', data);
+      
       setSubscription({
         tier: data.subscription_tier || 'starter',
         isActive: data.subscribed || false,
         expiresAt: data.subscription_end,
       });
 
-      setBillingDetails(data.billing_details);
+      setBillingDetails(data.billing_details || null);
+      
+      console.log('[SUBSCRIPTION] Subscription state updated:', {
+        tier: data.subscription_tier || 'starter',
+        isActive: data.subscribed || false,
+        expiresAt: data.subscription_end
+      });
     } catch (error: any) {
       console.error('[SUBSCRIPTION] Error checking subscription:', error);
+      
+      // Provide more specific error messages
+      let errorMessage = "Failed to check subscription status";
+      if (error.message?.includes('Authentication')) {
+        errorMessage = "Authentication failed. Please sign in again.";
+      } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      }
+      
       showToast(
-        "Error",
-        "Failed to check subscription status. Please try again.",
+        "Subscription Check Failed",
+        errorMessage,
         "destructive"
       );
+      
+      // Set fallback state
       setSubscription({ tier: 'starter', isActive: false });
       setBillingDetails(null);
     } finally {
@@ -58,6 +78,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
 
   const createCheckout = async (planType: 'creator' | 'studio') => {
     if (!user) {
+      console.error('[SUBSCRIPTION] No user found for checkout');
       showToast(
         "Authentication Required",
         "Please sign in to subscribe.",
@@ -66,37 +87,76 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
       return;
     }
 
+    console.log('[SUBSCRIPTION] Starting checkout process for:', planType);
     setLoading(true);
     
     try {
+      console.log('[SUBSCRIPTION] Creating checkout session...');
       const data = await createCheckoutSession(planType);
+      
+      console.log('[SUBSCRIPTION] Checkout session created, redirecting...');
       handleCheckoutRedirect(data.url);
     } catch (error: any) {
       console.error('[SUBSCRIPTION] Error creating checkout:', error);
-      const errorMessage = error.message || 'Failed to create checkout session';
-      showToast(
-        "Checkout Error",
-        errorMessage + ". Please try again or contact support.",
-        "destructive"
-      );
+      
+      // Provide more specific error messages based on error type
+      let errorMessage = 'Failed to create checkout session';
+      let errorTitle = 'Checkout Error';
+      
+      if (error.message?.includes('Authentication')) {
+        errorTitle = 'Authentication Error';
+        errorMessage = 'Your session has expired. Please sign in again.';
+      } else if (error.message?.includes('Invalid plan')) {
+        errorTitle = 'Invalid Plan';
+        errorMessage = 'The selected plan is not available. Please try again.';
+      } else if (error.message?.includes('STRIPE_SECRET_KEY')) {
+        errorTitle = 'Configuration Error';
+        errorMessage = 'Payment system is not configured. Please contact support.';
+      } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        errorTitle = 'Network Error';
+        errorMessage = 'Connection failed. Please check your internet and try again.';
+      } else if (error.message?.includes('checkout URL')) {
+        errorTitle = 'Checkout Error';
+        errorMessage = 'Failed to create payment page. Please try again.';
+      }
+      
+      showToast(errorTitle, errorMessage, "destructive");
     } finally {
       setLoading(false);
     }
   };
 
   const openCustomerPortal = async () => {
-    if (!user) return;
+    if (!user) {
+      console.error('[SUBSCRIPTION] No user found for customer portal');
+      return;
+    }
 
+    console.log('[SUBSCRIPTION] Opening customer portal...');
     setLoading(true);
+    
     try {
       const data = await apiOpenCustomerPortal();
-      // Open customer portal in a new tab
-      window.open(data.url, '_blank');
+      
+      if (data?.url) {
+        console.log('[SUBSCRIPTION] Opening customer portal in new tab');
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error('No portal URL received');
+      }
     } catch (error: any) {
-      console.error('Error opening customer portal:', error);
+      console.error('[SUBSCRIPTION] Error opening customer portal:', error);
+      
+      let errorMessage = "Failed to open customer portal";
+      if (error.message?.includes('Authentication')) {
+        errorMessage = "Your session has expired. Please sign in again.";
+      } else if (error.message?.includes('No Stripe customer')) {
+        errorMessage = "No subscription found. Please subscribe first.";
+      }
+      
       showToast(
-        "Error",
-        "Failed to open customer portal. Please try again.",
+        "Portal Error",
+        errorMessage,
         "destructive"
       );
     } finally {
@@ -105,6 +165,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
   };
 
   useEffect(() => {
+    console.log('[SUBSCRIPTION] User state changed:', user?.email || 'no user');
     checkSubscription();
   }, [user]);
 
@@ -114,14 +175,19 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
     const checkout = urlParams.get('checkout');
     
     if (checkout === 'success') {
+      console.log('[SUBSCRIPTION] Checkout success detected');
       showToast(
         "Payment Successful!",
         "Your subscription has been activated. Refreshing your account status..."
       );
       // Remove the URL param and refresh subscription
       window.history.replaceState({}, document.title, window.location.pathname);
-      setTimeout(() => checkSubscription(), 2000);
+      setTimeout(() => {
+        console.log('[SUBSCRIPTION] Refreshing subscription after successful checkout');
+        checkSubscription();
+      }, 2000);
     } else if (checkout === 'cancelled') {
+      console.log('[SUBSCRIPTION] Checkout cancelled detected');
       showToast(
         "Payment Cancelled",
         "Your subscription process was cancelled.",
@@ -134,7 +200,8 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
   const features = TIER_FEATURES[subscription.tier];
 
   const hasFeature = (feature: keyof typeof TIER_FEATURES[SubscriptionTier]) => {
-    return features[feature] !== false && features[feature] !== 0;
+    const featureValue = features[feature];
+    return featureValue !== false && featureValue !== 0;
   };
 
   const canUseFeature = (feature: keyof typeof TIER_FEATURES[SubscriptionTier]) => {

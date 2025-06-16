@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Crown, Sparkles, ArrowRight, Loader2 } from 'lucide-react';
+import { Crown, Sparkles, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { SubscriptionTier } from '@/types/subscription';
 import { useSubscription } from '@/hooks/useSubscription';
 
@@ -31,11 +31,19 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
   currentTier
 }) => {
   const { createCheckout, loading } = useSubscription();
+  const [error, setError] = React.useState<string | null>(null);
 
   const handleUpgrade = async () => {
     if (requiredTier === 'creator' || requiredTier === 'studio') {
       console.log('[UPGRADE] Starting upgrade process for tier:', requiredTier);
-      await createCheckout(requiredTier);
+      setError(null);
+      
+      try {
+        await createCheckout(requiredTier);
+      } catch (error: any) {
+        console.error('[UPGRADE] Upgrade failed:', error);
+        setError(error.message || 'Failed to start upgrade process');
+      }
     }
   };
 
@@ -69,11 +77,20 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
           Upgrade to {tierNames[requiredTier]}
         </div>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-900/20 border border-red-400/30 rounded-lg">
+          <div className="flex items-center justify-center text-red-400 text-sm">
+            <AlertCircle className="w-4 h-4 mr-2" />
+            {error}
+          </div>
+        </div>
+      )}
       
       <Button
         onClick={handleUpgrade}
         disabled={loading}
-        className={`bg-gradient-to-r ${tierColors[requiredTier]} hover:opacity-90 text-white font-medium`}
+        className={`bg-gradient-to-r ${tierColors[requiredTier]} hover:opacity-90 text-white font-medium transition-all duration-200`}
       >
         {loading ? (
           <>
