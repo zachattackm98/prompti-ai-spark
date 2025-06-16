@@ -49,16 +49,25 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
 
   const isUpgrade = currentTier !== 'starter' && currentTier !== requiredTier;
   const hasActiveSubscription = subscription?.isActive && currentTier !== 'starter';
+  const isStudioFeature = requiredTier === 'studio';
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-gradient-to-br from-slate-900/90 to-purple-900/30 border border-purple-400/30 rounded-xl p-6 text-center"
+      className={`border rounded-xl p-6 text-center ${
+        isStudioFeature 
+          ? 'bg-gradient-to-br from-slate-900/90 to-yellow-900/30 border-yellow-400/30'
+          : 'bg-gradient-to-br from-slate-900/90 to-purple-900/30 border-purple-400/30'
+      }`}
     >
       <div className="flex items-center justify-center mb-4">
-        <Crown className="w-8 h-8 text-yellow-400 mr-2" />
-        <Sparkles className="w-6 h-6 text-purple-400" />
+        <Crown className={`w-8 h-8 mr-2 ${
+          isStudioFeature ? 'text-yellow-400' : 'text-yellow-400'
+        }`} />
+        <Sparkles className={`w-6 h-6 ${
+          isStudioFeature ? 'text-yellow-400' : 'text-purple-400'
+        }`} />
       </div>
       
       <h3 className="text-xl font-bold text-white mb-2">
@@ -105,7 +114,9 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
       <Button
         onClick={handleUpgrade}
         disabled={loading}
-        className={`bg-gradient-to-r ${tierColors[requiredTier]} hover:opacity-90 text-white font-medium transition-all duration-200`}
+        className={`bg-gradient-to-r ${tierColors[requiredTier]} hover:opacity-90 text-white font-medium transition-all duration-200 ${
+          isStudioFeature ? 'shadow-lg shadow-yellow-500/25' : ''
+        }`}
       >
         {loading ? (
           <>

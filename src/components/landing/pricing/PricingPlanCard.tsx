@@ -26,11 +26,16 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
   const isOptimistic = sessionStorage.getItem('optimistic_update') === 'true' && 
                        sessionStorage.getItem('pending_tier') === plan.tier;
 
+  // Determine if this is the Studio plan for gold styling
+  const isStudioPlan = plan.tier === 'studio';
+
   return (
     <motion.div
       variants={cardVariants}
       className={`relative bg-slate-900/40 border rounded-2xl p-8 will-change-transform hover:scale-[1.02] transition-all duration-300 ${
-        plan.popular 
+        isStudioPlan
+          ? 'border-yellow-500/50 bg-gradient-to-b from-slate-900/60 to-yellow-900/20'
+          : plan.popular 
           ? 'border-purple-500 bg-slate-900/60 md:scale-105' 
           : isCurrentPlan
           ? 'border-green-500 bg-slate-900/60'
@@ -39,10 +44,19 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
           : 'border-white/10 hover:border-white/20'
       }`}
     >
-      {plan.popular && (
+      {plan.popular && !isStudioPlan && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-medium">
             Most Popular
+          </div>
+        </div>
+      )}
+
+      {isStudioPlan && (
+        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+          <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-1">
+            <Sparkles className="w-4 h-4" />
+            Premium Studio
           </div>
         </div>
       )}
@@ -79,6 +93,8 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
             ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
             : isCurrentPlan || isOptimistic
             ? 'bg-gradient-to-r from-green-500 to-emerald-500'
+            : isStudioPlan
+            ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
             : 'bg-gradient-to-r from-purple-500 to-pink-500'
         }`}>
           {isPending ? (
@@ -87,10 +103,14 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
             <plan.icon className="w-6 h-6 text-white" />
           )}
         </div>
-        <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+        <h3 className={`text-2xl font-bold mb-2 ${
+          isStudioPlan ? 'text-yellow-300' : 'text-white'
+        }`}>{plan.name}</h3>
         <p className="text-gray-400 mb-4">{plan.description}</p>
         <div className="flex items-end justify-center">
-          <span className="text-4xl font-bold text-white">{plan.price}</span>
+          <span className={`text-4xl font-bold ${
+            isStudioPlan ? 'text-yellow-300' : 'text-white'
+          }`}>{plan.price}</span>
           {plan.period && <span className="text-gray-400 ml-1">{plan.period}</span>}
         </div>
       </div>
@@ -101,10 +121,14 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
             <div className="flex-shrink-0 mt-0.5">
               {feature.includes('camera controls') ? (
                 <Camera className="w-4 h-4 text-purple-400 mr-3" />
-              ) : feature.includes('lighting') ? (
-                <Lightbulb className="w-4 h-4 text-yellow-400 mr-3" />
+              ) : feature.includes('lighting') || feature.includes('Advanced lighting') ? (
+                <Lightbulb className={`w-4 h-4 mr-3 ${
+                  isStudioPlan ? 'text-yellow-400' : 'text-yellow-400'
+                }`} />
               ) : (
-                <Check className="w-4 h-4 text-green-400 mr-3" />
+                <Check className={`w-4 h-4 mr-3 ${
+                  isStudioPlan ? 'text-yellow-400' : 'text-green-400'
+                }`} />
               )}
             </div>
             <span className="text-sm">{feature}</span>
@@ -120,6 +144,8 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
             ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
             : isCurrentPlan || isOptimistic
             ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+            : isStudioPlan
+            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-lg shadow-yellow-500/25'
             : plan.popular 
             ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' 
             : 'bg-slate-800 border border-white/20 hover:bg-slate-700'
