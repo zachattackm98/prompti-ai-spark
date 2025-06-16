@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export const usePricingLogic = () => {
   const { user } = useAuth();
-  const { subscription, createCheckout, loading } = useSubscription();
+  const { subscription, createOptimisticCheckout, loading } = useSubscription();
   const { toast } = useToast();
 
   const handlePlanClick = async (plan: PricingPlan) => {
@@ -40,20 +40,20 @@ export const usePricingLogic = () => {
       return;
     }
 
-    // Create checkout for paid plans
+    // Create optimistic checkout for paid plans
     if (plan.tier === 'creator' || plan.tier === 'studio') {
-      console.log('[PRICING] Creating checkout for tier:', plan.tier);
+      console.log('[PRICING] Creating optimistic checkout for tier:', plan.tier);
       
       try {
-        await createCheckout(plan.tier);
+        await createOptimisticCheckout(plan.tier);
         
-        // Show success message for test mode
+        // Show optimistic success message
         toast({
-          title: "Test Mode Active",
-          description: "You're using Stripe test mode. Use test card 4242 4242 4242 4242 to complete the payment.",
+          title: "Upgrading Your Plan",
+          description: `Switching to ${plan.name}. You'll be redirected to complete payment.`,
         });
       } catch (error) {
-        console.error('[PRICING] Checkout failed:', error);
+        console.error('[PRICING] Optimistic checkout failed:', error);
         toast({
           title: "Checkout Error",
           description: "Failed to start checkout process. Please try again.",

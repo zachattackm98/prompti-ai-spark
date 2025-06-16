@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Check, Camera, Lightbulb } from 'lucide-react';
+import { Check, Camera, Lightbulb, Loader2, Sparkles } from 'lucide-react';
 import { cardVariants } from '@/utils/animations';
 import { PricingPlan } from './types';
 
@@ -21,6 +21,11 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
   onPlanClick,
   getButtonText
 }) => {
+  // Check if this plan is being processed (optimistic update)
+  const isPending = loading && sessionStorage.getItem('pending_tier') === plan.tier;
+  const isOptimistic = sessionStorage.getItem('optimistic_update') === 'true' && 
+                       sessionStorage.getItem('pending_tier') === plan.tier;
+
   return (
     <motion.div
       variants={cardVariants}
@@ -29,6 +34,8 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
           ? 'border-purple-500 bg-slate-900/60 md:scale-105' 
           : isCurrentPlan
           ? 'border-green-500 bg-slate-900/60'
+          : isPending
+          ? 'border-yellow-500 bg-slate-900/60 animate-pulse'
           : 'border-white/10 hover:border-white/20'
       }`}
     >
@@ -40,21 +47,45 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
         </div>
       )}
 
-      {isCurrentPlan && (
+      {isCurrentPlan && !isPending && (
         <div className="absolute -top-4 right-4">
           <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-xs font-medium">
             Your Plan
           </div>
         </div>
       )}
+
+      {isPending && (
+        <div className="absolute -top-4 right-4">
+          <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            Activating
+          </div>
+        </div>
+      )}
+
+      {isOptimistic && !isPending && (
+        <div className="absolute -top-4 right-4">
+          <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+            <Sparkles className="w-3 h-3" />
+            New Plan
+          </div>
+        </div>
+      )}
       
       <div className="text-center mb-8">
         <div className={`w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4 ${
-          isCurrentPlan 
+          isPending
+            ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
+            : isCurrentPlan || isOptimistic
             ? 'bg-gradient-to-r from-green-500 to-emerald-500'
             : 'bg-gradient-to-r from-purple-500 to-pink-500'
         }`}>
-          <plan.icon className="w-6 h-6 text-white" />
+          {isPending ? (
+            <Loader2 className="w-6 h-6 text-white animate-spin" />
+          ) : (
+            <plan.icon className="w-6 h-6 text-white" />
+          )}
         </div>
         <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
         <p className="text-gray-400 mb-4">{plan.description}</p>
@@ -83,9 +114,11 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
       
       <Button 
         onClick={() => onPlanClick(plan)}
-        disabled={loading}
+        disabled={loading && !isPending}
         className={`w-full transition-all duration-300 ${
-          isCurrentPlan
+          isPending
+            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
+            : isCurrentPlan || isOptimistic
             ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
             : plan.popular 
             ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' 
@@ -93,7 +126,14 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
         }`}
         size="lg"
       >
-        {loading ? 'Processing...' : getButtonText(plan)}
+        {isPending ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          getButtonText(plan)
+        )}
       </Button>
     </motion.div>
   );

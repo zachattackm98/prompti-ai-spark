@@ -1,16 +1,25 @@
 
-import { UserSubscription, SubscriptionTier, TIER_FEATURES } from '@/types/subscription';
+import { UserSubscription } from '@/types/subscription';
 import { BillingDetails } from './subscriptionApi';
 
 export interface SubscriptionContextType {
   subscription: UserSubscription;
   billingDetails: BillingDetails | null;
-  features: typeof TIER_FEATURES[SubscriptionTier];
-  hasFeature: (feature: keyof typeof TIER_FEATURES[SubscriptionTier]) => boolean;
-  canUseFeature: (feature: keyof typeof TIER_FEATURES[SubscriptionTier]) => boolean;
-  upgradeRequired: (targetTier: SubscriptionTier) => boolean;
-  checkSubscription: () => Promise<void>;
-  createCheckout: (planType: 'creator' | 'studio') => Promise<void>;
-  openCustomerPortal: () => Promise<void>;
   loading: boolean;
+  
+  // Subscription checks
+  checkSubscription: () => Promise<void>;
+  progressiveVerification: (expectedTier: string) => Promise<void>;
+  
+  // Operations
+  createCheckout: (planType: 'creator' | 'studio') => Promise<void>;
+  createOptimisticCheckout: (planType: 'creator' | 'studio') => Promise<void>;
+  openCustomerPortal: () => Promise<void>;
+  
+  // Feature helpers
+  isSubscribed: boolean;
+  canUseFeature: (feature: string) => boolean;
+  features: any;
+  getRemainingFeatures: (currentTier: string) => string[];
+  getUpgradeMessage: (feature: string, requiredTier: string) => string;
 }
