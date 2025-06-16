@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -63,12 +62,11 @@ export const createCheckoutSession = async (planType: 'creator' | 'studio') => {
   console.log('[SUBSCRIPTION] Invoking create-checkout function with planType:', planType);
 
   try {
-    // Correct Supabase syntax - pass data as the first parameter, not in body
+    // Remove Content-Type header and let Supabase handle serialization
     const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: { planType }, // Pass as plain object, not JSON string
+      body: { planType }, // Pass as plain object
       headers: {
         Authorization: `Bearer ${session.data.session.access_token}`,
-        'Content-Type': 'application/json',
       },
     });
 
