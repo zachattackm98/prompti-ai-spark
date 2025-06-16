@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, Lock, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
@@ -16,15 +16,28 @@ const ResetPasswordPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [validSession, setValidSession] = useState<boolean | null>(null);
   
   const { updatePassword, user, session } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
-    // If no session, redirect to home
-    if (!session || !user) {
-      window.location.href = '/';
-    }
+    console.log('[RESET] Checking session validity');
+    console.log('[RESET] User:', user?.email || 'no user');
+    console.log('[RESET] Session:', session ? 'present' : 'not present');
+    
+    // Give some time for auth to initialize
+    const timer = setTimeout(() => {
+      if (!session || !user) {
+        console.log('[RESET] No valid session found, marking as invalid');
+        setValidSession(false);
+      } else {
+        console.log('[RESET] Valid session found');
+        setValidSession(true);
+      }
+    }, 2000); // Wait 2 seconds for auth to initialize
+
+    return () => clearTimeout(timer);
   }, [session, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,27 +64,30 @@ const ResetPasswordPage = () => {
     setLoading(true);
 
     try {
+      console.log('[RESET] Attempting to update password');
       const result = await updatePassword(password);
 
       if (result.error) {
+        console.error('[RESET] Password update error:', result.error);
         toast({
           title: "Error",
           description: result.error.message,
           variant: "destructive",
         });
       } else {
+        console.log('[RESET] Password updated successfully');
         setSuccess(true);
         toast({
           title: "Password Updated",
           description: "Your password has been successfully updated.",
         });
         
-        // Redirect to account page after 3 seconds
         setTimeout(() => {
           window.location.href = '/account';
         }, 3000);
       }
     } catch (error: any) {
+      console.error('[RESET] Password update exception:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to update password",
@@ -82,6 +98,65 @@ const ResetPasswordPage = () => {
     }
   };
 
+  // Show loading while checking session validity
+  if (validSession === null) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          <Card className="bg-slate-900/60 border-white/10 p-8 text-center">
+            <div className="flex justify-center mb-6">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-400"></div>
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-4">
+              Loading...
+            </h1>
+            <p className="text-gray-400">
+              Please wait while we verify your password reset link.
+            </p>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Show error if no valid session
+  if (validSession === false) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          <Card className="bg-slate-900/60 border-white/10 p-8 text-center">
+            <div className="flex justify-center mb-6">
+              <AlertCircle className="w-16 h-16 text-red-400" />
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-4">
+              Invalid Reset Link
+            </h1>
+            <p className="text-gray-400 mb-6">
+              Your password reset link is invalid or has expired. Please request a new one.
+            </p>
+            <Button
+              onClick={() => window.location.href = '/'}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+            >
+              Back to Home
+            </Button>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Show success page
   if (success) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
@@ -113,6 +188,7 @@ const ResetPasswordPage = () => {
     );
   }
 
+  // Show password reset form
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
       <motion.div

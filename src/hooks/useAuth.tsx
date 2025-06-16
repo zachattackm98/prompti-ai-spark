@@ -30,111 +30,111 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     console.log('[AUTH] Initializing auth provider');
     console.log('[AUTH] Current URL:', window.location.href);
     console.log('[AUTH] Hash:', window.location.hash);
+    console.log('[AUTH] Search params:', window.location.search);
 
-    // Check for auth hash parameters in URL
-    const handleAuthHash = async () => {
+    // Check for auth parameters in both hash and URL search params
+    const handleAuthParams = async () => {
       const hash = window.location.hash;
-      console.log('[AUTH] Checking hash:', hash);
-
+      const searchParams = new URLSearchParams(window.location.search);
+      
+      // Check hash parameters (legacy)
       if (hash && hash.includes('access_token')) {
         console.log('[AUTH] Found access_token in hash, parsing parameters');
-        
-        // Parse hash parameters - remove the # and split by &
-        const hashParams = new URLSearchParams(hash.substring(1));
-        const accessToken = hashParams.get('access_token');
-        const refreshToken = hashParams.get('refresh_token');
-        const type = hashParams.get('type');
-        const expiresAt = hashParams.get('expires_at');
-
-        console.log('[AUTH] Parsed hash params:', {
-          accessToken: accessToken ? 'present' : 'missing',
-          refreshToken: refreshToken ? 'present' : 'missing',
-          type,
-          expiresAt
-        });
-
-        if (accessToken && refreshToken && type === 'signup') {
-          console.log('[AUTH] Processing signup confirmation from URL hash');
-          try {
-            const { data, error } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            });
-
-            if (error) {
-              console.error('[AUTH] Error setting session from hash:', error);
-              toast({
-                title: "Confirmation Error",
-                description: "There was an error confirming your account. Please try signing in.",
-                variant: "destructive",
-              });
-            } else if (data.session) {
-              console.log('[AUTH] Signup confirmation successful, user:', data.session.user.email);
-              setConfirmationSuccess(true);
-              
-              toast({
-                title: "Account Confirmed!",
-                description: "Your account has been successfully confirmed. Welcome!",
-              });
-              
-              // Clean up the URL hash
-              console.log('[AUTH] Cleaning up URL hash');
-              window.history.replaceState(null, '', window.location.pathname);
-              
-              // Set a longer delay before redirect to account page
-              setTimeout(() => {
-                console.log('[AUTH] Redirecting to account page');
-                window.location.href = '/account';
-              }, 3000);
-            }
-          } catch (error) {
-            console.error('[AUTH] Exception during hash processing:', error);
-            toast({
-              title: "Confirmation Error",
-              description: "There was an error confirming your account. Please try signing in.",
-              variant: "destructive",
-            });
-          }
-        } else if (accessToken && refreshToken && type === 'recovery') {
-          console.log('[AUTH] Processing password reset from URL hash');
-          try {
-            const { data, error } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            });
-
-            if (error) {
-              console.error('[AUTH] Error setting session from recovery hash:', error);
-              toast({
-                title: "Password Reset Error",
-                description: "There was an error with your password reset link. Please try again.",
-                variant: "destructive",
-              });
-            } else if (data.session) {
-              console.log('[AUTH] Password reset session established, redirecting to reset page');
-              
-              // Clean up the URL hash
-              window.history.replaceState(null, '', window.location.pathname);
-              
-              // Redirect to password reset page
-              setTimeout(() => {
-                window.location.href = '/reset-password';
-              }, 100);
-            }
-          } catch (error) {
-            console.error('[AUTH] Exception during recovery hash processing:', error);
-            toast({
-              title: "Password Reset Error",
-              description: "There was an error with your password reset link. Please try again.",
-              variant: "destructive",
-            });
-          }
-        }
+        await processHashAuth(hash);
+      }
+      
+      // Check URL search parameters (newer method)
+      const accessToken = searchParams.get('access_token');
+      const refreshToken = searchParams.get('refresh_token');
+      const type = searchParams.get('type');
+      
+      if (accessToken && refreshToken) {
+        console.log('[AUTH] Found tokens in URL params, type:', type);
+        await processUrlAuth(accessToken, refreshToken, type);
       }
     };
 
-    // Handle auth hash first
-    handleAuthHash();
+    const processHashAuth = async (hash: string) => {
+      const hashParams = new URLSearchParams(hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      const type = hashParams.get('type');
+
+      console.log('[AUTH] Hash params:', { 
+        accessToken: accessToken ? 'present' : 'missing',
+        refreshToken: refreshToken ? 'present' : 'missing',
+        type 
+      });
+
+      if (accessToken && refreshToken) {
+        await processTokens(accessToken, refreshToken, type);
+        // Clean up hash
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    };
+
+    const processUrlAuth = async (accessToken: string, refreshToken: string, type: string | null) => {
+      await processTokens(accessToken, refreshToken, type);
+      // Clean up URL params
+      window.history.replaceState(null, '', window.location.pathname);
+    };
+
+    const processTokens = async (accessToken: string, refreshToken: string, type: string | null) => {
+      try {
+        const { data, error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        if (error) {
+          console.error('[AUTH] Error setting session:', error);
+          toast({
+            title: "Authentication Error",
+            description: "There was an error processing your authentication. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (data.session) {
+          console.log('[AUTH] Session established successfully');
+          
+          if (type === 'signup') {
+            console.log('[AUTH] Processing signup confirmation');
+            setConfirmationSuccess(true);
+            toast({
+              title: "Account Confirmed!",
+              description: "Your account has been successfully confirmed. Welcome!",
+            });
+            
+            setTimeout(() => {
+              console.log('[AUTH] Redirecting to account page');
+              window.location.href = '/account';
+            }, 3000);
+          } else if (type === 'recovery') {
+            console.log('[AUTH] Processing password reset, redirecting to reset page');
+            toast({
+              title: "Password Reset",
+              description: "Please set your new password.",
+            });
+            
+            setTimeout(() => {
+              window.location.href = '/reset-password';
+            }, 100);
+          }
+        }
+      } catch (error) {
+        console.error('[AUTH] Exception during token processing:', error);
+        toast({
+          title: "Authentication Error",
+          description: "There was an error processing your authentication. Please try again.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    // Handle auth parameters first
+    handleAuthParams();
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -144,16 +144,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Handle different auth events
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('[AUTH] User signed in successfully');
-          if (!confirmationSuccess) {
-            // Only redirect if not already handling confirmation
+          if (!confirmationSuccess && window.location.pathname === '/') {
             setTimeout(() => {
-              if (window.location.pathname === '/') {
-                console.log('[AUTH] Redirecting to account from signin');
-                window.location.href = '/account';
-              }
+              console.log('[AUTH] Redirecting to account from signin');
+              window.location.href = '/account';
             }, 100);
           }
         } else if (event === 'SIGNED_OUT') {
@@ -199,7 +195,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     console.log('[AUTH] Attempting to sign out');
     
-    // Check if we have a valid session before attempting sign out
     if (!session) {
       console.log('[AUTH] No active session, clearing local state');
       setUser(null);
@@ -213,7 +208,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) {
         console.error('[AUTH] Sign out error:', error);
-        // If the error is related to an invalid session, clear local state anyway
         if (error.message.includes('session') || error.message.includes('token')) {
           console.log('[AUTH] Session-related error, clearing local state');
           setUser(null);
@@ -228,7 +222,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return { error };
     } catch (err) {
       console.error('[AUTH] Sign out exception:', err);
-      // Clear local state even if sign out fails
       setUser(null);
       setSession(null);
       setConfirmationSuccess(false);
