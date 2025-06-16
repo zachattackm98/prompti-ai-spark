@@ -38,7 +38,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     platforms: ['veo3', 'sora', 'runway', 'pika'],
     emotions: ['Dramatic', 'Mysterious', 'Uplifting', 'Melancholic', 'Intense', 'Serene', 'Suspenseful', 'Romantic', 'Epic', 'Intimate'],
     cameraControls: true,
-    lightingOptions: true,
+    lightingOptions: false, // Creator doesn't have advanced lighting
     visualStyles: true,
     enhancedPrompts: true,
     batchProcessing: true,
@@ -50,7 +50,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     platforms: ['veo3', 'sora', 'runway', 'pika'],
     emotions: ['Dramatic', 'Mysterious', 'Uplifting', 'Melancholic', 'Intense', 'Serene', 'Suspenseful', 'Romantic', 'Epic', 'Intimate'],
     cameraControls: true,
-    lightingOptions: true,
+    lightingOptions: true, // Only Studio has advanced lighting
     visualStyles: true,
     enhancedPrompts: true,
     batchProcessing: true,

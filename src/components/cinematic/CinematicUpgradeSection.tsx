@@ -32,7 +32,7 @@ const CinematicUpgradeSection: React.FC<CinematicUpgradeSectionProps> = ({
       {!canUseFeature('lightingOptions') && (
         <UpgradePrompt
           feature="Advanced Lighting & Visual Styles"
-          requiredTier="creator"
+          requiredTier="studio"
           currentTier={subscription.tier}
           onUpgrade={onUpgrade}
         />
