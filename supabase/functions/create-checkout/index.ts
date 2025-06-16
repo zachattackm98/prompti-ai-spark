@@ -82,7 +82,7 @@ serve(async (req) => {
       throw new Error(`Authentication process failed: ${authError.message}`);
     }
 
-    // Parse request body - simplified approach
+    // Parse request body
     let planType;
     try {
       const bodyText = await req.text();
@@ -203,31 +203,43 @@ serve(async (req) => {
         billing_address_collection: 'required' as const,
       };
 
-      logStep("Session config prepared", { 
-        hasCustomer: !!customerId, 
-        customerEmail: customerId ? "using_existing" : user.email,
-        planType,
-        amount: selectedPlan.amount,
-        mode: sessionConfig.mode,
-        successUrl: sessionConfig.success_url,
-        cancelUrl: sessionConfig.cancel_url
-      });
+      // Log the exact configuration being sent to Stripe (but redact sensitive info)
+      const configForLogging = {
+        ...sessionConfig,
+        customer: customerId ? "EXISTING_CUSTOMER_ID" : undefined,
+        customer_email: customerId ? undefined : "USER_EMAIL",
+        metadata: {
+          ...sessionConfig.metadata,
+          user_email: "USER_EMAIL"
+        }
+      };
       
+      logStep("Session config prepared", configForLogging);
       logStep("About to call stripe.checkout.sessions.create()...");
       
-      // Add a timeout to prevent hanging
-      const sessionPromise = stripe.checkout.sessions.create(sessionConfig);
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Stripe session creation timeout")), 30000);
-      });
+      // Create the session with a timeout
+      const createSessionWithTimeout = async () => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        
+        try {
+          const session = await stripe.checkout.sessions.create(sessionConfig);
+          clearTimeout(timeoutId);
+          return session;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          throw error;
+        }
+      };
       
-      session = await Promise.race([sessionPromise, timeoutPromise]);
+      session = await createSessionWithTimeout();
 
       logStep("Checkout session created successfully", { 
         sessionId: session.id, 
         url: session.url ? "URL_PRESENT" : "NO_URL",
         status: session.status,
-        mode: session.mode
+        mode: session.mode,
+        paymentStatus: session.payment_status
       });
     } catch (stripeError: any) {
       logStep("ERROR: Stripe session creation failed", { 
@@ -236,11 +248,13 @@ serve(async (req) => {
         code: stripeError.code,
         statusCode: stripeError.statusCode,
         requestId: stripeError.requestId,
-        stack: stripeError.stack
+        headers: stripeError.headers,
+        detail: stripeError.detail,
+        stack: stripeError.stack?.substring(0, 500) // Truncate stack trace
       });
       
       // Provide more specific error information
-      if (stripeError.message?.includes('timeout')) {
+      if (stripeError.message?.includes('timeout') || stripeError.name === 'AbortError') {
         throw new Error("Stripe session creation timed out - please try again");
       } else if (stripeError.code === 'card_declined') {
         throw new Error("Payment method declined");
