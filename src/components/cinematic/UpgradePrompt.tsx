@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Crown, Sparkles, ArrowRight, Loader2, AlertCircle, Info } from 'lucide-react';
+import { Crown, Sparkles, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { SubscriptionTier } from '@/types/subscription';
 import { useSubscription } from '@/hooks/useSubscription';
 
@@ -48,7 +48,6 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
   };
 
   const isUpgrade = currentTier !== 'starter' && currentTier !== requiredTier;
-  const hasActiveSubscription = subscription?.isActive && currentTier !== 'starter';
   const isStudioFeature = requiredTier === 'studio';
 
   return (
@@ -90,18 +89,6 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
         </div>
       </div>
 
-      {isUpgrade && hasActiveSubscription && (
-        <div className="mb-4 p-3 bg-blue-900/20 border border-blue-400/30 rounded-lg">
-          <div className="flex items-start gap-2">
-            <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-            <div className="text-blue-300 text-sm text-left">
-              <p className="font-medium mb-1">Smooth Upgrade Process:</p>
-              <p>Your current {tierNames[currentTier]} subscription will continue until the end of your billing period. Your new {tierNames[requiredTier]} subscription will start automatically when your current period ends.</p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {error && (
         <div className="mb-4 p-3 bg-red-900/20 border border-red-400/30 rounded-lg">
           <div className="flex items-center justify-center text-red-400 text-sm">
@@ -131,9 +118,9 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
         )}
       </Button>
       
-      {!error && !loading && isUpgrade && (
+      {!error && !loading && (
         <p className="text-xs text-gray-400 mt-2">
-          No interruption to your current service
+          You'll be redirected to secure checkout
         </p>
       )}
     </motion.div>

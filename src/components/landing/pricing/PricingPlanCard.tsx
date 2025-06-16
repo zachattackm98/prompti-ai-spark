@@ -73,7 +73,7 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
         <div className="absolute -top-4 right-4">
           <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
             <Loader2 className="w-3 h-3 animate-spin" />
-            Activating
+            Processing
           </div>
         </div>
       )}
@@ -82,7 +82,7 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
         <div className="absolute -top-4 right-4">
           <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
             <Sparkles className="w-3 h-3" />
-            New Plan
+            Processing
           </div>
         </div>
       )}
