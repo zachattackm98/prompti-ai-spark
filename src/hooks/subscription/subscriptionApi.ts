@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -65,7 +66,7 @@ export const createCheckoutSession = async (planType: 'creator' | 'studio') => {
   try {
     console.log('[SUBSCRIPTION] Invoking create-checkout function');
     const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: requestBody, // Pass as plain object, not stringified
+      body: JSON.stringify(requestBody), // Must be stringified for edge functions
       headers: {
         Authorization: `Bearer ${session.data.session.access_token}`,
         'Content-Type': 'application/json',
