@@ -56,6 +56,7 @@ const CinematicPromptGenerator = () => {
   return (
     <>
       <motion.section 
+        id="cinematic-generator"
         className="py-16 px-6 relative overflow-hidden"
         variants={fadeInVariants}
         initial="hidden"

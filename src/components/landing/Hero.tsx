@@ -6,6 +6,16 @@ import { Play, Sparkles, Video } from 'lucide-react';
 import { fadeInVariants, staggerContainer, scaleInVariants } from '@/utils/animations';
 
 const Hero = () => {
+  const handleScrollToGenerator = () => {
+    const generatorSection = document.getElementById('cinematic-generator');
+    if (generatorSection) {
+      generatorSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   return (
     <section className="pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6">
       <div className="container mx-auto text-center">
@@ -46,6 +56,7 @@ const Hero = () => {
           >
             <Button 
               size="lg" 
+              onClick={handleScrollToGenerator}
               className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300"
             >
               <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
