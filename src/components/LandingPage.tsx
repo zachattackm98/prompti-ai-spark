@@ -36,7 +36,7 @@ const LandingPage = () => {
       <Header />
       
       {hasActivePaidSubscription ? (
-        // Simplified view for paid subscribers - NO BENEFITS SECTION
+        // Simplified view for paid subscribers - BENEFITS SECTION COMPLETELY REMOVED
         <>
           <SubscriberWelcome user={user} subscription={subscription} />
           <Process />
