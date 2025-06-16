@@ -126,6 +126,7 @@ serve(async (req) => {
     let customers;
     let customerId;
     try {
+      logStep("Looking up existing customer", { email: user.email });
       customers = await stripe.customers.list({ email: user.email, limit: 1 });
       logStep("Customer lookup completed", { found: customers.data.length > 0 });
       
@@ -198,8 +199,14 @@ serve(async (req) => {
         billing_address_collection: 'required' as const,
       };
 
-      logStep("Checkout session configuration", sessionConfig);
+      logStep("Checkout session configuration prepared", { 
+        hasCustomer: !!customerId, 
+        customerEmail: customerId ? "using_existing" : user.email,
+        planType,
+        amount: selectedPlan.amount
+      });
       
+      logStep("Calling Stripe to create checkout session...");
       session = await stripe.checkout.sessions.create(sessionConfig);
 
       logStep("Checkout session created successfully", { 
@@ -212,7 +219,8 @@ serve(async (req) => {
         message: stripeError.message, 
         type: stripeError.type,
         code: stripeError.code,
-        statusCode: stripeError.statusCode
+        statusCode: stripeError.statusCode,
+        requestId: stripeError.requestId
       });
       throw new Error(`Failed to create checkout session: ${stripeError.message}`);
     }
