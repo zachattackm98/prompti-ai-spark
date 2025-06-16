@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Link } from 'react-router-dom';
 import AuthDialog from '../AuthDialog';
 
 const Header = () => {
@@ -34,14 +35,16 @@ const Header = () => {
       >
         <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <motion.div 
-              className="flex items-center space-x-2"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg"></div>
-              <span className="text-lg sm:text-xl font-bold text-white">AiPromptMachine</span>
-            </motion.div>
+            <Link to="/" className="no-underline">
+              <motion.div 
+                className="flex items-center space-x-2 cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg"></div>
+                <span className="text-lg sm:text-xl font-bold text-white">AiPromptMachine</span>
+              </motion.div>
+            </Link>
             
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-8">
@@ -69,12 +72,12 @@ const Header = () => {
             <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
               {user ? (
                 <>
-                  <a 
-                    href="/account"
-                    className="text-gray-300 hover:text-white transition-colors duration-300 text-sm hidden lg:block"
+                  <Link 
+                    to="/account"
+                    className="text-gray-300 hover:text-white transition-colors duration-300 text-sm hidden lg:block no-underline"
                   >
                     Account
-                  </a>
+                  </Link>
                   <div className="text-gray-300 text-sm hidden lg:block">
                     Welcome, {user.email.length > 20 ? user.email.substring(0, 20) + '...' : user.email}
                   </div>
@@ -153,13 +156,13 @@ const Header = () => {
                 <div className="border-t border-white/10 pt-4 space-y-3">
                   {user ? (
                     <>
-                      <a 
-                        href="/account"
-                        className="block text-gray-300 hover:text-white transition-colors duration-300 py-2"
+                      <Link 
+                        to="/account"
+                        className="block text-gray-300 hover:text-white transition-colors duration-300 py-2 no-underline"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         Account
-                      </a>
+                      </Link>
                       <div className="text-gray-300 text-sm py-2">
                         Welcome, {user.email}
                       </div>

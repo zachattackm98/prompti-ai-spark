@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
@@ -89,7 +88,7 @@ const AccountPage = () => {
             onClick={handleRefreshSubscription}
             disabled={refreshing}
             variant="outline"
-            className="border-white/20 text-white hover:bg-white/10"
+            className="border-white/20 text-white hover:bg-white/10 bg-slate-800/60"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh Status
@@ -130,7 +129,7 @@ const AccountPage = () => {
                 <Button
                   onClick={openCustomerPortal}
                   disabled={loading}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
                 >
                   <Settings className="w-4 h-4 mr-2" />
                   Manage Billing
@@ -196,13 +195,13 @@ const AccountPage = () => {
           <SubscriptionStats />
 
           {/* Quick Actions */}
-          <Card className="bg-slate-900/40 border border-white/10 p-6">
+          <Card className="bg-slate-900/60 border border-white/20 p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
             <div className="space-y-3">
               {subscription.tier === 'starter' && (
                 <>
                   <Button 
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   >
                     <Crown className="w-4 h-4 mr-2" />
@@ -210,7 +209,7 @@ const AccountPage = () => {
                   </Button>
                   <Button 
                     variant="outline"
-                    className="w-full border-white/20 text-white hover:bg-white/10"
+                    className="w-full border-white/20 text-white hover:bg-white/10 bg-slate-800/60"
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   >
                     <TrendingUp className="w-4 h-4 mr-2" />
@@ -224,7 +223,7 @@ const AccountPage = () => {
                   onClick={openCustomerPortal}
                   disabled={loading}
                   variant="outline"
-                  className="w-full border-white/20 text-white hover:bg-white/10"
+                  className="w-full border-white/20 text-white hover:bg-white/10 bg-slate-800/60"
                 >
                   <CreditCard className="w-4 h-4 mr-2" />
                   Update Payment Method
@@ -233,7 +232,7 @@ const AccountPage = () => {
 
               <Button
                 variant="outline"
-                className="w-full border-white/20 text-white hover:bg-white/10"
+                className="w-full border-white/20 text-white hover:bg-white/10 bg-slate-800/60"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Download Invoice
@@ -242,14 +241,14 @@ const AccountPage = () => {
           </Card>
 
           {/* Support Card */}
-          <Card className="bg-slate-900/40 border border-white/10 p-6">
+          <Card className="bg-slate-900/60 border border-white/20 p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Need Help?</h3>
             <p className="text-gray-400 text-sm mb-4">
               Have questions about your subscription or billing?
             </p>
             <Button
               variant="outline"
-              className="w-full border-white/20 text-white hover:bg-white/10"
+              className="w-full border-white/20 text-white hover:bg-white/10 bg-slate-800/60"
               onClick={() => window.open('mailto:support@prompti.ai', '_blank')}
             >
               Contact Support
