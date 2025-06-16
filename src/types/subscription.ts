@@ -4,6 +4,7 @@ export type SubscriptionTier = 'starter' | 'creator' | 'studio';
 export interface UserSubscription {
   tier: SubscriptionTier;
   isActive: boolean;
+  isCancelling?: boolean;
   expiresAt?: string;
 }
 

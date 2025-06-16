@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { UserSubscription } from '@/types/subscription';
-import { BillingDetails, checkSubscription as apiCheckSubscription, showToast } from './subscriptionApi';
+import { BillingDetails, checkSubscription as apiCheckSubscription, showToast, clearSubscriptionCache } from './subscriptionApi';
 
 export const useSubscriptionEffects = (
   user: any,
@@ -24,27 +24,51 @@ export const useSubscriptionEffects = (
 
       console.log('[SUBSCRIPTION] Subscription data received:', data);
       
+      // Handle cancellation state properly
+      const isSubscribed = data.subscribed || false;
+      const isCancelling = data.billing_details?.cancel_at_period_end || false;
+      const subscriptionTier = data.subscription_tier || 'starter';
+      
+      // If subscription is cancelled but still active, we need special handling
+      const effectivelyActive = isSubscribed && !isCancelling;
+      
+      console.log('[SUBSCRIPTION] Processing subscription state:', {
+        isSubscribed,
+        isCancelling,
+        subscriptionTier,
+        effectivelyActive
+      });
+      
       setSubscription({
-        tier: data.subscription_tier || 'starter',
-        isActive: data.subscribed || false,
+        tier: subscriptionTier,
+        isActive: effectivelyActive,
+        isCancelling: isCancelling,
         expiresAt: data.subscription_end,
       });
 
       setBillingDetails(data.billing_details || null);
       
       console.log('[SUBSCRIPTION] Subscription state updated:', {
-        tier: data.subscription_tier || 'starter',
-        isActive: data.subscribed || false,
+        tier: subscriptionTier,
+        isActive: effectivelyActive,
+        isCancelling: isCancelling,
         expiresAt: data.subscription_end
       });
 
       // Store successful subscription data in localStorage for persistence
-      localStorage.setItem('subscription_cache', JSON.stringify({
-        tier: data.subscription_tier || 'starter',
-        isActive: data.subscribed || false,
-        expiresAt: data.subscription_end,
-        timestamp: Date.now()
-      }));
+      // But only if not cancelling to avoid stale cache
+      if (!isCancelling) {
+        localStorage.setItem('subscription_cache', JSON.stringify({
+          tier: subscriptionTier,
+          isActive: effectivelyActive,
+          isCancelling: false,
+          expiresAt: data.subscription_end,
+          timestamp: Date.now()
+        }));
+      } else {
+        // Clear cache if subscription is being cancelled
+        clearSubscriptionCache();
+      }
 
     } catch (error: any) {
       console.error('[SUBSCRIPTION] Error checking subscription:', error);
@@ -72,19 +96,31 @@ export const useSubscriptionEffects = (
         "destructive"
       );
       
-      // Try to load from cache as fallback
+      // Try to load from cache as fallback, but be careful with cancelled subscriptions
       const cachedData = localStorage.getItem('subscription_cache');
       if (cachedData) {
         try {
           const cached = JSON.parse(cachedData);
-          console.log('[SUBSCRIPTION] Loading from cache:', cached);
-          setSubscription({
-            tier: cached.tier,
-            isActive: cached.isActive,
-            expiresAt: cached.expiresAt,
-          });
+          const cacheAge = Date.now() - cached.timestamp;
+          
+          // Only use cache if it's recent (less than 5 minutes) and not for cancelled subscriptions
+          if (cacheAge < 5 * 60 * 1000 && !cached.isCancelling) {
+            console.log('[SUBSCRIPTION] Loading from cache:', cached);
+            setSubscription({
+              tier: cached.tier,
+              isActive: cached.isActive,
+              isCancelling: cached.isCancelling || false,
+              expiresAt: cached.expiresAt,
+            });
+          } else {
+            console.log('[SUBSCRIPTION] Cache too old or for cancelled subscription, clearing');
+            clearSubscriptionCache();
+            setSubscription({ tier: 'starter', isActive: false });
+          }
         } catch (e) {
           console.error('[SUBSCRIPTION] Failed to parse cached data');
+          clearSubscriptionCache();
+          setSubscription({ tier: 'starter', isActive: false });
         }
       } else {
         setSubscription({ tier: 'starter', isActive: false });
@@ -95,22 +131,15 @@ export const useSubscriptionEffects = (
     }
   };
 
-  // Progressive verification system
-  const progressiveVerification = async (expectedTier: string) => {
-    console.log('[SUBSCRIPTION] Starting progressive verification for tier:', expectedTier);
+  // Simplified verification system - no more progressive verification for cancellations
+  const verifySubscriptionStatus = async () => {
+    console.log('[SUBSCRIPTION] Starting subscription verification');
     
-    // Immediate check
+    // Clear any optimistic updates first
+    sessionStorage.removeItem('optimistic_update');
+    
+    // Single definitive check
     await checkSubscription();
-    
-    // Follow-up checks with exponential backoff
-    const intervals = [1000, 3000, 10000]; // 1s, 3s, 10s
-    
-    for (let i = 0; i < intervals.length; i++) {
-      setTimeout(async () => {
-        console.log(`[SUBSCRIPTION] Progressive verification check ${i + 1}`);
-        await checkSubscription();
-      }, intervals[i]);
-    }
   };
 
   // Check subscription when user changes
@@ -127,9 +156,6 @@ export const useSubscriptionEffects = (
     if (checkout === 'success') {
       console.log('[SUBSCRIPTION] Checkout success detected');
       
-      // Get expected tier from URL or storage
-      const expectedTier = urlParams.get('tier') || sessionStorage.getItem('pending_tier');
-      
       showToast(
         "Payment Successful!",
         "Your subscription is being activated. We're updating your account status..."
@@ -138,16 +164,13 @@ export const useSubscriptionEffects = (
       // Remove URL params immediately
       window.history.replaceState({}, document.title, window.location.pathname);
       
-      // Clear pending tier
-      sessionStorage.removeItem('pending_tier');
+      // Clear all cache and pending states
+      clearSubscriptionCache();
       
-      // Start progressive verification
-      if (expectedTier) {
-        progressiveVerification(expectedTier);
-      } else {
-        // Immediate refresh without delay
-        checkSubscription();
-      }
+      // Give Stripe a moment to process, then verify
+      setTimeout(() => {
+        verifySubscriptionStatus();
+      }, 2000);
       
     } else if (checkout === 'cancelled') {
       console.log('[SUBSCRIPTION] Checkout cancelled detected');
@@ -157,12 +180,12 @@ export const useSubscriptionEffects = (
         "destructive"
       );
       window.history.replaceState({}, document.title, window.location.pathname);
-      sessionStorage.removeItem('pending_tier');
+      clearSubscriptionCache();
     }
   }, []);
 
   return {
     checkSubscription,
-    progressiveVerification,
+    verifySubscriptionStatus,
   };
 };

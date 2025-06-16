@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Crown, User, Settings, ExternalLink } from 'lucide-react';
+import { Crown, User, Settings, ExternalLink, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import AccountDetails from './AccountDetails';
@@ -35,7 +35,32 @@ const CurrentPlanCard = () => {
     }
   };
 
+  const getSubscriptionStatus = () => {
+    if (subscription.isCancelling) {
+      return {
+        label: "Cancelling",
+        variant: "destructive" as const,
+        description: "Your subscription will end when the current period expires"
+      };
+    }
+    
+    if (subscription.isActive) {
+      return {
+        label: "Active",
+        variant: "default" as const,
+        description: "Your subscription is active and all features are available"
+      };
+    }
+    
+    return {
+      label: "Inactive",
+      variant: "secondary" as const,
+      description: "You're currently on the free plan"
+    };
+  };
+
   const TierIcon = getTierIcon(subscription.tier);
+  const status = getSubscriptionStatus();
 
   return (
     <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/70 border border-purple-500/30 p-4 sm:p-6 backdrop-blur-sm">
@@ -50,28 +75,41 @@ const CurrentPlanCard = () => {
             </h3>
             <div className="flex flex-wrap items-center gap-2 mt-1">
               <Badge 
-                variant={subscription.isActive ? "default" : "secondary"}
-                className={`${subscription.isActive ? "bg-green-600 hover:bg-green-700" : ""} text-xs`}
+                variant={status.variant}
+                className={`${
+                  status.variant === "default" ? "bg-green-600 hover:bg-green-700" : 
+                  status.variant === "destructive" ? "bg-red-600 hover:bg-red-700" : ""
+                } text-xs`}
               >
-                {subscription.isActive ? "Active" : "Inactive"}
+                {subscription.isCancelling && <AlertCircle className="w-3 h-3 mr-1" />}
+                {status.label}
               </Badge>
-              {subscription.tier !== 'starter' && (
+              {subscription.tier !== 'starter' && !subscription.isCancelling && (
                 <Badge variant="outline" className="border-purple-400/50 text-purple-300 text-xs">
                   Premium Features
                 </Badge>
               )}
             </div>
+            {subscription.isCancelling && (
+              <p className="text-xs text-red-300 mt-1">
+                {status.description}
+              </p>
+            )}
           </div>
         </div>
-        {subscription.isActive && subscription.tier !== 'starter' && (
+        {subscription.tier !== 'starter' && (
           <Button
             onClick={openCustomerPortal}
             disabled={loading}
             className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white w-full sm:w-auto flex-shrink-0"
           >
             <Settings className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Manage Billing</span>
-            <span className="sm:hidden">Billing</span>
+            <span className="hidden sm:inline">
+              {subscription.isCancelling ? 'Manage Cancellation' : 'Manage Billing'}
+            </span>
+            <span className="sm:hidden">
+              {subscription.isCancelling ? 'Manage' : 'Billing'}
+            </span>
             <ExternalLink className="w-3 h-3 ml-2" />
           </Button>
         )}

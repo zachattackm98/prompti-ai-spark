@@ -9,7 +9,7 @@ export interface SubscriptionContextType {
   
   // Subscription checks
   checkSubscription: () => Promise<void>;
-  progressiveVerification: (expectedTier: string) => Promise<void>;
+  verifySubscriptionStatus: () => Promise<void>;
   
   // Operations
   createCheckout: (planType: 'creator' | 'studio') => Promise<void>;

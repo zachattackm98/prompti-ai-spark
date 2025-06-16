@@ -2,7 +2,8 @@
 import { 
   createCheckoutSession,
   handleCheckoutRedirect,
-  showToast
+  showToast,
+  clearSubscriptionCache
 } from './subscriptionApi';
 
 export const useCheckoutOperations = (
@@ -28,7 +29,10 @@ export const useCheckoutOperations = (
     try {
       console.log('[SUBSCRIPTION] Creating checkout session...');
       
-      // Store expected tier for optimistic updates
+      // Clear any existing cache before starting new checkout
+      clearSubscriptionCache();
+      
+      // Store expected tier for verification
       sessionStorage.setItem('pending_tier', planType);
       
       const data = await createCheckoutSession(planType);
@@ -46,7 +50,7 @@ export const useCheckoutOperations = (
       console.error('[SUBSCRIPTION] Error creating checkout:', error);
       
       // Clear pending tier on error
-      sessionStorage.removeItem('pending_tier');
+      clearSubscriptionCache();
       
       // Provide more specific error messages based on error type
       let errorMessage = 'Failed to create checkout session';
@@ -93,11 +97,15 @@ export const useCheckoutOperations = (
     const previousState = { ...subscription };
     
     try {
+      // Clear any existing cache/optimistic updates
+      clearSubscriptionCache();
+      
       // Optimistic UI update - immediately show the new tier
       console.log('[SUBSCRIPTION] Applying optimistic update');
       setSubscription({
         tier: planType,
         isActive: true,
+        isCancelling: false,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
       });
       
@@ -121,8 +129,7 @@ export const useCheckoutOperations = (
       // Rollback optimistic update
       console.log('[SUBSCRIPTION] Rolling back optimistic update');
       setSubscription(previousState);
-      sessionStorage.removeItem('pending_tier');
-      sessionStorage.removeItem('optimistic_update');
+      clearSubscriptionCache();
       
       let errorMessage = 'Failed to create checkout session';
       let errorTitle = 'Checkout Error';

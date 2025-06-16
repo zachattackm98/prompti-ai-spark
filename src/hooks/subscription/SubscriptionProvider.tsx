@@ -21,7 +21,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
     setSubscription,
   } = useSubscriptionState();
 
-  const { checkSubscription, progressiveVerification } = useSubscriptionEffects(
+  const { checkSubscription, verifySubscriptionStatus } = useSubscriptionEffects(
     user,
     setLoading,
     setSubscription,
@@ -43,7 +43,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
       billingDetails,
       loading,
       checkSubscription,
-      progressiveVerification,
+      verifySubscriptionStatus,
       createCheckout,
       createOptimisticCheckout,
       openCustomerPortal,

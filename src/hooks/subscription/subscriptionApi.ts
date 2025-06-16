@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -38,6 +39,28 @@ export const checkSubscription = async () => {
     }
 
     console.log('[SUBSCRIPTION] Response from check-subscription:', data);
+    
+    // Clear any cached data if subscription status has changed significantly
+    const cachedData = localStorage.getItem('subscription_cache');
+    if (cachedData) {
+      try {
+        const cached = JSON.parse(cachedData);
+        const statusChanged = cached.subscribed !== data.subscribed || 
+                            cached.subscription_tier !== data.subscription_tier ||
+                            (data.billing_details?.cancel_at_period_end && !cached.cancel_at_period_end);
+        
+        if (statusChanged) {
+          console.log('[SUBSCRIPTION] Status changed, clearing cache');
+          localStorage.removeItem('subscription_cache');
+          sessionStorage.removeItem('pending_tier');
+          sessionStorage.removeItem('optimistic_update');
+        }
+      } catch (e) {
+        console.log('[SUBSCRIPTION] Error parsing cached data, clearing cache');
+        localStorage.removeItem('subscription_cache');
+      }
+    }
+    
     return data;
   } catch (error) {
     console.error('[SUBSCRIPTION] Failed to check subscription:', error);
@@ -148,4 +171,12 @@ export const showToast = (title: string, description: string, variant?: 'default
     description,
     variant,
   });
+};
+
+// Helper function to force clear all subscription cache
+export const clearSubscriptionCache = () => {
+  console.log('[SUBSCRIPTION] Clearing all subscription cache');
+  localStorage.removeItem('subscription_cache');
+  sessionStorage.removeItem('pending_tier');
+  sessionStorage.removeItem('optimistic_update');
 };

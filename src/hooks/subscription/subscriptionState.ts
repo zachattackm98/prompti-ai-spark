@@ -8,7 +8,8 @@ export const useSubscriptionState = () => {
   const [billingDetails, setBillingDetails] = useState<BillingDetails | null>(null);
   const [subscription, setSubscription] = useState<UserSubscription>({
     tier: 'starter',
-    isActive: true,
+    isActive: false,
+    isCancelling: false,
   });
 
   return {

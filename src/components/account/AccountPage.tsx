@@ -15,22 +15,22 @@ import SupportCard from './SupportCard';
 
 const AccountPage = () => {
   const { user } = useAuth();
-  const { checkSubscription } = useSubscription();
+  const { verifySubscriptionStatus } = useSubscription();
   const { toast } = useToast();
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefreshSubscription = async () => {
     setRefreshing(true);
     try {
-      await checkSubscription();
+      await verifySubscriptionStatus();
       toast({
         title: "Subscription Updated",
-        description: "Your subscription status has been refreshed.",
+        description: "Your subscription status has been refreshed from Stripe.",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to refresh subscription status.",
+        description: "Failed to refresh subscription status. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -47,7 +47,7 @@ const AccountPage = () => {
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Account & Subscription</h1>
+            <h1 className="text-2xl sm: text-3xl font-bold text-white mb-2">Account & Subscription</h1>
             <p className="text-gray-400 text-sm sm:text-base">Manage your account, billing, and subscription settings</p>
           </div>
           <Button
@@ -57,7 +57,7 @@ const AccountPage = () => {
             className="border-purple-500/30 text-white hover:bg-purple-500/20 bg-slate-800/80 backdrop-blur-sm w-full sm:w-auto"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh Status
+            {refreshing ? 'Checking...' : 'Refresh Status'}
           </Button>
         </div>
       </motion.div>
