@@ -1,4 +1,5 @@
 
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -115,8 +116,9 @@ serve(async (req) => {
     // Initialize Stripe with error handling
     let stripe;
     try {
+      logStep("Initializing Stripe client...");
       stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-      logStep("Stripe client initialized");
+      logStep("Stripe client initialized successfully");
     } catch (stripeInitError) {
       logStep("ERROR: Failed to initialize Stripe client", stripeInitError);
       throw new Error("Failed to initialize Stripe client");
@@ -170,6 +172,8 @@ serve(async (req) => {
     // Create checkout session with comprehensive error handling
     let session;
     try {
+      logStep("Preparing checkout session configuration...");
+      
       const sessionConfig = {
         customer: customerId,
         customer_email: customerId ? undefined : user.email,
@@ -199,33 +203,62 @@ serve(async (req) => {
         billing_address_collection: 'required' as const,
       };
 
-      logStep("Checkout session configuration prepared", { 
+      logStep("Session config prepared", { 
         hasCustomer: !!customerId, 
         customerEmail: customerId ? "using_existing" : user.email,
         planType,
-        amount: selectedPlan.amount
+        amount: selectedPlan.amount,
+        mode: sessionConfig.mode,
+        successUrl: sessionConfig.success_url,
+        cancelUrl: sessionConfig.cancel_url
       });
       
-      logStep("Calling Stripe to create checkout session...");
-      session = await stripe.checkout.sessions.create(sessionConfig);
+      logStep("About to call stripe.checkout.sessions.create()...");
+      
+      // Add a timeout to prevent hanging
+      const sessionPromise = stripe.checkout.sessions.create(sessionConfig);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Stripe session creation timeout")), 30000);
+      });
+      
+      session = await Promise.race([sessionPromise, timeoutPromise]);
 
       logStep("Checkout session created successfully", { 
         sessionId: session.id, 
         url: session.url ? "URL_PRESENT" : "NO_URL",
-        status: session.status
+        status: session.status,
+        mode: session.mode
       });
     } catch (stripeError: any) {
-      logStep("ERROR: Failed to create checkout session", { 
+      logStep("ERROR: Stripe session creation failed", { 
         message: stripeError.message, 
         type: stripeError.type,
         code: stripeError.code,
         statusCode: stripeError.statusCode,
-        requestId: stripeError.requestId
+        requestId: stripeError.requestId,
+        stack: stripeError.stack
       });
-      throw new Error(`Failed to create checkout session: ${stripeError.message}`);
+      
+      // Provide more specific error information
+      if (stripeError.message?.includes('timeout')) {
+        throw new Error("Stripe session creation timed out - please try again");
+      } else if (stripeError.code === 'card_declined') {
+        throw new Error("Payment method declined");
+      } else if (stripeError.code === 'expired_card') {
+        throw new Error("Payment method expired");
+      } else if (stripeError.type === 'invalid_request_error') {
+        throw new Error(`Invalid request to Stripe: ${stripeError.message}`);
+      } else {
+        throw new Error(`Stripe error: ${stripeError.message}`);
+      }
     }
 
     // Validate session response
+    if (!session) {
+      logStep("ERROR: No session returned from Stripe");
+      throw new Error("No session returned from Stripe");
+    }
+
     if (!session.url) {
       logStep("ERROR: No checkout URL in session response", { sessionId: session.id });
       throw new Error("No checkout URL returned from Stripe");
@@ -244,7 +277,8 @@ serve(async (req) => {
       message: errorMessage,
       stack: error.stack,
       name: error.name,
-      type: error.type || 'unknown'
+      type: error.type || 'unknown',
+      timestamp: new Date().toISOString()
     };
     
     logStep("ERROR in create-checkout", errorDetails);
@@ -259,3 +293,4 @@ serve(async (req) => {
     });
   }
 });
+
