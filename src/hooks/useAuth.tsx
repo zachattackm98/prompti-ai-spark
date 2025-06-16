@@ -1,8 +1,8 @@
-
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { scrollToTop } from '@/utils/scrollUtils';
 
 interface AuthContextType {
   user: User | null;
@@ -122,6 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Single redirect point for all successful auth (except password reset)
           setTimeout(() => {
             console.log('[AUTH] Redirecting to home page');
+            scrollToTop('instant');
             window.location.href = '/';
           }, type === 'signup' ? 3000 : 100);
         }
@@ -146,7 +147,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        if (event === 'SIGNED_OUT') {
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log('[AUTH] User signed in successfully, scrolling to top');
+          scrollToTop('smooth');
+        } else if (event === 'SIGNED_OUT') {
           console.log('[AUTH] User signed out');
           setConfirmationSuccess(false);
         }

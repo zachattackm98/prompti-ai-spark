@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Navigation from './Navigation';
 import AuthControls from './AuthControls';
+import { scrollToTop } from '@/utils/scrollUtils';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -13,6 +14,18 @@ interface MobileMenuProps {
 
 const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps) => {
   if (!isOpen) return null;
+
+  const handleLinkClick = (href: string) => {
+    onClose();
+    scrollToTop('smooth');
+    // Small delay to ensure smooth scroll completes before jumping to section
+    setTimeout(() => {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
 
   return (
     <motion.div
@@ -25,21 +38,30 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
         <a 
           href="#features" 
           className="text-gray-300 hover:text-white transition-colors duration-300 py-2"
-          onClick={onClose}
+          onClick={(e) => {
+            e.preventDefault();
+            handleLinkClick('#features');
+          }}
         >
           Features
         </a>
         <a 
           href="#pricing" 
           className="text-gray-300 hover:text-white transition-colors duration-300 py-2"
-          onClick={onClose}
+          onClick={(e) => {
+            e.preventDefault();
+            handleLinkClick('#pricing');
+          }}
         >
           Pricing
         </a>
         <a 
           href="#faq" 
           className="text-gray-300 hover:text-white transition-colors duration-300 py-2"
-          onClick={onClose}
+          onClick={(e) => {
+            e.preventDefault();
+            handleLinkClick('#faq');
+          }}
         >
           FAQ
         </a>
