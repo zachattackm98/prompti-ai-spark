@@ -47,6 +47,8 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
     }
   };
 
+  const isUpgrade = currentTier !== 'starter' && currentTier !== requiredTier;
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -63,7 +65,7 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
       </h3>
       
       <p className="text-gray-300 mb-4">
-        Upgrade to <span className={`font-semibold bg-gradient-to-r ${tierColors[requiredTier]} bg-clip-text text-transparent`}>
+        {isUpgrade ? 'Upgrade' : 'Subscribe'} to <span className={`font-semibold bg-gradient-to-r ${tierColors[requiredTier]} bg-clip-text text-transparent`}>
           {tierNames[requiredTier]}
         </span> to unlock this feature and enhance your cinematic prompts.
       </p>
@@ -74,9 +76,17 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
         </div>
         <ArrowRight className="w-4 h-4 text-gray-400" />
         <div className={`px-3 py-1 bg-gradient-to-r ${tierColors[requiredTier]} rounded-full text-sm text-white font-medium`}>
-          Upgrade to {tierNames[requiredTier]}
+          {isUpgrade ? 'Upgrade to' : 'Get'} {tierNames[requiredTier]}
         </div>
       </div>
+
+      {isUpgrade && (
+        <div className="mb-4 p-3 bg-blue-900/20 border border-blue-400/30 rounded-lg">
+          <p className="text-blue-300 text-sm">
+            Your current {tierNames[currentTier]} subscription will be automatically cancelled and you'll receive credit for unused time.
+          </p>
+        </div>
+      )}
 
       {error && (
         <div className="mb-4 p-3 bg-red-900/20 border border-red-400/30 rounded-lg">
@@ -100,7 +110,7 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
         ) : (
           <>
             <Crown className="w-4 h-4 mr-2" />
-            Upgrade Now
+            {isUpgrade ? 'Upgrade Now' : 'Subscribe Now'}
           </>
         )}
       </Button>

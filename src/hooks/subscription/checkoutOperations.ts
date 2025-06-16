@@ -39,10 +39,15 @@ export const useCheckoutOperations = (
       
       console.log('[SUBSCRIPTION] Checkout session created, redirecting...');
       
-      // Show optimistic feedback
+      // Show specific feedback for upgrades
+      const isUpgrade = subscription.tier !== 'starter' && subscription.tier !== planType;
+      const upgradeMessage = isUpgrade 
+        ? `Upgrading from ${subscription.tier} to ${planType}. Your previous subscription will be cancelled automatically.`
+        : "Opening secure payment page...";
+      
       showToast(
-        "Redirecting to Payment",
-        "Opening secure payment page...",
+        isUpgrade ? "Upgrading Subscription" : "Redirecting to Payment",
+        upgradeMessage,
       );
       
       handleCheckoutRedirect(data.url);
@@ -56,7 +61,13 @@ export const useCheckoutOperations = (
       let errorMessage = 'Failed to create checkout session';
       let errorTitle = 'Checkout Error';
       
-      if (error.message?.includes('Authentication')) {
+      if (error.message?.includes('already have an active')) {
+        errorTitle = 'Subscription Already Active';
+        errorMessage = error.message;
+      } else if (error.message?.includes('Cannot downgrade')) {
+        errorTitle = 'Downgrade Not Allowed';
+        errorMessage = error.message;
+      } else if (error.message?.includes('Authentication')) {
         errorTitle = 'Authentication Error';
         errorMessage = 'Your session has expired. Please sign in again.';
       } else if (error.message?.includes('Invalid plan')) {
@@ -113,9 +124,15 @@ export const useCheckoutOperations = (
       sessionStorage.setItem('pending_tier', planType);
       sessionStorage.setItem('optimistic_update', 'true');
       
+      // Show specific feedback for upgrades
+      const isUpgrade = previousState.tier !== 'starter' && previousState.tier !== planType;
+      const upgradeMessage = isUpgrade 
+        ? `Upgrading from ${previousState.tier} to ${planType}. Your previous subscription will be cancelled automatically.`
+        : "Setting up your subscription...";
+      
       showToast(
-        "Processing Payment",
-        "Setting up your subscription...",
+        isUpgrade ? "Processing Upgrade" : "Processing Payment",
+        upgradeMessage,
       );
       
       const data = await createCheckoutSession(planType);
@@ -134,7 +151,13 @@ export const useCheckoutOperations = (
       let errorMessage = 'Failed to create checkout session';
       let errorTitle = 'Checkout Error';
       
-      if (error.message?.includes('Authentication')) {
+      if (error.message?.includes('already have an active')) {
+        errorTitle = 'Subscription Already Active';
+        errorMessage = error.message;
+      } else if (error.message?.includes('Cannot downgrade')) {
+        errorTitle = 'Downgrade Not Allowed'; 
+        errorMessage = error.message;
+      } else if (error.message?.includes('Authentication')) {
         errorTitle = 'Authentication Error';
         errorMessage = 'Your session has expired. Please sign in again.';
       } else if (error.message?.includes('network') || error.message?.includes('fetch')) {

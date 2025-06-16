@@ -38,6 +38,99 @@ export class StripeService {
     }
   }
 
+  private getTierHierarchy(): Record<string, number> {
+    return {
+      'starter': 0,
+      'creator': 1,
+      'studio': 2
+    };
+  }
+
+  private getTierFromPriceId(priceId: string): string {
+    for (const [tier, config] of Object.entries(priceConfig)) {
+      if (config.priceId === priceId) {
+        return tier;
+      }
+    }
+    return 'starter';
+  }
+
+  async checkAndCancelExistingSubscription(customerId: string, requestedTier: string): Promise<void> {
+    try {
+      logStep("Checking for existing active subscriptions", { customerId, requestedTier });
+      
+      const subscriptions = await this.stripe.subscriptions.list({
+        customer: customerId,
+        status: 'active',
+        limit: 10
+      });
+
+      if (subscriptions.data.length === 0) {
+        logStep("No active subscriptions found");
+        return;
+      }
+
+      const tierHierarchy = this.getTierHierarchy();
+      const requestedTierLevel = tierHierarchy[requestedTier] || 0;
+
+      for (const subscription of subscriptions.data) {
+        const priceId = subscription.items.data[0]?.price?.id;
+        if (!priceId) continue;
+
+        const currentTier = this.getTierFromPriceId(priceId);
+        const currentTierLevel = tierHierarchy[currentTier] || 0;
+
+        logStep("Found active subscription", {
+          subscriptionId: subscription.id,
+          currentTier,
+          currentTierLevel,
+          requestedTierLevel,
+          priceId
+        });
+
+        // Cancel existing subscription if upgrading to higher tier
+        if (requestedTierLevel > currentTierLevel) {
+          logStep("Upgrading subscription - cancelling existing", {
+            from: currentTier,
+            to: requestedTier,
+            subscriptionId: subscription.id
+          });
+
+          await this.stripe.subscriptions.update(subscription.id, {
+            cancel_at_period_end: false, // Cancel immediately
+            proration_behavior: 'create_prorations' // Create prorations for unused time
+          });
+
+          // Actually cancel the subscription now
+          await this.stripe.subscriptions.cancel(subscription.id, {
+            prorate: true,
+            invoice_now: true
+          });
+
+          logStep("Successfully cancelled existing subscription", {
+            subscriptionId: subscription.id,
+            previousTier: currentTier
+          });
+
+        } else if (requestedTierLevel === currentTierLevel) {
+          logStep("User already has this tier", { currentTier: currentTier });
+          throw new Error(`You already have an active ${currentTier} subscription`);
+
+        } else if (requestedTierLevel < currentTierLevel) {
+          logStep("Attempting to downgrade", { from: currentTier, to: requestedTier });
+          throw new Error(`Cannot downgrade from ${currentTier} to ${requestedTier}. Please use the customer portal to manage your subscription.`);
+        }
+      }
+
+    } catch (error: any) {
+      if (error.message.includes('already have') || error.message.includes('Cannot downgrade')) {
+        throw error; // Re-throw user-facing errors
+      }
+      logStep("ERROR: Failed to check/cancel existing subscriptions", error);
+      throw new Error("Failed to process existing subscriptions");
+    }
+  }
+
   async createCheckoutSession(
     planType: string,
     customerId: string | undefined,
@@ -52,6 +145,11 @@ export class StripeService {
     }
 
     logStep("Using pre-existing price", { plan: selectedPlan });
+
+    // If customer exists, check and cancel existing subscriptions
+    if (customerId) {
+      await this.checkAndCancelExistingSubscription(customerId, planType);
+    }
 
     try {
       logStep("Preparing checkout session configuration...");
@@ -71,17 +169,23 @@ export class StripeService {
         metadata: {
           user_id: userId,
           plan_type: planType,
-          user_email: userEmail
+          user_email: userEmail,
+          upgrade_flow: customerId ? 'true' : 'false'
         },
         allow_promotion_codes: true,
         billing_address_collection: 'required',
+        // Enable proration for upgrades
+        subscription_data: {
+          proration_behavior: 'create_prorations'
+        }
       };
 
       logStep("Session config prepared", {
         customer: customerId ? "EXISTING_CUSTOMER_ID" : undefined,
         customer_email: customerId ? undefined : "USER_EMAIL",
         priceId: selectedPlan.priceId,
-        planType: planType
+        planType: planType,
+        upgradeFlow: customerId ? true : false
       });
       
       logStep("Creating Stripe checkout session...");

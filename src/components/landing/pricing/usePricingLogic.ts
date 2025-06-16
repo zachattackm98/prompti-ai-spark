@@ -44,19 +44,33 @@ export const usePricingLogic = () => {
     if (plan.tier === 'creator' || plan.tier === 'studio') {
       console.log('[PRICING] Creating optimistic checkout for tier:', plan.tier);
       
+      const isUpgrade = subscription.tier !== 'starter' && subscription.tier !== plan.tier;
+      
       try {
         await createOptimisticCheckout(plan.tier);
         
         // Show optimistic success message
+        const message = isUpgrade 
+          ? `Upgrading from ${subscription.tier} to ${plan.name}. Your previous subscription will be cancelled automatically.`
+          : `Switching to ${plan.name}. You'll be redirected to complete payment.`;
+          
         toast({
-          title: "Upgrading Your Plan",
-          description: `Switching to ${plan.name}. You'll be redirected to complete payment.`,
+          title: isUpgrade ? "Upgrading Your Plan" : "Subscribing to Plan",
+          description: message,
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error('[PRICING] Optimistic checkout failed:', error);
+        
+        let errorMessage = "Failed to start checkout process. Please try again.";
+        if (error.message?.includes('already have an active')) {
+          errorMessage = error.message;
+        } else if (error.message?.includes('Cannot downgrade')) {
+          errorMessage = error.message;
+        }
+        
         toast({
           title: "Checkout Error",
-          description: "Failed to start checkout process. Please try again.",
+          description: errorMessage,
           variant: "destructive",
         });
       }
@@ -80,7 +94,8 @@ export const usePricingLogic = () => {
       return 'Processing...';
     }
     
-    return `Upgrade to ${plan.name}`;
+    const isUpgrade = subscription.tier !== 'starter' && subscription.tier !== plan.tier;
+    return isUpgrade ? `Upgrade to ${plan.name}` : `Get ${plan.name}`;
   };
 
   const isCurrentPlan = (tier: string) => {
