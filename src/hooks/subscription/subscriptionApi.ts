@@ -63,9 +63,9 @@ export const createCheckoutSession = async (planType: 'creator' | 'studio') => {
   console.log('[SUBSCRIPTION] Invoking create-checkout function with planType:', planType);
 
   try {
-    // Pass the payload directly to Supabase invoke - no need to wrap in 'body'
+    // Use the correct Supabase syntax - pass data directly as body
     const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: { planType }, // Direct object, not wrapped
+      body: JSON.stringify({ planType }),
       headers: {
         Authorization: `Bearer ${session.data.session.access_token}`,
         'Content-Type': 'application/json',
