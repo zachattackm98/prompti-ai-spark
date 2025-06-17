@@ -11,6 +11,20 @@ export interface LightingSettings {
   timeOfDay: string;
 }
 
+export interface DialogSettings {
+  hasDialog: boolean;
+  dialogType: string;
+  dialogStyle: string;
+  language: string;
+}
+
+export interface SoundSettings {
+  hasSound: boolean;
+  musicGenre: string;
+  soundEffects: string;
+  ambience: string;
+}
+
 export interface GeneratedPrompt {
   mainPrompt: string;
   technicalSpecs: string;
@@ -23,6 +37,8 @@ export interface FormState {
   sceneIdea: string;
   selectedPlatform: string;
   selectedEmotion: string;
+  dialogSettings: DialogSettings;
+  soundSettings: SoundSettings;
   cameraSettings: CameraSettings;
   lightingSettings: LightingSettings;
   styleReference: string;

@@ -64,6 +64,8 @@ export const usePromptGeneration = (
           platform: formState.selectedPlatform,
           emotion: formState.selectedEmotion,
           styleReference: formState.styleReference,
+          dialogSettings: formState.dialogSettings,
+          soundSettings: formState.soundSettings,
           cameraSettings: canUseFeature('cameraControls') ? formState.cameraSettings : undefined,
           lightingSettings: canUseFeature('lightingOptions') ? formState.lightingSettings : undefined,
           tier: subscription.tier,
@@ -124,7 +126,8 @@ export const usePromptGeneration = (
     }
   }, [
     user, formState.sceneIdea, formState.selectedPlatform, formState.selectedEmotion, 
-    formState.styleReference, formState.cameraSettings, formState.lightingSettings, 
+    formState.styleReference, formState.dialogSettings, formState.soundSettings,
+    formState.cameraSettings, formState.lightingSettings, 
     subscription.tier, canUseFeature, setShowAuthDialog, loadPromptHistory, toast, 
     hasReachedLimit, refetchUsage, setGeneratedPrompt, setIsLoading
   ]);

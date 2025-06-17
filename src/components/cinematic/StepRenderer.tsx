@@ -2,10 +2,12 @@
 import React from 'react';
 import SceneStep from './SceneStep';
 import PlatformStep from './PlatformStep';
+import DialogStep from './DialogStep';
+import SoundStep from './SoundStep';
 import CameraControlsStep from './CameraControlsStep';
 import LightingStep from './LightingStep';
 import StyleStep from './StyleStep';
-import { CameraSettings, LightingSettings } from './useCinematicForm';
+import { CameraSettings, LightingSettings, DialogSettings, SoundSettings } from './useCinematicForm';
 
 interface StepRendererProps {
   currentStep: number;
@@ -19,6 +21,10 @@ interface StepRendererProps {
   setSelectedPlatform: (platform: string) => void;
   selectedEmotion: string;
   setSelectedEmotion: (emotion: string) => void;
+  dialogSettings: DialogSettings;
+  setDialogSettings: (settings: DialogSettings) => void;
+  soundSettings: SoundSettings;
+  setSoundSettings: (settings: SoundSettings) => void;
   cameraSettings: CameraSettings;
   setCameraSettings: (settings: CameraSettings) => void;
   lightingSettings: LightingSettings;
@@ -43,6 +49,10 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   setSelectedPlatform,
   selectedEmotion,
   setSelectedEmotion,
+  dialogSettings,
+  setDialogSettings,
+  soundSettings,
+  setSoundSettings,
   cameraSettings,
   setCameraSettings,
   lightingSettings,
@@ -78,6 +88,32 @@ const StepRenderer: React.FC<StepRendererProps> = ({
         onPrevious={handlePrevious}
         availablePlatforms={features.platforms}
         availableEmotions={features.emotions}
+      />
+    );
+  }
+  stepCounter++;
+
+  // Dialog Step (All Tiers)
+  if (currentStep === stepCounter) {
+    return (
+      <DialogStep
+        dialogSettings={dialogSettings}
+        setDialogSettings={setDialogSettings}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+      />
+    );
+  }
+  stepCounter++;
+
+  // Sound Step (All Tiers)
+  if (currentStep === stepCounter) {
+    return (
+      <SoundStep
+        soundSettings={soundSettings}
+        setSoundSettings={setSoundSettings}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
       />
     );
   }

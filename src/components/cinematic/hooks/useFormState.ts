@@ -1,12 +1,24 @@
 
 import { useState } from 'react';
-import { FormState, CameraSettings, LightingSettings, GeneratedPrompt } from './types';
+import { FormState, CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './types';
 
 export const useFormState = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [sceneIdea, setSceneIdea] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState('veo3');
   const [selectedEmotion, setSelectedEmotion] = useState('cinematic');
+  const [dialogSettings, setDialogSettings] = useState<DialogSettings>({
+    hasDialog: false,
+    dialogType: '',
+    dialogStyle: '',
+    language: ''
+  });
+  const [soundSettings, setSoundSettings] = useState<SoundSettings>({
+    hasSound: false,
+    musicGenre: '',
+    soundEffects: '',
+    ambience: ''
+  });
   const [cameraSettings, setCameraSettings] = useState<CameraSettings>({
     angle: '',
     movement: '',
@@ -27,6 +39,8 @@ export const useFormState = () => {
     setSceneIdea('');
     setSelectedPlatform('veo3');
     setSelectedEmotion('cinematic');
+    setDialogSettings({ hasDialog: false, dialogType: '', dialogStyle: '', language: '' });
+    setSoundSettings({ hasSound: false, musicGenre: '', soundEffects: '', ambience: '' });
     setCameraSettings({ angle: '', movement: '', shot: '' });
     setLightingSettings({ mood: '', style: '', timeOfDay: '' });
     setStyleReference('');
@@ -41,6 +55,10 @@ export const useFormState = () => {
     setSelectedPlatform,
     selectedEmotion,
     setSelectedEmotion,
+    dialogSettings,
+    setDialogSettings,
+    soundSettings,
+    setSoundSettings,
     cameraSettings,
     setCameraSettings,
     lightingSettings,

@@ -4,6 +4,18 @@ export interface PromptRequest {
   platform: string;
   emotion: string;
   styleReference?: string;
+  dialogSettings?: {
+    hasDialog: boolean;
+    dialogType?: string;
+    dialogStyle?: string;
+    language?: string;
+  };
+  soundSettings?: {
+    hasSound: boolean;
+    musicGenre?: string;
+    soundEffects?: string;
+    ambience?: string;
+  };
   cameraSettings?: {
     angle?: string;
     movement?: string;

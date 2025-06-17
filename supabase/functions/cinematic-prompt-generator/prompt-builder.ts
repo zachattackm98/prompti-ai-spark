@@ -3,7 +3,7 @@ import type { PromptRequest, PlatformConfig } from './types.ts';
 import { PLATFORM_PROMPTS } from './constants.ts';
 
 export function buildSystemPrompt(request: PromptRequest): string {
-  const { platform, emotion, tier, cameraSettings, lightingSettings, enhancedPrompts, styleReference } = request;
+  const { platform, emotion, tier, cameraSettings, lightingSettings, dialogSettings, soundSettings, enhancedPrompts, styleReference } = request;
   
   const selectedPlatform = PLATFORM_PROMPTS[platform as keyof typeof PLATFORM_PROMPTS] || PLATFORM_PROMPTS.veo3;
 
@@ -25,6 +25,26 @@ Guidelines:
 
 Current scene emotion/mood: ${emotion}
 User subscription tier: ${tier?.toUpperCase()}`;
+
+  // Add dialog specifications
+  if (dialogSettings?.hasDialog) {
+    systemPrompt += `\n\nDIALOG SPECIFICATIONS:
+- Include Dialog: Yes
+- Dialog Type: ${dialogSettings.dialogType || 'Not specified'}
+- Dialog Style: ${dialogSettings.dialogStyle || 'Not specified'}
+- Language: ${dialogSettings.language || 'Not specified'}
+Please incorporate these dialog requirements into your prompts, ensuring the scene includes appropriate spoken elements.`;
+  }
+
+  // Add sound specifications
+  if (soundSettings?.hasSound) {
+    systemPrompt += `\n\nSOUND DESIGN SPECIFICATIONS:
+- Include Sound Design: Yes
+- Music Genre: ${soundSettings.musicGenre || 'Not specified'}
+- Sound Effects: ${soundSettings.soundEffects || 'Not specified'}
+- Ambience: ${soundSettings.ambience || 'Not specified'}
+Please incorporate these audio elements into your technical specifications and style notes.`;
+  }
 
   // Add enhanced features for higher tiers
   if (cameraSettings && (cameraSettings.angle || cameraSettings.movement || cameraSettings.shot)) {

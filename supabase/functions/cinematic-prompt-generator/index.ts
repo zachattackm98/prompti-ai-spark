@@ -20,6 +20,8 @@ serve(async (req) => {
       platform, 
       emotion, 
       styleReference, 
+      dialogSettings,
+      soundSettings,
       cameraSettings,
       lightingSettings,
       tier = 'starter',

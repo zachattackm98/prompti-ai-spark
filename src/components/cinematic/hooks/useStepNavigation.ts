@@ -5,7 +5,7 @@ export const useStepNavigation = (
   canUseFeature: (feature: string) => boolean
 ) => {
   const getTotalSteps = () => {
-    let steps = 3; // Scene, Platform, Style (base steps)
+    let steps = 5; // Scene, Platform, Dialog, Sound, Style (base steps)
     if (canUseFeature('cameraControls')) steps++;
     if (canUseFeature('lightingOptions')) steps++;
     return steps;

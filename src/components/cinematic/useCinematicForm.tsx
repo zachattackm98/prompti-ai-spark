@@ -4,7 +4,7 @@ import { useStepNavigation } from './hooks/useStepNavigation';
 import { usePromptGeneration } from './hooks/usePromptGeneration';
 
 // Re-export types for backward compatibility
-export type { CameraSettings, LightingSettings, GeneratedPrompt } from './hooks/types';
+export type { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './hooks/types';
 
 export const useCinematicForm = (
   user: any,
@@ -22,6 +22,10 @@ export const useCinematicForm = (
     setSelectedPlatform,
     selectedEmotion,
     setSelectedEmotion,
+    dialogSettings,
+    setDialogSettings,
+    soundSettings,
+    setSoundSettings,
     cameraSettings,
     setCameraSettings,
     lightingSettings,
@@ -46,6 +50,8 @@ export const useCinematicForm = (
     sceneIdea,
     selectedPlatform,
     selectedEmotion,
+    dialogSettings,
+    soundSettings,
     cameraSettings,
     lightingSettings,
     styleReference,
@@ -74,6 +80,8 @@ export const useCinematicForm = (
     sceneIdea,
     selectedPlatform,
     selectedEmotion,
+    dialogSettings,
+    soundSettings,
     cameraSettings,
     lightingSettings,
     styleReference,
@@ -82,6 +90,8 @@ export const useCinematicForm = (
     setSceneIdea,
     setSelectedPlatform,
     setSelectedEmotion,
+    setDialogSettings,
+    setSoundSettings,
     setCameraSettings,
     setLightingSettings,
     setStyleReference,
