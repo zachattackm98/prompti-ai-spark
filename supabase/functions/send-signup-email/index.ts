@@ -4,6 +4,7 @@ import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
 import { Resend } from 'npm:resend@4.0.0'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { SignupConfirmationEmail } from './_templates/signup-confirmation.tsx'
+import { PasswordResetEmail } from './_templates/password-reset.tsx'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
 
@@ -16,7 +17,7 @@ Deno.serve(async (req) => {
     const payload = await req.text()
     const headers = Object.fromEntries(req.headers)
     
-    console.log('Received signup email webhook payload')
+    console.log('Received email webhook payload')
     
     // Parse the webhook payload
     const webhookData = JSON.parse(payload)
@@ -26,18 +27,18 @@ Deno.serve(async (req) => {
       email_data: { token, token_hash, redirect_to, email_action_type },
     } = webhookData
 
-    console.log('Processing signup confirmation for:', user.email)
+    console.log('Processing email for:', user.email)
     console.log('Email action type:', email_action_type)
 
-    // Only handle signup confirmations
-    if (email_action_type !== 'signup') {
-      console.log('Not a signup confirmation, skipping')
-      return new Response('Not a signup confirmation', { status: 200 })
-    }
+    let html: string
+    let subject: string
+    let emailTemplate: React.ReactElement
 
-    // Render the email template
-    const html = await renderAsync(
-      React.createElement(SignupConfirmationEmail, {
+    // Handle different email types
+    if (email_action_type === 'signup') {
+      console.log('Processing signup confirmation email')
+      
+      emailTemplate = React.createElement(SignupConfirmationEmail, {
         supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
         token,
         token_hash,
@@ -45,15 +46,38 @@ Deno.serve(async (req) => {
         email_action_type,
         user_email: user.email,
       })
-    )
+      
+      subject = 'Welcome to AiPromptMachine - Confirm Your Account'
+      
+    } else if (email_action_type === 'recovery') {
+      console.log('Processing password reset email')
+      
+      emailTemplate = React.createElement(PasswordResetEmail, {
+        supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
+        token,
+        token_hash,
+        redirect_to: redirect_to || 'https://aipromptmachine.com/reset-password',
+        email_action_type,
+        user_email: user.email,
+      })
+      
+      subject = 'Reset Your AiPromptMachine Password'
+      
+    } else {
+      console.log('Unsupported email action type:', email_action_type)
+      return new Response(`Unsupported email action type: ${email_action_type}`, { status: 400 })
+    }
 
-    console.log('Sending signup email via Resend to:', user.email)
+    // Render the email template
+    html = await renderAsync(emailTemplate)
+
+    console.log('Sending email via Resend to:', user.email)
 
     // Send the email using Resend
     const { data, error } = await resend.emails.send({
       from: 'AiPromptMachine <noreply@aipromptmachine.com>',
       to: [user.email],
-      subject: 'Welcome to AiPromptMachine - Confirm Your Account',
+      subject,
       html,
     })
 

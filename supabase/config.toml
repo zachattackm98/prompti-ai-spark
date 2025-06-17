@@ -34,6 +34,10 @@ sender_name = "AiPromptMachine"
 subject = "Welcome to AiPromptMachine - Confirm Your Account"
 content_path = "./supabase/templates/confirmation.html"
 
+[auth.email.template.recovery]
+subject = "Reset Your AiPromptMachine Password"
+content_path = "./supabase/templates/recovery.html"
+
 [db]
 enabled = true
 port = 54322
