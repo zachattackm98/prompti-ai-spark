@@ -75,7 +75,7 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
   handleGenerateNew,
   handleContinueScene
 }) => {
-  const { copyToClipboard, downloadPrompt } = usePromptActions(subscription);
+  const { copyAllPrompts, downloadPrompt } = usePromptActions(subscription);
 
   return (
     <motion.div
@@ -115,7 +115,7 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
           <>
             <GeneratedPromptDisplay
               generatedPrompt={generatedPrompt}
-              onCopyToClipboard={copyToClipboard}
+              onCopyAllPrompts={copyAllPrompts}
               onDownloadPrompt={() => downloadPrompt(generatedPrompt)}
               onGenerateNew={handleGenerateNew}
             />
