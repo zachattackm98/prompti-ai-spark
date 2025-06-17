@@ -16,6 +16,14 @@ interface FormState {
   isMultiScene: boolean;
 }
 
+interface PreviousScenePrompt {
+  sceneNumber: number;
+  sceneIdea: string;
+  mainPrompt: string;
+  technicalSpecs: string;
+  styleNotes: string;
+}
+
 export const usePromptGeneration = (
   user: any,
   subscription: any,
@@ -28,6 +36,24 @@ export const usePromptGeneration = (
   currentProject: MultiSceneProject | null,
   updateScenePrompt: (sceneIndex: number, prompt: GeneratedPrompt) => void
 ) => {
+  const buildPreviousScenePrompts = (): PreviousScenePrompt[] => {
+    if (!currentProject || currentProject.currentSceneIndex === 0) {
+      return [];
+    }
+
+    const previousScenes = currentProject.scenes.slice(0, currentProject.currentSceneIndex);
+    
+    return previousScenes
+      .filter(scene => scene.generatedPrompt) // Only include scenes with generated prompts
+      .map(scene => ({
+        sceneNumber: scene.sceneNumber,
+        sceneIdea: scene.sceneIdea,
+        mainPrompt: scene.generatedPrompt!.mainPrompt,
+        technicalSpecs: scene.generatedPrompt!.technicalSpecs,
+        styleNotes: scene.generatedPrompt!.styleNotes
+      }));
+  };
+
   const handleGenerate = async () => {
     if (!user) {
       setShowAuthDialog(true);
@@ -41,28 +67,26 @@ export const usePromptGeneration = (
     setIsLoading(true);
 
     try {
-      // Build context for multi-scene projects
-      let sceneContext = '';
+      // Build enhanced context for multi-scene projects
       let sceneNumber = 1;
       let totalScenes = 1;
       let isMultiScene = false;
+      let previousScenePrompts: PreviousScenePrompt[] = [];
 
       if (currentProject && currentProject.scenes.length > 0) {
         isMultiScene = true;
         sceneNumber = currentProject.currentSceneIndex + 1;
         totalScenes = currentProject.scenes.length;
         
-        // Build context from previous scenes
-        const previousScenes = currentProject.scenes.slice(0, currentProject.currentSceneIndex);
-        if (previousScenes.length > 0) {
-          sceneContext = previousScenes.map((scene, index) => {
-            let context = `Scene ${index + 1}: ${scene.sceneIdea}`;
-            if (scene.generatedPrompt) {
-              context += `\nGenerated content: ${scene.generatedPrompt.mainPrompt.substring(0, 200)}...`;
-            }
-            return context;
-          }).join('\n\n');
-        }
+        // Build detailed context from previous scenes with generated prompts
+        previousScenePrompts = buildPreviousScenePrompts();
+        
+        console.log('Enhanced multi-scene context:', {
+          isMultiScene,
+          sceneNumber,
+          totalScenes,
+          previousScenesWithPrompts: previousScenePrompts.length
+        });
       }
 
       const requestData = {
@@ -76,18 +100,18 @@ export const usePromptGeneration = (
         lightingSettings: formState.lightingSettings,
         tier: subscription.tier,
         enhancedPrompts: canUseFeature('enhancedPrompts'),
-        // Multi-scene context
-        sceneContext,
+        // Enhanced multi-scene context
+        previousScenePrompts,
         sceneNumber,
         totalScenes,
         isMultiScene
       };
 
-      console.log('Generating prompt with multi-scene context:', {
+      console.log('Generating prompt with enhanced context:', {
         isMultiScene,
         sceneNumber,
         totalScenes,
-        hasContext: !!sceneContext
+        previousScenesCount: previousScenePrompts.length
       });
 
       const { data, error } = await supabase.functions.invoke('cinematic-prompt-generator', {

@@ -30,11 +30,20 @@ export interface PromptRequest {
   };
   tier?: string;
   enhancedPrompts?: boolean;
-  // Multi-scene support
+  // Multi-scene support with enhanced context
   sceneContext?: string;
+  previousScenePrompts?: PreviousScenePrompt[];
   sceneNumber?: number;
   totalScenes?: number;
   isMultiScene?: boolean;
+}
+
+export interface PreviousScenePrompt {
+  sceneNumber: number;
+  sceneIdea: string;
+  mainPrompt: string;
+  technicalSpecs: string;
+  styleNotes: string;
 }
 
 export interface GeneratedPrompt {

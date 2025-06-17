@@ -13,7 +13,7 @@ export function buildSystemPrompt(request: PromptRequest): string {
     soundSettings, 
     enhancedPrompts, 
     styleReference,
-    sceneContext,
+    previousScenePrompts,
     sceneNumber = 1,
     totalScenes = 1,
     isMultiScene = false
@@ -40,22 +40,38 @@ Guidelines:
 Current scene emotion/mood: ${emotion}
 User subscription tier: ${tier?.toUpperCase()}`;
 
-  // Add multi-scene context if applicable
-  if (isMultiScene && sceneContext) {
+  // Add enhanced multi-scene context if applicable
+  if (isMultiScene && previousScenePrompts && previousScenePrompts.length > 0) {
     systemPrompt += `\n\nMULTI-SCENE PROJECT CONTEXT:
 This is Scene ${sceneNumber} of ${totalScenes} in a cinematic sequence.
 
-IMPORTANT CONTINUITY REQUIREMENTS:
-- Maintain consistent character appearances, clothing, and mannerisms
-- Preserve environmental details and lighting consistency where appropriate
-- Ensure emotional and narrative progression flows naturally from previous scenes
-- Keep the same visual style and color palette established in earlier scenes
-- Use transitional elements that connect this scene to the story arc
+CRITICAL CONTINUITY REQUIREMENTS:
+- Maintain EXACT character appearances, clothing, and physical characteristics from previous scenes
+- Preserve environmental details, lighting consistency, and atmospheric elements
+- Ensure emotional and narrative progression flows naturally from the established story arc
+- Keep the same visual style, color palette, and cinematographic approach
+- Use smooth transitional elements that connect naturally to the previous scene
+- Characters should maintain consistent mannerisms, speech patterns, and personality traits
 
-PREVIOUS SCENE CONTEXT:
-${sceneContext}
+DETAILED PREVIOUS SCENE CONTEXT:`;
 
-When generating this scene, ensure it feels like a natural continuation of the story while advancing the narrative.`;
+    previousScenePrompts.forEach((prevScene) => {
+      systemPrompt += `\n\n--- SCENE ${prevScene.sceneNumber} REFERENCE ---
+Scene Idea: ${prevScene.sceneIdea}
+
+Visual Description: ${prevScene.mainPrompt.substring(0, 300)}...
+
+Technical Elements: ${prevScene.technicalSpecs.substring(0, 200)}...
+
+Style & Mood: ${prevScene.styleNotes.substring(0, 200)}...`;
+    });
+
+    systemPrompt += `\n\nWhen generating Scene ${sceneNumber}, you MUST:
+1. Reference specific visual elements from the previous scenes (character clothing, hair, facial features, environment details)
+2. Maintain the established lighting mood and color palette
+3. Ensure the new scene feels like a natural continuation of the story
+4. Use consistent camera work and cinematographic style
+5. Keep character consistency paramount - if a character wore a red jacket in Scene 1, they should still be wearing it unless the story specifically requires a change`;
   }
 
   // Add dialog specifications
