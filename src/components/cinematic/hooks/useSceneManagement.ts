@@ -1,5 +1,5 @@
 
-import { scrollToStepContent, scrollToElementById } from '@/utils/scrollUtils';
+import { scrollToGeneratedPrompt, scrollToStepContent } from '@/utils/scrollUtils';
 import { SceneData, MultiSceneProject } from './types';
 
 export const useSceneManagement = (
@@ -31,13 +31,13 @@ export const useSceneManagement = (
     // Scroll to appropriate location after scene selection
     setTimeout(() => {
       if (hasPrompt) {
-        console.log('useSceneManagement: Scrolling to generated prompt display after scene select');
-        scrollToElementById('generated-prompt-display', 'smooth', 100);
+        console.log('useSceneManagement: Scene has prompt, scrolling to generated prompt');
+        scrollToGeneratedPrompt('smooth');
       } else {
-        console.log('useSceneManagement: Scrolling to cinematic form container after scene select');
-        scrollToElementById('cinematic-form-container', 'smooth', 100);
+        console.log('useSceneManagement: No prompt, scrolling to step 1');
+        scrollToStepContent(1, 'smooth');
       }
-    }, 200);
+    }, 300);
   };
 
   const handleAddScene = async () => {

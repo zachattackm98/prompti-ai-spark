@@ -1,5 +1,5 @@
 
-import { scrollToElementById } from '@/utils/scrollUtils';
+import { scrollToGeneratedPrompt, scrollToStepContent } from '@/utils/scrollUtils';
 import { MultiSceneProject } from './types';
 
 export const useProjectLoading = (
@@ -22,13 +22,13 @@ export const useProjectLoading = (
       // Scroll to appropriate location after loading
       setTimeout(() => {
         if (hasPrompt) {
-          console.log('useProjectLoading: Scrolling to generated prompt display after project load');
-          scrollToElementById('generated-prompt-display', 'smooth', 100);
+          console.log('useProjectLoading: Scene has prompt, scrolling to generated prompt');
+          scrollToGeneratedPrompt('smooth');
         } else {
-          console.log('useProjectLoading: Scrolling to cinematic form container after project load');
-          scrollToElementById('cinematic-form-container', 'smooth', 100);
+          console.log('useProjectLoading: No prompt, scrolling to step 1');
+          scrollToStepContent(1, 'smooth');
         }
-      }, 200);
+      }, 300);
     }
     return loadedProject;
   };
