@@ -43,7 +43,7 @@ const ComingSoonDialog: React.FC<ComingSoonDialogProps> = ({ open, onOpenChange 
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)}
-            className="w-full border-white/20 text-white hover:bg-white/10"
+            className="w-full border-purple-500/40 text-purple-300 bg-slate-800/50 hover:bg-purple-500/20 hover:text-purple-200"
           >
             Continue Creating Prompts
           </Button>
