@@ -5,12 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { fadeInVariants, scaleInVariants, viewportOptions } from '@/utils/animations';
 import AuthDialog from '@/components/AuthDialog';
+import ComingSoonDialog from '@/components/ui/ComingSoonDialog';
 
 const FinalCTA = () => {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
 
   const handleStartForFree = () => {
     setShowAuthDialog(true);
+  };
+
+  const handleWatchDemo = () => {
+    setShowComingSoonDialog(true);
   };
 
   return (
@@ -64,6 +70,7 @@ const FinalCTA = () => {
                 <Button 
                   size="lg" 
                   variant="outline"
+                  onClick={handleWatchDemo}
                   className="w-full sm:w-auto border-2 border-white/40 text-white bg-white/10 hover:bg-white/20 hover:text-white text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300"
                 >
                   Watch Demo Video
@@ -84,6 +91,11 @@ const FinalCTA = () => {
       <AuthDialog 
         open={showAuthDialog} 
         onOpenChange={setShowAuthDialog}
+      />
+      
+      <ComingSoonDialog 
+        open={showComingSoonDialog} 
+        onOpenChange={setShowComingSoonDialog}
       />
     </>
   );
