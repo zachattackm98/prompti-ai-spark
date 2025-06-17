@@ -1,8 +1,7 @@
-
 import { useFormState } from './hooks/useFormState';
 import { useStepNavigation } from './hooks/useStepNavigation';
 import { usePromptGeneration } from './hooks/usePromptGeneration';
-import { scrollToStepContent } from '@/utils/scrollUtils';
+import { scrollToStepContent, scrollToElementById } from '@/utils/scrollUtils';
 
 // Re-export types for backward compatibility
 export type { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './hooks/types';
@@ -138,8 +137,10 @@ export const useCinematicForm = (
     // Reset to step 1 if no prompt exists, otherwise go to final step
     setCurrentStep(selectedScene.generatedPrompt ? totalSteps : 1);
     
+    // Scroll to the cinematic form container instead of step content
     setTimeout(() => {
-      scrollToStepContent(selectedScene.generatedPrompt ? totalSteps : 1);
+      console.log('useCinematicForm: Scrolling to cinematic form container after scene select');
+      scrollToElementById('cinematic-form-container', 'smooth', 100);
     }, 200);
   };
 
