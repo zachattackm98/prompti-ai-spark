@@ -9,6 +9,92 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cinematic_projects: {
+        Row: {
+          created_at: string
+          current_scene_index: number
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_scene_index?: number
+          id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_scene_index?: number
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      cinematic_scenes: {
+        Row: {
+          camera_settings: Json
+          created_at: string
+          dialog_settings: Json
+          generated_prompt: Json | null
+          id: string
+          lighting_settings: Json
+          project_id: string
+          scene_idea: string
+          scene_number: number
+          selected_emotion: string
+          selected_platform: string
+          sound_settings: Json
+          style_reference: string
+          updated_at: string
+        }
+        Insert: {
+          camera_settings?: Json
+          created_at?: string
+          dialog_settings?: Json
+          generated_prompt?: Json | null
+          id?: string
+          lighting_settings?: Json
+          project_id: string
+          scene_idea: string
+          scene_number: number
+          selected_emotion?: string
+          selected_platform?: string
+          sound_settings?: Json
+          style_reference?: string
+          updated_at?: string
+        }
+        Update: {
+          camera_settings?: Json
+          created_at?: string
+          dialog_settings?: Json
+          generated_prompt?: Json | null
+          id?: string
+          lighting_settings?: Json
+          project_id?: string
+          scene_idea?: string
+          scene_number?: number
+          selected_emotion?: string
+          selected_platform?: string
+          sound_settings?: Json
+          style_reference?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cinematic_scenes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cinematic_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

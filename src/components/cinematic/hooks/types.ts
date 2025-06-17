@@ -1,4 +1,3 @@
-
 export interface CameraSettings {
   angle: string;
   movement: string;
@@ -37,6 +36,7 @@ export interface GeneratedPrompt {
 }
 
 export interface SceneData {
+  id?: string; // Add optional id field for database
   sceneNumber: number;
   sceneIdea: string;
   selectedPlatform: string;

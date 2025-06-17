@@ -1,9 +1,20 @@
 
-import { useCallback } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { usePromptUsage } from '@/hooks/usePromptUsage';
-import { FormState, GeneratedPrompt, MultiSceneProject } from './types';
+import { GeneratedPrompt, MultiSceneProject } from './types';
+
+interface FormState {
+  sceneIdea: string;
+  selectedPlatform: string;
+  selectedEmotion: string;
+  dialogSettings: any;
+  soundSettings: any;
+  cameraSettings: any;
+  lightingSettings: any;
+  styleReference: string;
+  currentProject: MultiSceneProject | null;
+  isMultiScene: boolean;
+}
 
 export const usePromptGeneration = (
   user: any,
@@ -14,46 +25,16 @@ export const usePromptGeneration = (
   formState: FormState,
   setGeneratedPrompt: (prompt: GeneratedPrompt | null) => void,
   setIsLoading: (loading: boolean) => void,
-  currentProject?: MultiSceneProject | null,
-  updateScenePrompt?: (sceneIndex: number, prompt: GeneratedPrompt) => void
+  currentProject: MultiSceneProject | null,
+  updateScenePrompt: (sceneIndex: number, prompt: GeneratedPrompt) => void
 ) => {
-  const { toast } = useToast();
-  const { hasReachedLimit, refetchUsage } = usePromptUsage();
-
-  const handleGenerate = useCallback(async () => {
+  const handleGenerate = async () => {
     if (!user) {
       setShowAuthDialog(true);
       return;
     }
 
-    // Check usage limits for all tiers
-    if (hasReachedLimit) {
-      const tierNames = { starter: 'Starter', creator: 'Creator', studio: 'Studio' };
-      const limits = { starter: 5, creator: 500, studio: 1000 };
-      
-      let upgradeMessage = '';
-      if (subscription.tier === 'starter') {
-        upgradeMessage = 'Upgrade to Creator (500 prompts/month) or Studio (1000 prompts/month) for more prompts.';
-      } else if (subscription.tier === 'creator') {
-        upgradeMessage = 'Upgrade to Studio plan for 1000 prompts per month.';
-      } else {
-        upgradeMessage = 'Your usage will reset next month.';
-      }
-
-      toast({
-        title: "Usage Limit Reached",
-        description: `You've reached your monthly limit of ${limits[subscription.tier]} prompts on the ${tierNames[subscription.tier]} plan. ${upgradeMessage}`,
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (!formState.sceneIdea.trim()) {
-      toast({
-        title: "Scene idea required",
-        description: "Please provide a scene idea to generate your prompt.",
-        variant: "destructive",
-      });
       return;
     }
 
@@ -64,113 +45,86 @@ export const usePromptGeneration = (
       let sceneContext = '';
       let sceneNumber = 1;
       let totalScenes = 1;
+      let isMultiScene = false;
 
-      if (currentProject) {
-        const currentScene = currentProject.scenes[currentProject.currentSceneIndex];
-        sceneNumber = currentScene.sceneNumber;
+      if (currentProject && currentProject.scenes.length > 0) {
+        isMultiScene = true;
+        sceneNumber = currentProject.currentSceneIndex + 1;
         totalScenes = currentProject.scenes.length;
         
         // Build context from previous scenes
-        const previousScenes = currentProject.scenes
-          .filter((scene, index) => index < currentProject.currentSceneIndex && scene.generatedPrompt)
-          .map((scene, index) => `Scene ${scene.sceneNumber}: ${scene.sceneIdea}\nGenerated: ${scene.generatedPrompt?.mainPrompt}`)
-          .join('\n\n');
-        
-        if (previousScenes) {
-          sceneContext = `MULTI-SCENE PROJECT: "${currentProject.title}"\n\nPREVIOUS SCENES FOR CONTINUITY:\n${previousScenes}\n\nCURRENT SCENE (${sceneNumber}/${totalScenes}):`;
+        const previousScenes = currentProject.scenes.slice(0, currentProject.currentSceneIndex);
+        if (previousScenes.length > 0) {
+          sceneContext = previousScenes.map((scene, index) => {
+            let context = `Scene ${index + 1}: ${scene.sceneIdea}`;
+            if (scene.generatedPrompt) {
+              context += `\nGenerated content: ${scene.generatedPrompt.mainPrompt.substring(0, 200)}...`;
+            }
+            return context;
+          }).join('\n\n');
         }
       }
 
+      const requestData = {
+        sceneIdea: formState.sceneIdea,
+        platform: formState.selectedPlatform,
+        emotion: formState.selectedEmotion,
+        styleReference: formState.styleReference,
+        dialogSettings: formState.dialogSettings,
+        soundSettings: formState.soundSettings,
+        cameraSettings: formState.cameraSettings,
+        lightingSettings: formState.lightingSettings,
+        tier: subscription.tier,
+        enhancedPrompts: canUseFeature('enhancedPrompts'),
+        // Multi-scene context
+        sceneContext,
+        sceneNumber,
+        totalScenes,
+        isMultiScene
+      };
+
+      console.log('Generating prompt with multi-scene context:', {
+        isMultiScene,
+        sceneNumber,
+        totalScenes,
+        hasContext: !!sceneContext
+      });
+
       const { data, error } = await supabase.functions.invoke('cinematic-prompt-generator', {
-        body: {
-          sceneIdea: formState.sceneIdea,
-          platform: formState.selectedPlatform,
-          emotion: formState.selectedEmotion,
-          styleReference: formState.styleReference,
-          dialogSettings: formState.dialogSettings,
-          soundSettings: formState.soundSettings,
-          cameraSettings: canUseFeature('cameraControls') ? formState.cameraSettings : undefined,
-          lightingSettings: canUseFeature('lightingOptions') ? formState.lightingSettings : undefined,
-          tier: subscription.tier,
-          enhancedPrompts: subscription.tier !== 'starter',
-          // Multi-scene context
-          sceneContext,
-          sceneNumber,
-          totalScenes,
-          isMultiScene: !!currentProject
-        }
+        body: requestData
       });
 
       if (error) {
-        // Handle specific error cases
-        if (error.message === 'USAGE_LIMIT_EXCEEDED') {
-          toast({
-            title: "Usage Limit Exceeded",
-            description: "You've reached your monthly prompt limit. Please upgrade for more prompts!",
-            variant: "destructive",
-          });
-          // Refresh usage data
-          await refetchUsage();
+        console.error('Error generating prompt:', error);
+        if (error.message?.includes('limit exceeded') || error.message?.includes('usage limit')) {
+          // Handle usage limit errors gracefully
           return;
         }
         throw error;
       }
 
-      if (data?.error) {
-        if (data.error === 'USAGE_LIMIT_EXCEEDED') {
-          toast({
-            title: "Usage Limit Exceeded",
-            description: data.message || "You've reached your monthly prompt limit.",
-            variant: "destructive",
-          });
-          // Refresh usage data
-          await refetchUsage();
-          return;
+      if (data?.prompt) {
+        const generatedPrompt: GeneratedPrompt = {
+          ...data.prompt,
+          sceneNumber,
+          totalScenes
+        };
+        
+        setGeneratedPrompt(generatedPrompt);
+        
+        // Update the scene prompt in multi-scene project
+        if (currentProject) {
+          updateScenePrompt(currentProject.currentSceneIndex, generatedPrompt);
         }
-        throw new Error(data.error);
+        
+        loadPromptHistory();
       }
-
-      const promptWithSceneInfo = {
-        ...data.prompt,
-        sceneNumber,
-        totalScenes
-      };
-
-      setGeneratedPrompt(promptWithSceneInfo);
-      
-      // Update scene in project if multi-scene
-      if (currentProject && updateScenePrompt) {
-        updateScenePrompt(currentProject.currentSceneIndex, promptWithSceneInfo);
-      }
-      
-      // Refresh usage data after successful generation
-      await refetchUsage();
-      
-      // Load updated history
-      loadPromptHistory();
-
-      toast({
-        title: "Prompt Generated!",
-        description: `Your cinematic prompt${currentProject ? ` for Scene ${sceneNumber}` : ''} has been generated successfully.`,
-      });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error generating prompt:', error);
-      toast({
-        title: "Generation Failed",
-        description: error.message || "Failed to generate prompt. Please try again.",
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }
-  }, [
-    user, formState.sceneIdea, formState.selectedPlatform, formState.selectedEmotion, 
-    formState.styleReference, formState.dialogSettings, formState.soundSettings,
-    formState.cameraSettings, formState.lightingSettings, 
-    subscription.tier, canUseFeature, setShowAuthDialog, loadPromptHistory, toast, 
-    hasReachedLimit, refetchUsage, setGeneratedPrompt, setIsLoading,
-    currentProject, updateScenePrompt
-  ]);
+  };
 
   return { handleGenerate };
 };
