@@ -1,1 +1,72 @@
+
 project_id = "jwuenhictjprfbktfzjy"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54324
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://lovable.dev"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+security_update_password_require_reauthentication = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+secure_nonce = true
+
+[auth.email.smtp]
+host = "smtp.resend.com"
+port = 587
+user = "resend"
+admin_email = "admin@aipromptmachine.com"
+sender_name = "AiPromptMachine"
+
+[auth.email.template.confirmation]
+subject = "Welcome to AiPromptMachine - Confirm Your Account"
+content_path = "./supabase/templates/confirmation.html"
+
+[db]
+enabled = true
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[functions.cinematic-prompt-generator]
+verify_jwt = true
+
+[functions.chat-gpt]
+verify_jwt = true
+
+[functions.create-checkout]
+verify_jwt = true
+
+[functions.customer-portal]
+verify_jwt = true
+
+[functions.check-subscription]
+verify_jwt = true
+
+[functions.fetch-billing-data]
+verify_jwt = true
+
+[functions.send-signup-email]
+verify_jwt = false
+
+[realtime]
+enabled = true
+port = 54323
+ip_version = "ipv4"
+
+[storage]
+enabled = true
+port = 54324
+file_size_limit = "50MiB"
