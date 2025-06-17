@@ -68,27 +68,31 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   
   if (currentStep === stepCounter) {
     return (
-      <SceneStep
-        sceneIdea={sceneIdea}
-        setSceneIdea={setSceneIdea}
-        onNext={handleNext}
-      />
+      <div id={`step-content-${stepCounter}`}>
+        <SceneStep
+          sceneIdea={sceneIdea}
+          setSceneIdea={setSceneIdea}
+          onNext={handleNext}
+        />
+      </div>
     );
   }
   stepCounter++;
 
   if (currentStep === stepCounter) {
     return (
-      <PlatformStep
-        selectedPlatform={selectedPlatform}
-        setSelectedPlatform={setSelectedPlatform}
-        selectedEmotion={selectedEmotion}
-        setSelectedEmotion={setSelectedEmotion}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-        availablePlatforms={features.platforms}
-        availableEmotions={features.emotions}
-      />
+      <div id={`step-content-${stepCounter}`}>
+        <PlatformStep
+          selectedPlatform={selectedPlatform}
+          setSelectedPlatform={setSelectedPlatform}
+          selectedEmotion={selectedEmotion}
+          setSelectedEmotion={setSelectedEmotion}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          availablePlatforms={features.platforms}
+          availableEmotions={features.emotions}
+        />
+      </div>
     );
   }
   stepCounter++;
@@ -96,12 +100,14 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   // Dialog Step (All Tiers)
   if (currentStep === stepCounter) {
     return (
-      <DialogStep
-        dialogSettings={dialogSettings}
-        setDialogSettings={setDialogSettings}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-      />
+      <div id={`step-content-${stepCounter}`}>
+        <DialogStep
+          dialogSettings={dialogSettings}
+          setDialogSettings={setDialogSettings}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+        />
+      </div>
     );
   }
   stepCounter++;
@@ -109,12 +115,14 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   // Sound Step (All Tiers)
   if (currentStep === stepCounter) {
     return (
-      <SoundStep
-        soundSettings={soundSettings}
-        setSoundSettings={setSoundSettings}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-      />
+      <div id={`step-content-${stepCounter}`}>
+        <SoundStep
+          soundSettings={soundSettings}
+          setSoundSettings={setSoundSettings}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+        />
+      </div>
     );
   }
   stepCounter++;
@@ -123,12 +131,14 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   if (canUseFeature('cameraControls')) {
     if (currentStep === stepCounter) {
       return (
-        <CameraControlsStep
-          cameraSettings={cameraSettings}
-          setCameraSettings={setCameraSettings}
-          onNext={handleNext}
-          onPrevious={handlePrevious}
-        />
+        <div id={`step-content-${stepCounter}`}>
+          <CameraControlsStep
+            cameraSettings={cameraSettings}
+            setCameraSettings={setCameraSettings}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+          />
+        </div>
       );
     }
     stepCounter++;
@@ -138,12 +148,14 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   if (canUseFeature('lightingOptions')) {
     if (currentStep === stepCounter) {
       return (
-        <LightingStep
-          lightingSettings={lightingSettings}
-          setLightingSettings={setLightingSettings}
-          onNext={handleNext}
-          onPrevious={handlePrevious}
-        />
+        <div id={`step-content-${stepCounter}`}>
+          <LightingStep
+            lightingSettings={lightingSettings}
+            setLightingSettings={setLightingSettings}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+          />
+        </div>
       );
     }
     stepCounter++;
@@ -152,13 +164,15 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   // Style Step (final step)
   if (currentStep === stepCounter) {
     return (
-      <StyleStep
-        styleReference={styleReference}
-        setStyleReference={setStyleReference}
-        onPrevious={handlePrevious}
-        onGenerate={handleGenerate}
-        isLoading={isLoading}
-      />
+      <div id={`step-content-${stepCounter}`}>
+        <StyleStep
+          styleReference={styleReference}
+          setStyleReference={setStyleReference}
+          onPrevious={handlePrevious}
+          onGenerate={handleGenerate}
+          isLoading={isLoading}
+        />
+      </div>
     );
   }
 

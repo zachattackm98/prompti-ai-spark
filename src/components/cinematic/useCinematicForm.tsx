@@ -1,8 +1,7 @@
-
 import { useFormState } from './hooks/useFormState';
 import { useStepNavigation } from './hooks/useStepNavigation';
 import { usePromptGeneration } from './hooks/usePromptGeneration';
-import { scrollToElementById } from '@/utils/scrollUtils';
+import { scrollToStepContent } from '@/utils/scrollUtils';
 
 // Re-export types for backward compatibility
 export type { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './hooks/types';
@@ -73,10 +72,11 @@ export const useCinematicForm = (
 
   const handleGenerateNew = () => {
     resetForm();
-    // Scroll to form after reset
+    // Scroll to the first step after reset with a delay to allow state update
     setTimeout(() => {
-      scrollToElementById('cinematic-form-container');
-    }, 100);
+      console.log('useCinematicForm: Scrolling to step 1 after reset');
+      scrollToStepContent(1);
+    }, 200);
   };
 
   return {

@@ -1,5 +1,5 @@
 
-import { scrollToElementById } from '@/utils/scrollUtils';
+import { scrollToStepContent, scrollToElementById } from '@/utils/scrollUtils';
 
 export const useStepNavigation = (
   currentStep: number,
@@ -18,21 +18,34 @@ export const useStepNavigation = (
   const scrollToForm = () => {
     // Small delay to allow step transition to complete
     setTimeout(() => {
-      scrollToElementById('cinematic-form-container');
-    }, 100);
+      console.log(`StepNavigation: Scrolling to step ${currentStep}`);
+      scrollToStepContent(currentStep);
+    }, 150);
   };
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-      scrollToForm();
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      
+      // Scroll to the new step after state update
+      setTimeout(() => {
+        console.log(`StepNavigation: Moving to step ${nextStep}`);
+        scrollToStepContent(nextStep);
+      }, 200);
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-      scrollToForm();
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+      
+      // Scroll to the new step after state update
+      setTimeout(() => {
+        console.log(`StepNavigation: Moving to step ${prevStep}`);
+        scrollToStepContent(prevStep);
+      }, 200);
     }
   };
 
