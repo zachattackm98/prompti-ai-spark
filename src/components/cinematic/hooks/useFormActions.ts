@@ -51,8 +51,26 @@ export const useFormActions = (
     }, 200);
   };
 
+  const handleStartProjectFromHistory = async (title: string, sceneData: Omit<SceneData, 'sceneNumber'>) => {
+    const project = await startNewProject(title, sceneData);
+    
+    if (!project) {
+      console.error('Failed to create project from history');
+      return;
+    }
+    
+    // Load the scene data to current state
+    loadSceneDataToCurrentState({
+      ...sceneData,
+      sceneNumber: 1
+    });
+
+    console.log('Project started from history:', project);
+  };
+
   return {
     handleGenerateNew,
-    handleContinueScene
+    handleContinueScene,
+    handleStartProjectFromHistory
   };
 };

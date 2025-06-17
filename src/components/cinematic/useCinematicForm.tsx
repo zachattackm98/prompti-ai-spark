@@ -6,6 +6,7 @@ import { useFormActions } from './hooks/useFormActions';
 import { useSceneManagement } from './hooks/useSceneManagement';
 import { useProjectLoading } from './hooks/useProjectLoading';
 import { useSubscriptionLimits } from './hooks/useSubscriptionLimits';
+import { useHistoryActions } from './hooks/useHistoryActions';
 
 // Re-export types for backward compatibility
 export type { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './hooks/types';
@@ -91,7 +92,7 @@ export const useCinematicForm = (
     updateScenePrompt
   );
 
-  const { handleGenerateNew, handleContinueScene } = useFormActions(
+  const { handleGenerateNew, handleContinueScene, handleStartProjectFromHistory } = useFormActions(
     resetForm,
     setCurrentStep,
     createSceneDataFromCurrentState,
@@ -120,6 +121,12 @@ export const useCinematicForm = (
   );
 
   const { canAddMoreScenes } = useSubscriptionLimits(subscription, currentProject);
+
+  const { handleStartProjectFromHistory: handleHistoryProjectStart } = useHistoryActions(
+    startNewProject,
+    loadSceneDataToCurrentState,
+    setCurrentStep
+  );
 
   return {
     currentStep,
@@ -156,6 +163,8 @@ export const useCinematicForm = (
     handleAddScene,
     handleLoadProject,
     canAddMoreScenes,
-    updateScenePrompt
+    updateScenePrompt,
+    // History functionality
+    handleStartProjectFromHistory: handleHistoryProjectStart
   };
 };

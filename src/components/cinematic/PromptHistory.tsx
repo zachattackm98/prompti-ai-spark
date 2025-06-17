@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Copy, Download, Eye, Loader2 } from 'lucide-react';
+import { Copy, Download, Eye, Loader2, Play } from 'lucide-react';
 import { PromptHistory as PromptHistoryType } from './types';
 import { usePromptActions } from './promptActions';
 
@@ -11,12 +11,14 @@ interface PromptHistoryProps {
   promptHistory: PromptHistoryType[];
   showHistory: boolean;
   historyLoading?: boolean;
+  onStartProjectFromHistory?: (prompt: PromptHistoryType) => void;
 }
 
 const PromptHistory: React.FC<PromptHistoryProps> = ({ 
   promptHistory, 
   showHistory, 
-  historyLoading = false 
+  historyLoading = false,
+  onStartProjectFromHistory
 }) => {
   const { copyToClipboard, downloadPrompt } = usePromptActions({});
 
@@ -54,6 +56,12 @@ const PromptHistory: React.FC<PromptHistoryProps> = ({
       downloadPrompt(promptData);
     } catch (error) {
       console.error('Error parsing prompt for download:', error);
+    }
+  };
+
+  const handleStartProject = (prompt: PromptHistoryType) => {
+    if (onStartProjectFromHistory) {
+      onStartProjectFromHistory(prompt);
     }
   };
 
@@ -156,7 +164,17 @@ const PromptHistory: React.FC<PromptHistoryProps> = ({
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2 pt-2">
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      <Button
+                        onClick={() => handleStartProject(prompt)}
+                        variant="outline"
+                        size="sm"
+                        className="bg-green-600/20 border-green-400/30 text-green-300 hover:bg-green-600/30 text-xs h-8 flex items-center gap-1"
+                      >
+                        <Play className="w-3 h-3" />
+                        Start Project
+                      </Button>
+                      
                       <Button
                         onClick={() => handleCopyPrompt(prompt)}
                         variant="outline"

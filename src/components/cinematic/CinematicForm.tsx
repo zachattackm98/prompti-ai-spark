@@ -8,6 +8,8 @@ import StepIndicator from './StepIndicator';
 import CinematicFormContent from './CinematicFormContent';
 import ProjectSelectorsSection from './ProjectSelectorsSection';
 import UsageDisplay from './UsageDisplay';
+import PromptHistoryComponent from './PromptHistory';
+import { PromptHistory } from './types';
 
 interface CinematicFormProps {
   user: any;
@@ -16,6 +18,9 @@ interface CinematicFormProps {
   canUseFeature: (feature: string) => boolean;
   setShowAuthDialog: (show: boolean) => void;
   loadPromptHistory: () => void;
+  promptHistory?: PromptHistory[];
+  showHistory?: boolean;
+  historyLoading?: boolean;
 }
 
 const CinematicForm: React.FC<CinematicFormProps> = ({
@@ -24,7 +29,10 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
   features,
   canUseFeature,
   setShowAuthDialog,
-  loadPromptHistory
+  loadPromptHistory,
+  promptHistory = [],
+  showHistory = false,
+  historyLoading = false
 }) => {
   const {
     currentStep,
@@ -60,7 +68,9 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     handleAddScene,
     handleLoadProject,
     canAddMoreScenes,
-    updateScenePrompt
+    updateScenePrompt,
+    // History functionality
+    handleStartProjectFromHistory
   } = useCinematicForm(user, subscription, canUseFeature, setShowAuthDialog, loadPromptHistory);
 
   // Create form state object for the prompt generation hook
@@ -170,6 +180,16 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
         onManualSave={manualSaveToHistory}
         savingToHistory={savingToHistory}
       />
+
+      {/* Show history section inline within the form area */}
+      {showHistory && (
+        <PromptHistoryComponent 
+          promptHistory={promptHistory} 
+          showHistory={showHistory}
+          historyLoading={historyLoading}
+          onStartProjectFromHistory={handleStartProjectFromHistory}
+        />
+      )}
 
       {!user && !generatedPrompt && (
         <motion.div 

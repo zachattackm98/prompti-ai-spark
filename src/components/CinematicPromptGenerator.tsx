@@ -13,7 +13,6 @@ import { PromptHistory } from './cinematic/types';
 import CinematicHeader from './cinematic/CinematicHeader';
 import CinematicForm from './cinematic/CinematicForm';
 import CinematicUpgradeSection from './cinematic/CinematicUpgradeSection';
-import PromptHistoryComponent from './cinematic/PromptHistory';
 import BackgroundAnimation from './cinematic/BackgroundAnimation';
 
 const CinematicPromptGenerator = () => {
@@ -172,6 +171,9 @@ const CinematicPromptGenerator = () => {
             canUseFeature={canUseFeature}
             setShowAuthDialog={setShowAuthDialog}
             loadPromptHistory={loadPromptHistory}
+            promptHistory={promptHistory}
+            showHistory={showHistory}
+            historyLoading={historyLoading}
           />
 
           <CinematicUpgradeSection
@@ -180,12 +182,6 @@ const CinematicPromptGenerator = () => {
             canUseFeature={canUseFeature}
             subscription={subscription}
             onUpgrade={handleUpgrade}
-          />
-
-          <PromptHistoryComponent 
-            promptHistory={promptHistory} 
-            showHistory={showHistory}
-            historyLoading={historyLoading}
           />
         </div>
       </motion.section>
