@@ -2,7 +2,10 @@
 import { useFormState } from './hooks/useFormState';
 import { useStepNavigation } from './hooks/useStepNavigation';
 import { usePromptGeneration } from './hooks/usePromptGeneration';
-import { scrollToStepContent, scrollToElementById } from '@/utils/scrollUtils';
+import { useFormActions } from './hooks/useFormActions';
+import { useSceneManagement } from './hooks/useSceneManagement';
+import { useProjectLoading } from './hooks/useProjectLoading';
+import { useSubscriptionLimits } from './hooks/useSubscriptionLimits';
 
 // Re-export types for backward compatibility
 export type { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './hooks/types';
@@ -88,122 +91,35 @@ export const useCinematicForm = (
     updateScenePrompt
   );
 
-  const handleGenerateNew = () => {
-    resetForm();
-    // Scroll to the first step after reset with a delay to allow state update
-    setTimeout(() => {
-      console.log('useCinematicForm: Scrolling to step 1 after reset');
-      scrollToStepContent(1);
-    }, 200);
-  };
+  const { handleGenerateNew, handleContinueScene } = useFormActions(
+    resetForm,
+    setCurrentStep,
+    createSceneDataFromCurrentState,
+    startNewProject,
+    addNewScene,
+    loadSceneDataToCurrentState,
+    totalSteps
+  );
 
-  const handleContinueScene = (projectTitle: string, nextSceneIdea: string) => {
-    const currentSceneData = createSceneDataFromCurrentState();
-    const project = startNewProject(projectTitle, currentSceneData);
-    
-    // Add the next scene
-    const nextSceneData = {
-      ...currentSceneData,
-      sceneIdea: nextSceneIdea,
-      generatedPrompt: null
-    };
-    
-    addNewScene(nextSceneData);
-    
-    // Load the next scene data to current state
-    loadSceneDataToCurrentState({
-      ...nextSceneData,
-      sceneNumber: 2
-    });
-    
-    // Reset to step 1 for the new scene
-    setCurrentStep(1);
-    
-    setTimeout(() => {
-      scrollToStepContent(1);
-    }, 200);
-  };
+  const { handleSceneSelect, handleAddScene } = useSceneManagement(
+    currentProject,
+    createSceneDataFromCurrentState,
+    updateCurrentScene,
+    setCurrentSceneIndex,
+    loadSceneDataToCurrentState,
+    addNewScene,
+    setCurrentStep,
+    totalSteps
+  );
 
-  const handleSceneSelect = (sceneIndex: number) => {
-    if (!currentProject) return;
-    
-    // Save current scene data
-    const currentSceneData = createSceneDataFromCurrentState();
-    updateCurrentScene(currentSceneData);
-    
-    // Switch to selected scene
-    setCurrentSceneIndex(sceneIndex);
-    const selectedScene = currentProject.scenes[sceneIndex];
-    loadSceneDataToCurrentState(selectedScene);
-    
-    // Reset to step 1 if no prompt exists, otherwise go to final step
-    setCurrentStep(selectedScene.generatedPrompt ? totalSteps : 1);
-    
-    // Scroll to the cinematic form container instead of step content
-    setTimeout(() => {
-      console.log('useCinematicForm: Scrolling to cinematic form container after scene select');
-      scrollToElementById('cinematic-form-container', 'smooth', 100);
-    }, 200);
-  };
+  const { handleLoadProject } = useProjectLoading(
+    loadProjectById,
+    loadSceneDataToCurrentState,
+    setCurrentStep,
+    totalSteps
+  );
 
-  const handleAddScene = () => {
-    if (!currentProject) return;
-    
-    // Save current scene data
-    const currentSceneData = createSceneDataFromCurrentState();
-    updateCurrentScene(currentSceneData);
-    
-    // Create new scene with inherited settings but reset prompt
-    const newSceneData = {
-      ...currentSceneData,
-      sceneIdea: '',
-      generatedPrompt: null
-    };
-    
-    addNewScene(newSceneData);
-    loadSceneDataToCurrentState({
-      ...newSceneData,
-      sceneNumber: currentProject.scenes.length + 1
-    });
-    
-    setCurrentStep(1);
-    
-    setTimeout(() => {
-      scrollToStepContent(1);
-    }, 200);
-  };
-
-  const handleLoadProject = async (projectId: string) => {
-    const loadedProject = await loadProjectById(projectId);
-    if (loadedProject) {
-      // Load the current scene data to the form
-      const currentScene = loadedProject.scenes[loadedProject.currentSceneIndex];
-      loadSceneDataToCurrentState(currentScene);
-      
-      // Set appropriate step based on whether the scene has a generated prompt
-      setCurrentStep(currentScene.generatedPrompt ? totalSteps : 1);
-      
-      // Scroll to form after loading
-      setTimeout(() => {
-        console.log('useCinematicForm: Scrolling to cinematic form container after project load');
-        scrollToElementById('cinematic-form-container', 'smooth', 100);
-      }, 200);
-    }
-    return loadedProject;
-  };
-
-  const canAddMoreScenes = () => {
-    // Basic tier: max 2 scenes
-    if (subscription.tier === 'starter') {
-      return !currentProject || currentProject.scenes.length < 2;
-    }
-    // Creator tier: max 5 scenes
-    if (subscription.tier === 'creator') {
-      return !currentProject || currentProject.scenes.length < 5;
-    }
-    // Studio tier: max 10 scenes
-    return !currentProject || currentProject.scenes.length < 10;
-  };
+  const { canAddMoreScenes } = useSubscriptionLimits(subscription, currentProject);
 
   return {
     currentStep,
@@ -237,6 +153,6 @@ export const useCinematicForm = (
     handleSceneSelect,
     handleAddScene,
     handleLoadProject,
-    canAddMoreScenes: canAddMoreScenes()
+    canAddMoreScenes
   };
 };
