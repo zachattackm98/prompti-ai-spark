@@ -49,7 +49,7 @@ const ContinueScenePrompt: React.FC<ContinueScenePromptProps> = ({
               <Sparkles className="w-5 h-5" />
             </div>
             
-            <p className="text-gray-300 text-sm">
+            <p className="text-white text-sm font-medium">
               Turn it into a multi-scene cinematic story! Continue with Scene 2 while maintaining 
               character consistency and narrative flow.
             </p>
@@ -66,7 +66,7 @@ const ContinueScenePrompt: React.FC<ContinueScenePromptProps> = ({
               <Button
                 onClick={onStartOver}
                 variant="outline"
-                className="border-slate-600 text-white hover:bg-slate-700"
+                className="border-purple-400/50 text-purple-200 hover:bg-purple-900/30 hover:text-white bg-slate-800/60"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 New Single Scene

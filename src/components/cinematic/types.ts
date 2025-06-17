@@ -14,6 +14,8 @@ export interface GeneratedPrompt {
   technicalSpecs: string;
   styleNotes: string;
   platform: string;
+  sceneNumber?: number;
+  totalScenes?: number;
 }
 
 export interface Platform {

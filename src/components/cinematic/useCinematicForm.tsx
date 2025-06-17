@@ -69,7 +69,9 @@ export const useCinematicForm = (
     lightingSettings,
     styleReference,
     generatedPrompt,
-    isLoading
+    isLoading,
+    currentProject,
+    isMultiScene
   };
 
   const { handleGenerate } = usePromptGeneration(
