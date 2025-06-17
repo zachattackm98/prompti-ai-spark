@@ -2,6 +2,7 @@
 import { useFormState } from './hooks/useFormState';
 import { useStepNavigation } from './hooks/useStepNavigation';
 import { usePromptGeneration } from './hooks/usePromptGeneration';
+import { scrollToElementById } from '@/utils/scrollUtils';
 
 // Re-export types for backward compatibility
 export type { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './hooks/types';
@@ -39,7 +40,7 @@ export const useCinematicForm = (
     resetForm
   } = useFormState();
 
-  const { totalSteps, handleNext, handlePrevious } = useStepNavigation(
+  const { totalSteps, handleNext, handlePrevious, scrollToForm } = useStepNavigation(
     currentStep,
     setCurrentStep,
     canUseFeature
@@ -72,6 +73,10 @@ export const useCinematicForm = (
 
   const handleGenerateNew = () => {
     resetForm();
+    // Scroll to form after reset
+    setTimeout(() => {
+      scrollToElementById('cinematic-form-container');
+    }, 100);
   };
 
   return {

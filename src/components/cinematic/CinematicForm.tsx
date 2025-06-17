@@ -72,6 +72,7 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
       <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
       <motion.div
+        id="cinematic-form-container"
         initial={{ y: 30, opacity: 0 }}
         whileInView={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.3 }}
