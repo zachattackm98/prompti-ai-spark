@@ -1,18 +1,12 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Card } from '@/components/ui/card';
 import { useCinematicForm } from './useCinematicForm';
-import { usePromptActions } from './promptActions';
+import { useProjectManagement } from './hooks/useProjectManagement';
 import StepIndicator from './StepIndicator';
-import StepRenderer from './StepRenderer';
-import GeneratedPromptDisplay from './GeneratedPromptDisplay';
-import ContinueScenePrompt from './ContinueScenePrompt';
-import SceneSelector from './SceneSelector';
-import ProjectSelector from './ProjectSelector';
+import CinematicFormContent from './CinematicFormContent';
+import ProjectSelectorsSection from './ProjectSelectorsSection';
 import UsageDisplay from './UsageDisplay';
-import { scrollToStepContent } from '@/utils/scrollUtils';
-import { useMultiSceneDatabase } from './hooks/useMultiSceneDatabase';
 
 interface CinematicFormProps {
   user: any;
@@ -66,24 +60,12 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     canAddMoreScenes
   } = useCinematicForm(user, subscription, canUseFeature, setShowAuthDialog, loadPromptHistory);
 
-  // Add project management with proper authentication
-  const [userProjects, setUserProjects] = React.useState([]);
-  const [projectsLoading, setProjectsLoading] = React.useState(false);
-  const { loadUserProjects, deleteProject } = useMultiSceneDatabase();
-
-  const loadUserProjectsData = React.useCallback(async () => {
-    if (!user) return;
-    
-    setProjectsLoading(true);
-    try {
-      const projects = await loadUserProjects();
-      setUserProjects(projects);
-    } catch (error) {
-      console.error('Error loading user projects:', error);
-    } finally {
-      setProjectsLoading(false);
-    }
-  }, [user, loadUserProjects]);
+  const {
+    userProjects,
+    projectsLoading,
+    loadUserProjectsData,
+    handleDeleteProject
+  } = useProjectManagement(user);
 
   const handleLoadProjectFromSelector = async (projectId: string) => {
     try {
@@ -96,20 +78,6 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     }
   };
 
-  const handleDeleteProject = async (projectId: string) => {
-    try {
-      const success = await deleteProject(projectId);
-      if (success) {
-        // Refresh the projects list
-        await loadUserProjectsData();
-      }
-    } catch (error) {
-      console.error('Error deleting project:', error);
-    }
-  };
-
-  const { copyToClipboard, downloadPrompt } = usePromptActions(subscription);
-
   const handleUpgrade = () => {
     // Navigate to pricing section
     const pricingSection = document.getElementById('pricing');
@@ -118,108 +86,70 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     }
   };
 
-  // Load projects when user changes
-  React.useEffect(() => {
-    if (user) {
-      loadUserProjectsData();
-    }
-  }, [user, loadUserProjectsData]);
-
   return (
     <>
       {user && (
         <UsageDisplay onUpgrade={handleUpgrade} />
       )}
 
-      {/* Add project selector for authenticated users */}
-      {user && !currentProject && userProjects.length > 0 && (
-        <ProjectSelector
-          projects={userProjects}
-          onLoadProject={handleLoadProjectFromSelector}
-          onDeleteProject={handleDeleteProject}
-          onRefresh={loadUserProjectsData}
-          isLoading={projectsLoading}
-        />
-      )}
-
-      {currentProject && (
-        <SceneSelector
-          project={currentProject}
-          onSceneSelect={handleSceneSelect}
-          onAddScene={handleAddScene}
-          canAddScene={canAddMoreScenes}
-        />
-      )}
+      <ProjectSelectorsSection
+        user={user}
+        currentProject={currentProject}
+        userProjects={userProjects}
+        projectsLoading={projectsLoading}
+        canAddMoreScenes={canAddMoreScenes}
+        onLoadProject={handleLoadProjectFromSelector}
+        onDeleteProject={handleDeleteProject}
+        onRefreshProjects={loadUserProjectsData}
+        onSceneSelect={handleSceneSelect}
+        onAddScene={handleAddScene}
+      />
 
       <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
-      <motion.div
-        id="cinematic-form-container"
-        initial={{ y: 30, opacity: 0 }}
-        whileInView={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.3 }}
-      >
-        <Card className="bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 border border-purple-500/20 shadow-2xl shadow-purple-500/10 p-8 backdrop-blur-sm">
-          {!generatedPrompt ? (
-            <StepRenderer
-              currentStep={currentStep}
-              canUseFeature={canUseFeature}
-              features={features}
-              sceneIdea={sceneIdea}
-              setSceneIdea={setSceneIdea}
-              selectedPlatform={selectedPlatform}
-              setSelectedPlatform={setSelectedPlatform}
-              selectedEmotion={selectedEmotion}
-              setSelectedEmotion={setSelectedEmotion}
-              dialogSettings={dialogSettings}
-              setDialogSettings={setDialogSettings}
-              soundSettings={soundSettings}
-              setSoundSettings={setSoundSettings}
-              cameraSettings={cameraSettings}
-              setCameraSettings={setCameraSettings}
-              lightingSettings={lightingSettings}
-              setLightingSettings={setLightingSettings}
-              styleReference={styleReference}
-              setStyleReference={setStyleReference}
-              handleNext={handleNext}
-              handlePrevious={handlePrevious}
-              handleGenerate={handleGenerate}
-              isLoading={isLoading}
-            />
-          ) : (
-            <>
-              <GeneratedPromptDisplay
-                generatedPrompt={generatedPrompt}
-                onCopyToClipboard={copyToClipboard}
-                onDownloadPrompt={() => downloadPrompt(generatedPrompt)}
-                onGenerateNew={handleGenerateNew}
-              />
-              
-              {!isMultiScene && (
-                <ContinueScenePrompt
-                  generatedPrompt={generatedPrompt}
-                  onContinueScene={handleContinueScene}
-                  onStartOver={handleGenerateNew}
-                  isLoading={isLoading}
-                />
-              )}
-            </>
-          )}
+      <CinematicFormContent
+        subscription={subscription}
+        features={features}
+        canUseFeature={canUseFeature}
+        currentStep={currentStep}
+        sceneIdea={sceneIdea}
+        selectedPlatform={selectedPlatform}
+        selectedEmotion={selectedEmotion}
+        dialogSettings={dialogSettings}
+        soundSettings={soundSettings}
+        cameraSettings={cameraSettings}
+        lightingSettings={lightingSettings}
+        styleReference={styleReference}
+        generatedPrompt={generatedPrompt}
+        isLoading={isLoading}
+        isMultiScene={isMultiScene}
+        setSceneIdea={setSceneIdea}
+        setSelectedPlatform={setSelectedPlatform}
+        setSelectedEmotion={setSelectedEmotion}
+        setDialogSettings={setDialogSettings}
+        setSoundSettings={setSoundSettings}
+        setCameraSettings={setCameraSettings}
+        setLightingSettings={setLightingSettings}
+        setStyleReference={setStyleReference}
+        handleNext={handleNext}
+        handlePrevious={handlePrevious}
+        handleGenerate={handleGenerate}
+        handleGenerateNew={handleGenerateNew}
+        handleContinueScene={handleContinueScene}
+      />
 
-          {!user && !generatedPrompt && (
-            <motion.div 
-              className="text-center mt-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
-            >
-              <p className="text-purple-300 text-sm font-medium bg-purple-900/20 border border-purple-400/20 rounded-lg py-2 px-4 inline-block">
-                🎬 Ready to generate? Create your free account to get started!
-              </p>
-            </motion.div>
-          )}
-        </Card>
-      </motion.div>
+      {!user && !generatedPrompt && (
+        <motion.div 
+          className="text-center mt-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+        >
+          <p className="text-purple-300 text-sm font-medium bg-purple-900/20 border border-purple-400/20 rounded-lg py-2 px-4 inline-block">
+            🎬 Ready to generate? Create your free account to get started!
+          </p>
+        </motion.div>
+      )}
     </>
   );
 };
