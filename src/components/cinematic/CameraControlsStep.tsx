@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ const cameraAngles = [
 ];
 
 const cameraMovements = [
-  'Static', 'Pan Left', 'Pan Right', 'Tilt Up', 'Tilt Down', 'Dolly In', 'Dolly Out', 'Tracking Shot', 'Handheld'
+  'Static', 'Pan Left', 'Pan Right', 'Tilt Up', 'Tilt Down', 'Dolly In', 'Dolly Out', 'Tracking Shot', 'Handheld', 'Vlogging'
 ];
 
 const shotTypes = [
