@@ -6,8 +6,8 @@ export const useFormActions = (
   resetForm: () => void,
   setCurrentStep: (step: number) => void,
   createSceneDataFromCurrentState: () => Omit<SceneData, 'sceneNumber'>,
-  startNewProject: (title: string, initialSceneData: Omit<SceneData, 'sceneNumber'>) => MultiSceneProject | null,
-  addNewScene: (sceneData: Omit<SceneData, 'sceneNumber'>) => void,
+  startNewProject: (title: string, initialSceneData: Omit<SceneData, 'sceneNumber'>) => Promise<MultiSceneProject | null>,
+  addNewScene: (sceneData: Omit<SceneData, 'sceneNumber'>) => Promise<MultiSceneProject | null>,
   loadSceneDataToCurrentState: (sceneData: SceneData) => void,
   totalSteps: number
 ) => {
@@ -19,9 +19,14 @@ export const useFormActions = (
     }, 200);
   };
 
-  const handleContinueScene = (projectTitle: string, nextSceneIdea: string) => {
+  const handleContinueScene = async (projectTitle: string, nextSceneIdea: string) => {
     const currentSceneData = createSceneDataFromCurrentState();
-    const project = startNewProject(projectTitle, currentSceneData);
+    const project = await startNewProject(projectTitle, currentSceneData);
+    
+    if (!project) {
+      console.error('Failed to create project');
+      return;
+    }
     
     // Add the next scene
     const nextSceneData = {
@@ -30,7 +35,7 @@ export const useFormActions = (
       generatedPrompt: null
     };
     
-    addNewScene(nextSceneData);
+    await addNewScene(nextSceneData);
     
     // Load the next scene data to current state
     loadSceneDataToCurrentState({

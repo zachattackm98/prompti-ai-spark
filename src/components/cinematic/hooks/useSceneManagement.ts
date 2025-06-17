@@ -5,22 +5,22 @@ import { SceneData, MultiSceneProject } from './types';
 export const useSceneManagement = (
   currentProject: MultiSceneProject | null,
   createSceneDataFromCurrentState: () => Omit<SceneData, 'sceneNumber'>,
-  updateCurrentScene: (data: Omit<SceneData, 'sceneNumber'>) => void,
-  setCurrentSceneIndex: (index: number) => void,
+  updateCurrentScene: (data: Omit<SceneData, 'sceneNumber'>) => Promise<MultiSceneProject | null>,
+  setCurrentSceneIndex: (index: number) => Promise<void>,
   loadSceneDataToCurrentState: (sceneData: SceneData) => void,
-  addNewScene: (sceneData: Omit<SceneData, 'sceneNumber'>) => void,
+  addNewScene: (sceneData: Omit<SceneData, 'sceneNumber'>) => Promise<MultiSceneProject | null>,
   setCurrentStep: (step: number) => void,
   totalSteps: number
 ) => {
-  const handleSceneSelect = (sceneIndex: number) => {
+  const handleSceneSelect = async (sceneIndex: number) => {
     if (!currentProject) return;
     
     // Save current scene data
     const currentSceneData = createSceneDataFromCurrentState();
-    updateCurrentScene(currentSceneData);
+    await updateCurrentScene(currentSceneData);
     
     // Switch to selected scene
-    setCurrentSceneIndex(sceneIndex);
+    await setCurrentSceneIndex(sceneIndex);
     const selectedScene = currentProject.scenes[sceneIndex];
     loadSceneDataToCurrentState(selectedScene);
     
@@ -34,12 +34,12 @@ export const useSceneManagement = (
     }, 200);
   };
 
-  const handleAddScene = () => {
+  const handleAddScene = async () => {
     if (!currentProject) return;
     
     // Save current scene data
     const currentSceneData = createSceneDataFromCurrentState();
-    updateCurrentScene(currentSceneData);
+    await updateCurrentScene(currentSceneData);
     
     // Create new scene with inherited settings but reset prompt
     const newSceneData = {
@@ -48,7 +48,7 @@ export const useSceneManagement = (
       generatedPrompt: null
     };
     
-    addNewScene(newSceneData);
+    await addNewScene(newSceneData);
     loadSceneDataToCurrentState({
       ...newSceneData,
       sceneNumber: currentProject.scenes.length + 1
