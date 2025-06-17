@@ -16,13 +16,15 @@ export interface DialogSettings {
   dialogType: string;
   dialogStyle: string;
   language: string;
+  dialogContent?: string;
 }
 
 export interface SoundSettings {
   hasSound: boolean;
-  musicGenre: string;
-  soundEffects: string;
-  ambience: string;
+  musicGenre?: string;
+  soundEffects?: string;
+  ambience?: string;
+  soundDescription?: string;
 }
 
 export interface GeneratedPrompt {

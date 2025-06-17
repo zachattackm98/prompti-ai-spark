@@ -9,12 +9,14 @@ export interface PromptRequest {
     dialogType?: string;
     dialogStyle?: string;
     language?: string;
+    dialogContent?: string;
   };
   soundSettings?: {
     hasSound: boolean;
     musicGenre?: string;
     soundEffects?: string;
     ambience?: string;
+    soundDescription?: string;
   };
   cameraSettings?: {
     angle?: string;

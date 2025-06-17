@@ -29,38 +29,66 @@ User subscription tier: ${tier?.toUpperCase()}`;
   // Add dialog specifications
   if (dialogSettings?.hasDialog) {
     systemPrompt += `\n\nDIALOG SPECIFICATIONS:
-- Include Dialog: Yes
-- Dialog Type: ${dialogSettings.dialogType || 'Not specified'}
-- Dialog Style: ${dialogSettings.dialogStyle || 'Not specified'}
-- Language: ${dialogSettings.language || 'Not specified'}
-Please incorporate these dialog requirements into your prompts, ensuring the scene includes appropriate spoken elements.`;
+- Include Dialog: Yes`;
+    
+    if (dialogSettings.dialogContent) {
+      systemPrompt += `\n- Dialog Content: "${dialogSettings.dialogContent}"`;
+    }
+    
+    if (dialogSettings.dialogType) {
+      systemPrompt += `\n- Dialog Type: ${dialogSettings.dialogType}`;
+    }
+    
+    if (dialogSettings.dialogStyle) {
+      systemPrompt += `\n- Dialog Style: ${dialogSettings.dialogStyle}`;
+    }
+    
+    if (dialogSettings.language) {
+      systemPrompt += `\n- Language: ${dialogSettings.language}`;
+    }
+    
+    systemPrompt += `\nPlease incorporate these dialog requirements into your prompts, ensuring the scene includes the specified spoken elements.`;
   }
 
   // Add sound specifications
   if (soundSettings?.hasSound) {
     systemPrompt += `\n\nSOUND DESIGN SPECIFICATIONS:
-- Include Sound Design: Yes
-- Music Genre: ${soundSettings.musicGenre || 'Not specified'}
-- Sound Effects: ${soundSettings.soundEffects || 'Not specified'}
-- Ambience: ${soundSettings.ambience || 'Not specified'}
-Please incorporate these audio elements into your technical specifications and style notes.`;
+- Include Sound Design: Yes`;
+    
+    if (soundSettings.soundDescription) {
+      systemPrompt += `\n- Sound Description: "${soundSettings.soundDescription}"`;
+    }
+    
+    if (soundSettings.musicGenre) {
+      systemPrompt += `\n- Music Genre: ${soundSettings.musicGenre}`;
+    }
+    
+    if (soundSettings.soundEffects) {
+      systemPrompt += `\n- Sound Effects: ${soundSettings.soundEffects}`;
+    }
+    
+    if (soundSettings.ambience) {
+      systemPrompt += `\n- Ambience: ${soundSettings.ambience}`;
+    }
+    
+    systemPrompt += `\nPlease incorporate these audio elements into your technical specifications and style notes.`;
   }
 
   // Add enhanced features for higher tiers
   if (cameraSettings && (cameraSettings.angle || cameraSettings.movement || cameraSettings.shot)) {
-    systemPrompt += `\n\nCAMERA SPECIFICATIONS:
-- Camera Angle: ${cameraSettings.angle || 'Not specified'}
-- Camera Movement: ${cameraSettings.movement || 'Not specified'}  
-- Shot Type: ${cameraSettings.shot || 'Not specified'}
-Please incorporate these camera specifications into your technical recommendations.`;
+    systemPrompt += `\n\nCAMERA SPECIFICATIONS:`;
+    if (cameraSettings.angle) systemPrompt += `\n- Camera Angle: ${cameraSettings.angle}`;
+    if (cameraSettings.movement) systemPrompt += `\n- Camera Movement: ${cameraSettings.movement}`;
+    if (cameraSettings.shot) systemPrompt += `\n- Shot Type: ${cameraSettings.shot}`;
+    systemPrompt += `\nPlease incorporate these camera specifications into your technical recommendations.`;
   }
 
   if (lightingSettings && (lightingSettings.mood || lightingSettings.style || lightingSettings.timeOfDay)) {
-    systemPrompt += `\n\nLIGHTING SPECIFICATIONS:
-- Lighting Mood: ${lightingSettings.mood || 'Not specified'}
-- Lighting Style: ${lightingSettings.style || 'Not specified'}
-- Time of Day: ${lightingSettings.timeOfDay || 'Not specified'}
-Please incorporate these lighting specifications into your style and technical recommendations.`;
+    systemPrompt += `\n\nLIGHTING SPECIFICATIONS:`;
+    if (lightingSettings.mood) systemPrompt += `\n- Lighting Mood: ${lightingSettings.mood}`;
+    if (lightingSettings.style) systemPrompt += `\n- Lighting Style: ${lightingSettings.style}`;
+    if (lightingSettings.timeOfDay) systemPrompt += `\n- Time of Day: ${lightingSettings.timeOfDay}`;
+    systemPrompt += `\nPlease incorporate these lighting specifications into your style and technical recommendations.`;
   }
 
   if (enhancedPrompts) {

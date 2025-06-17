@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Volume2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { SoundSettings } from './hooks/types';
@@ -56,10 +57,7 @@ const SoundStep: React.FC<SoundStepProps> = ({
   const handleToggleSound = (enabled: boolean) => {
     setSoundSettings({
       ...soundSettings,
-      hasSound: enabled,
-      musicGenre: enabled && !soundSettings.musicGenre ? 'cinematic' : soundSettings.musicGenre,
-      soundEffects: enabled && !soundSettings.soundEffects ? 'realistic' : soundSettings.soundEffects,
-      ambience: enabled && !soundSettings.ambience ? 'nature' : soundSettings.ambience
+      hasSound: enabled
     });
   };
 
@@ -103,13 +101,26 @@ const SoundStep: React.FC<SoundStepProps> = ({
               className="space-y-4"
             >
               <div>
-                <Label className="text-white font-medium mb-2 block">Music Genre</Label>
+                <Label className="text-white font-medium mb-2 block">Sound Description</Label>
+                <Textarea
+                  placeholder="Describe the specific sounds, music, or audio atmosphere you want..."
+                  value={soundSettings.soundDescription || ''}
+                  onChange={(e) => setSoundSettings({ ...soundSettings, soundDescription: e.target.value })}
+                  className="bg-slate-800/60 border-purple-500/30 text-white min-h-[100px] placeholder:text-gray-400"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Be specific about the audio elements you want in your video
+                </p>
+              </div>
+
+              <div>
+                <Label className="text-white font-medium mb-2 block">Music Genre (Optional)</Label>
                 <Select
-                  value={soundSettings.musicGenre}
-                  onValueChange={(value) => setSoundSettings({ ...soundSettings, musicGenre: value })}
+                  value={soundSettings.musicGenre || ''}
+                  onValueChange={(value) => setSoundSettings({ ...soundSettings, musicGenre: value || undefined })}
                 >
                   <SelectTrigger className="bg-slate-800/60 border-purple-500/30 text-white">
-                    <SelectValue placeholder="Select music genre" />
+                    <SelectValue placeholder="Select music genre (optional)" />
                   </SelectTrigger>
                   <SelectContent>
                     {musicGenres.map((genre) => (
@@ -122,13 +133,13 @@ const SoundStep: React.FC<SoundStepProps> = ({
               </div>
 
               <div>
-                <Label className="text-white font-medium mb-2 block">Sound Effects</Label>
+                <Label className="text-white font-medium mb-2 block">Sound Effects (Optional)</Label>
                 <Select
-                  value={soundSettings.soundEffects}
-                  onValueChange={(value) => setSoundSettings({ ...soundSettings, soundEffects: value })}
+                  value={soundSettings.soundEffects || ''}
+                  onValueChange={(value) => setSoundSettings({ ...soundSettings, soundEffects: value || undefined })}
                 >
                   <SelectTrigger className="bg-slate-800/60 border-purple-500/30 text-white">
-                    <SelectValue placeholder="Select sound effects style" />
+                    <SelectValue placeholder="Select sound effects style (optional)" />
                   </SelectTrigger>
                   <SelectContent>
                     {soundEffect.map((effect) => (
@@ -141,13 +152,13 @@ const SoundStep: React.FC<SoundStepProps> = ({
               </div>
 
               <div>
-                <Label className="text-white font-medium mb-2 block">Ambience</Label>
+                <Label className="text-white font-medium mb-2 block">Ambience (Optional)</Label>
                 <Select
-                  value={soundSettings.ambience}
-                  onValueChange={(value) => setSoundSettings({ ...soundSettings, ambience: value })}
+                  value={soundSettings.ambience || ''}
+                  onValueChange={(value) => setSoundSettings({ ...soundSettings, ambience: value || undefined })}
                 >
                   <SelectTrigger className="bg-slate-800/60 border-purple-500/30 text-white">
-                    <SelectValue placeholder="Select ambience type" />
+                    <SelectValue placeholder="Select ambience type (optional)" />
                   </SelectTrigger>
                   <SelectContent>
                     {ambienceTypes.map((amb) => (

@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MessageSquare, ArrowLeft, ArrowRight } from 'lucide-react';
 import { DialogSettings } from './hooks/types';
@@ -98,6 +99,19 @@ const DialogStep: React.FC<DialogStepProps> = ({
               animate={{ opacity: 1, height: 'auto' }}
               className="space-y-4"
             >
+              <div>
+                <Label className="text-white font-medium mb-2 block">Dialog Content</Label>
+                <Textarea
+                  placeholder="Enter the specific dialog, narration, or speech you want in your video..."
+                  value={dialogSettings.dialogContent || ''}
+                  onChange={(e) => setDialogSettings({ ...dialogSettings, dialogContent: e.target.value })}
+                  className="bg-slate-800/60 border-purple-500/30 text-white min-h-[100px] placeholder:text-gray-400"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Be specific about what should be said and by whom
+                </p>
+              </div>
+
               <div>
                 <Label className="text-white font-medium mb-2 block">Dialog Type</Label>
                 <Select

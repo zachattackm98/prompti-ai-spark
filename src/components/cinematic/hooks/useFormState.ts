@@ -11,13 +11,15 @@ export const useFormState = () => {
     hasDialog: false,
     dialogType: '',
     dialogStyle: '',
-    language: ''
+    language: '',
+    dialogContent: ''
   });
   const [soundSettings, setSoundSettings] = useState<SoundSettings>({
     hasSound: false,
-    musicGenre: '',
-    soundEffects: '',
-    ambience: ''
+    musicGenre: undefined,
+    soundEffects: undefined,
+    ambience: undefined,
+    soundDescription: ''
   });
   const [cameraSettings, setCameraSettings] = useState<CameraSettings>({
     angle: '',
@@ -39,8 +41,8 @@ export const useFormState = () => {
     setSceneIdea('');
     setSelectedPlatform('veo3');
     setSelectedEmotion('cinematic');
-    setDialogSettings({ hasDialog: false, dialogType: '', dialogStyle: '', language: '' });
-    setSoundSettings({ hasSound: false, musicGenre: '', soundEffects: '', ambience: '' });
+    setDialogSettings({ hasDialog: false, dialogType: '', dialogStyle: '', language: '', dialogContent: '' });
+    setSoundSettings({ hasSound: false, musicGenre: undefined, soundEffects: undefined, ambience: undefined, soundDescription: '' });
     setCameraSettings({ angle: '', movement: '', shot: '' });
     setLightingSettings({ mood: '', style: '', timeOfDay: '' });
     setStyleReference('');
