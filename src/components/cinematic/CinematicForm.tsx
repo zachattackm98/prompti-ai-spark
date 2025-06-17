@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
@@ -8,8 +9,10 @@ import StepRenderer from './StepRenderer';
 import GeneratedPromptDisplay from './GeneratedPromptDisplay';
 import ContinueScenePrompt from './ContinueScenePrompt';
 import SceneSelector from './SceneSelector';
+import ProjectSelector from './ProjectSelector';
 import UsageDisplay from './UsageDisplay';
 import { scrollToStepContent } from '@/utils/scrollUtils';
+import { useMultiSceneDatabase } from './hooks/useMultiSceneDatabase';
 
 interface CinematicFormProps {
   user: any;
@@ -62,24 +65,48 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     canAddMoreScenes
   } = useCinematicForm(user, subscription, canUseFeature, setShowAuthDialog, loadPromptHistory);
 
-  // Add project management
+  // Add project management with proper authentication
   const [userProjects, setUserProjects] = React.useState([]);
   const [projectsLoading, setProjectsLoading] = React.useState(false);
+  const { loadUserProjects, loadProject, deleteProject } = useMultiSceneDatabase();
 
-  const loadUserProjects = React.useCallback(async () => {
+  const loadUserProjectsData = React.useCallback(async () => {
     if (!user) return;
     
     setProjectsLoading(true);
     try {
-      // This will be implemented through the hook
-      const projects = []; // Placeholder for now
+      const projects = await loadUserProjects();
       setUserProjects(projects);
     } catch (error) {
       console.error('Error loading user projects:', error);
     } finally {
       setProjectsLoading(false);
     }
-  }, [user]);
+  }, [user, loadUserProjects]);
+
+  const handleLoadProject = async (projectId: string) => {
+    try {
+      const project = await loadProject(projectId);
+      if (project) {
+        // This should trigger the project loading logic in the form state
+        console.log('Project loaded:', project);
+      }
+    } catch (error) {
+      console.error('Error loading project:', error);
+    }
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    try {
+      const success = await deleteProject(projectId);
+      if (success) {
+        // Refresh the projects list
+        await loadUserProjectsData();
+      }
+    } catch (error) {
+      console.error('Error deleting project:', error);
+    }
+  };
 
   const { copyToClipboard, downloadPrompt } = usePromptActions(subscription);
 
@@ -91,6 +118,13 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     }
   };
 
+  // Load projects when user changes
+  React.useEffect(() => {
+    if (user) {
+      loadUserProjectsData();
+    }
+  }, [user, loadUserProjectsData]);
+
   return (
     <>
       {user && (
@@ -101,9 +135,9 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
       {user && !currentProject && userProjects.length > 0 && (
         <ProjectSelector
           projects={userProjects}
-          onLoadProject={() => {}} // Will be implemented
-          onDeleteProject={() => {}} // Will be implemented
-          onRefresh={loadUserProjects}
+          onLoadProject={handleLoadProject}
+          onDeleteProject={handleDeleteProject}
+          onRefresh={loadUserProjectsData}
           isLoading={projectsLoading}
         />
       )}

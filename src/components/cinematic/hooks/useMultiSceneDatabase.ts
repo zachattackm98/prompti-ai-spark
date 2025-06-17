@@ -12,11 +12,19 @@ export const useMultiSceneDatabase = () => {
     setError(null);
     
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError('User not authenticated');
+        return null;
+      }
+
       // First, save or update the project
       const { data: projectData, error: projectError } = await supabase
         .from('cinematic_projects')
         .upsert({
           id: project.id,
+          user_id: user.id,
           title: project.title,
           current_scene_index: project.currentSceneIndex,
           updated_at: new Date().toISOString()
@@ -38,12 +46,12 @@ export const useMultiSceneDatabase = () => {
         scene_idea: scene.sceneIdea,
         selected_platform: scene.selectedPlatform,
         selected_emotion: scene.selectedEmotion,
-        dialog_settings: scene.dialogSettings,
-        sound_settings: scene.soundSettings,
-        camera_settings: scene.cameraSettings,
-        lighting_settings: scene.lightingSettings,
+        dialog_settings: scene.dialogSettings as any,
+        sound_settings: scene.soundSettings as any,
+        camera_settings: scene.cameraSettings as any,
+        lighting_settings: scene.lightingSettings as any,
         style_reference: scene.styleReference,
-        generated_prompt: scene.generatedPrompt,
+        generated_prompt: scene.generatedPrompt as any,
         updated_at: new Date().toISOString()
       }));
 
@@ -98,19 +106,19 @@ export const useMultiSceneDatabase = () => {
         return null;
       }
 
-      // Transform database data to our types
+      // Transform database data to our types with proper type casting
       const scenes: SceneData[] = scenesData.map(scene => ({
         id: scene.id,
         sceneNumber: scene.scene_number,
         sceneIdea: scene.scene_idea,
         selectedPlatform: scene.selected_platform,
         selectedEmotion: scene.selected_emotion,
-        dialogSettings: scene.dialog_settings,
-        soundSettings: scene.sound_settings,
-        cameraSettings: scene.camera_settings,
-        lightingSettings: scene.lighting_settings,
+        dialogSettings: scene.dialog_settings as any,
+        soundSettings: scene.sound_settings as any,
+        cameraSettings: scene.camera_settings as any,
+        lightingSettings: scene.lighting_settings as any,
         styleReference: scene.style_reference,
-        generatedPrompt: scene.generated_prompt
+        generatedPrompt: scene.generated_prompt as any
       }));
 
       const project: MultiSceneProject = {
@@ -177,24 +185,24 @@ export const useMultiSceneDatabase = () => {
         return [];
       }
 
-      // Transform database data to our types
+      // Transform database data to our types with proper type casting
       const projects: MultiSceneProject[] = projectsData.map(project => ({
         id: project.id,
         title: project.title,
         scenes: project.cinematic_scenes
-          .sort((a, b) => a.scene_number - b.scene_number)
-          .map(scene => ({
+          .sort((a: any, b: any) => a.scene_number - b.scene_number)
+          .map((scene: any) => ({
             id: scene.id,
             sceneNumber: scene.scene_number,
             sceneIdea: scene.scene_idea,
             selectedPlatform: scene.selected_platform,
             selectedEmotion: scene.selected_emotion,
-            dialogSettings: scene.dialog_settings,
-            soundSettings: scene.sound_settings,
-            cameraSettings: scene.camera_settings,
-            lightingSettings: scene.lighting_settings,
+            dialogSettings: scene.dialog_settings as any,
+            soundSettings: scene.sound_settings as any,
+            cameraSettings: scene.camera_settings as any,
+            lightingSettings: scene.lighting_settings as any,
             styleReference: scene.style_reference,
-            generatedPrompt: scene.generated_prompt
+            generatedPrompt: scene.generated_prompt as any
           })),
         currentSceneIndex: project.current_scene_index,
         createdAt: project.created_at,

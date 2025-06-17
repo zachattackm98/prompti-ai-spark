@@ -2,6 +2,7 @@
 import { useState, useCallback } from 'react';
 import { MultiSceneProject, SceneData, GeneratedPrompt } from './types';
 import { useMultiSceneDatabase } from './useMultiSceneDatabase';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useMultiSceneState = () => {
   const [currentProject, setCurrentProject] = useState<MultiSceneProject | null>(null);
@@ -9,6 +10,13 @@ export const useMultiSceneState = () => {
   const { saveProject, loadProject, deleteProject, loadUserProjects } = useMultiSceneDatabase();
 
   const startNewProject = useCallback(async (title: string, initialSceneData: Omit<SceneData, 'sceneNumber'>) => {
+    // Check if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.error('User not authenticated');
+      return null;
+    }
+
     const projectId = crypto.randomUUID();
     const project: MultiSceneProject = {
       id: projectId,
