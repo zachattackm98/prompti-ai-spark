@@ -1,3 +1,4 @@
+
 import { useFormState } from './hooks/useFormState';
 import { useStepNavigation } from './hooks/useStepNavigation';
 import { usePromptGeneration } from './hooks/usePromptGeneration';
@@ -48,7 +49,8 @@ export const useCinematicForm = (
     updateCurrentScene,
     setCurrentSceneIndex,
     updateScenePrompt,
-    resetProject
+    resetProject,
+    loadProjectById
   } = useFormState();
 
   const { totalSteps, handleNext, handlePrevious, scrollToForm } = useStepNavigation(
@@ -171,6 +173,25 @@ export const useCinematicForm = (
     }, 200);
   };
 
+  const handleLoadProject = async (projectId: string) => {
+    const loadedProject = await loadProjectById(projectId);
+    if (loadedProject) {
+      // Load the current scene data to the form
+      const currentScene = loadedProject.scenes[loadedProject.currentSceneIndex];
+      loadSceneDataToCurrentState(currentScene);
+      
+      // Set appropriate step based on whether the scene has a generated prompt
+      setCurrentStep(currentScene.generatedPrompt ? totalSteps : 1);
+      
+      // Scroll to form after loading
+      setTimeout(() => {
+        console.log('useCinematicForm: Scrolling to cinematic form container after project load');
+        scrollToElementById('cinematic-form-container', 'smooth', 100);
+      }, 200);
+    }
+    return loadedProject;
+  };
+
   const canAddMoreScenes = () => {
     // Basic tier: max 2 scenes
     if (subscription.tier === 'starter') {
@@ -215,6 +236,7 @@ export const useCinematicForm = (
     handleContinueScene,
     handleSceneSelect,
     handleAddScene,
+    handleLoadProject,
     canAddMoreScenes: canAddMoreScenes()
   };
 };

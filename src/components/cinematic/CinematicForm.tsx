@@ -62,13 +62,14 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     handleContinueScene,
     handleSceneSelect,
     handleAddScene,
+    handleLoadProject,
     canAddMoreScenes
   } = useCinematicForm(user, subscription, canUseFeature, setShowAuthDialog, loadPromptHistory);
 
   // Add project management with proper authentication
   const [userProjects, setUserProjects] = React.useState([]);
   const [projectsLoading, setProjectsLoading] = React.useState(false);
-  const { loadUserProjects, loadProject, deleteProject } = useMultiSceneDatabase();
+  const { loadUserProjects, deleteProject } = useMultiSceneDatabase();
 
   const loadUserProjectsData = React.useCallback(async () => {
     if (!user) return;
@@ -84,12 +85,11 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     }
   }, [user, loadUserProjects]);
 
-  const handleLoadProject = async (projectId: string) => {
+  const handleLoadProjectFromSelector = async (projectId: string) => {
     try {
-      const project = await loadProject(projectId);
+      const project = await handleLoadProject(projectId);
       if (project) {
-        // This should trigger the project loading logic in the form state
-        console.log('Project loaded:', project);
+        console.log('Project loaded and activated:', project);
       }
     } catch (error) {
       console.error('Error loading project:', error);
@@ -135,7 +135,7 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
       {user && !currentProject && userProjects.length > 0 && (
         <ProjectSelector
           projects={userProjects}
-          onLoadProject={handleLoadProject}
+          onLoadProject={handleLoadProjectFromSelector}
           onDeleteProject={handleDeleteProject}
           onRefresh={loadUserProjectsData}
           isLoading={projectsLoading}

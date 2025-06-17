@@ -161,10 +161,11 @@ export const useMultiSceneState = () => {
       setCurrentProject(project);
       setIsMultiScene(true);
       console.log('Project loaded from database');
+      return project;
     } else {
       console.error('Failed to load project from database');
+      return null;
     }
-    return project;
   }, [loadProject]);
 
   const deleteCurrentProject = useCallback(async () => {
