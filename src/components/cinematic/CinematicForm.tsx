@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useCinematicForm } from './useCinematicForm';
 import { useProjectManagement } from './hooks/useProjectManagement';
+import { usePromptGeneration } from './hooks/usePromptGeneration';
 import StepIndicator from './StepIndicator';
 import CinematicFormContent from './CinematicFormContent';
 import ProjectSelectorsSection from './ProjectSelectorsSection';
@@ -48,8 +49,9 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     setStyleReference,
     handleNext,
     handlePrevious,
-    handleGenerate,
     handleGenerateNew,
+    setGeneratedPrompt,
+    setIsLoading,
     // Multi-scene functionality
     currentProject,
     isMultiScene,
@@ -57,8 +59,37 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     handleSceneSelect,
     handleAddScene,
     handleLoadProject,
-    canAddMoreScenes
+    canAddMoreScenes,
+    updateScenePrompt
   } = useCinematicForm(user, subscription, canUseFeature, setShowAuthDialog, loadPromptHistory);
+
+  // Create form state object for the prompt generation hook
+  const formState = {
+    sceneIdea,
+    selectedPlatform,
+    selectedEmotion,
+    dialogSettings,
+    soundSettings,
+    cameraSettings,
+    lightingSettings,
+    styleReference,
+    currentProject,
+    isMultiScene
+  };
+
+  // Use the enhanced prompt generation hook
+  const { handleGenerate, manualSaveToHistory, savingToHistory } = usePromptGeneration(
+    user,
+    subscription,
+    canUseFeature,
+    setShowAuthDialog,
+    loadPromptHistory,
+    formState,
+    setGeneratedPrompt,
+    setIsLoading,
+    currentProject,
+    updateScenePrompt
+  );
 
   const {
     userProjects,
@@ -136,6 +167,8 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
         handleGenerate={handleGenerate}
         handleGenerateNew={handleGenerateNew}
         handleContinueScene={handleContinueScene}
+        onManualSave={manualSaveToHistory}
+        savingToHistory={savingToHistory}
       />
 
       {!user && !generatedPrompt && (

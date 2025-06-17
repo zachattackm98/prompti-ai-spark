@@ -43,6 +43,8 @@ interface CinematicFormContentProps {
   handleGenerate: () => void;
   handleGenerateNew: () => void;
   handleContinueScene: (projectTitle: string, nextSceneIdea: string) => void;
+  onManualSave?: (prompt: GeneratedPrompt) => void;
+  savingToHistory?: boolean;
 }
 
 const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
@@ -73,7 +75,9 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
   handlePrevious,
   handleGenerate,
   handleGenerateNew,
-  handleContinueScene
+  handleContinueScene,
+  onManualSave,
+  savingToHistory
 }) => {
   const { copyAllPrompts, downloadPrompt } = usePromptActions(subscription);
 
@@ -118,6 +122,8 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
               onCopyAllPrompts={copyAllPrompts}
               onDownloadPrompt={() => downloadPrompt(generatedPrompt)}
               onGenerateNew={handleGenerateNew}
+              onManualSave={onManualSave}
+              savingToHistory={savingToHistory}
             />
             
             {!isMultiScene && (

@@ -27,14 +27,14 @@ const CinematicPromptGenerator = () => {
 
   const loadPromptHistory = async () => {
     if (!user) {
-      console.log('No user found, cannot load prompt history');
+      console.log('[PROMPT-HISTORY] No user found, cannot load prompt history');
       return;
     }
 
+    console.log('[PROMPT-HISTORY] Starting to load prompt history for user:', user.id);
     setHistoryLoading(true);
+    
     try {
-      console.log('Loading prompt history for user:', user.id);
-      
       // Query cinematic_scenes table for scenes with generated prompts
       const { data: scenes, error } = await supabase
         .from('cinematic_scenes')
@@ -56,19 +56,19 @@ const CinematicPromptGenerator = () => {
         .eq('cinematic_projects.user_id', user.id)
         .not('generated_prompt', 'is', null)
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(50);
 
       if (error) {
-        console.error('Error loading prompt history:', error);
+        console.error('[PROMPT-HISTORY] Database error loading prompt history:', error);
         toast({
-          title: "Error",
-          description: "Failed to load prompt history. Please try again.",
+          title: "Error Loading History",
+          description: "Failed to load prompt history. Please try refreshing the page.",
           variant: "destructive"
         });
         return;
       }
 
-      console.log('Raw scenes data:', scenes);
+      console.log(`[PROMPT-HISTORY] Raw scenes data loaded: ${scenes?.length || 0} records`);
 
       // Transform the data to match PromptHistory interface
       const transformedHistory: PromptHistory[] = scenes?.map(scene => ({
@@ -82,18 +82,25 @@ const CinematicPromptGenerator = () => {
         project_title: scene.cinematic_projects?.title || 'Untitled Project'
       })) || [];
 
-      console.log('Transformed history:', transformedHistory);
+      console.log(`[PROMPT-HISTORY] Transformed history: ${transformedHistory.length} prompts`);
       setPromptHistory(transformedHistory);
 
-      toast({
-        title: "History Loaded",
-        description: `Found ${transformedHistory.length} generated prompts.`,
-      });
+      if (transformedHistory.length > 0) {
+        toast({
+          title: "History Loaded",
+          description: `Found ${transformedHistory.length} generated prompts in your history.`,
+        });
+      } else {
+        toast({
+          title: "No History Found",
+          description: "No saved prompts found. Generate your first prompt to start building your history!",
+        });
+      }
     } catch (error) {
-      console.error('Error loading prompt history:', error);
+      console.error('[PROMPT-HISTORY] Unexpected error loading prompt history:', error);
       toast({
-        title: "Error",
-        description: "Failed to load prompt history. Please try again.",
+        title: "Loading Error",
+        description: "An unexpected error occurred while loading your prompt history.",
         variant: "destructive"
       });
     } finally {
@@ -102,21 +109,37 @@ const CinematicPromptGenerator = () => {
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    setPromptHistory([]);
-    setShowHistory(false);
+    try {
+      await signOut();
+      setPromptHistory([]);
+      setShowHistory(false);
+      console.log('[AUTH] User signed out successfully');
+    } catch (error) {
+      console.error('[AUTH] Error signing out:', error);
+      toast({
+        title: "Sign Out Error",
+        description: "There was an issue signing you out. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleUpgrade = () => {
-    // This would typically redirect to a payment/upgrade page
-    toast({
-      title: "Upgrade Coming Soon!",
-      description: "Subscription management will be available soon.",
-    });
+    // Navigate to pricing section
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      toast({
+        title: "Upgrade Coming Soon!",
+        description: "Subscription management will be available soon.",
+      });
+    }
   };
 
   React.useEffect(() => {
     if (user && showHistory) {
+      console.log('[PROMPT-HISTORY] User authenticated and history requested, loading...');
       loadPromptHistory();
     }
   }, [user, showHistory]);
