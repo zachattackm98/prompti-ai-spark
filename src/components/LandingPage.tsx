@@ -19,12 +19,27 @@ import CinematicPromptGenerator from './CinematicPromptGenerator';
 import SubscriberWelcome from './landing/SubscriberWelcome';
 
 const LandingPage = () => {
-  const { user } = useAuth();
-  const { subscription } = useSubscription();
+  const { user, loading: authLoading } = useAuth();
+  const { subscription, loading: subscriptionLoading } = useSubscription();
+
+  // Don't render subscription-dependent content until both auth and subscription are loaded
+  const isInitialLoading = authLoading || (user && subscriptionLoading);
 
   // Check if user has an active paid subscription
   const hasActivePaidSubscription = user && subscription?.isActive && 
     (subscription.tier === 'creator' || subscription.tier === 'studio');
+
+  // Show loading state during initial load to prevent flicker
+  if (isInitialLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <Header />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-white text-xl">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">

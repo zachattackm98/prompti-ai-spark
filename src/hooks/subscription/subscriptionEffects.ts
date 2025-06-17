@@ -14,6 +14,7 @@ export const useSubscriptionEffects = (
       console.log('[SUBSCRIPTION] No user found, setting starter subscription');
       setSubscription({ tier: 'starter', isActive: false });
       setBillingDetails(null);
+      setLoading(false); // Important: set loading false even when no user
       return;
     }
 
@@ -121,7 +122,7 @@ export const useSubscriptionEffects = (
       }
       setBillingDetails(null);
     } finally {
-      setLoading(false);
+      setLoading(false); // Always set loading to false when done
     }
   };
 

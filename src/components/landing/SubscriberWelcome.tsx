@@ -10,7 +10,7 @@ interface SubscriberWelcomeProps {
   subscription: {
     tier: string;
     isActive: boolean;
-  };
+  } | null;
 }
 
 const SubscriberWelcome: React.FC<SubscriberWelcomeProps> = ({ user, subscription }) => {
@@ -19,7 +19,9 @@ const SubscriberWelcome: React.FC<SubscriberWelcomeProps> = ({ user, subscriptio
     studio: 'Studio'
   };
 
-  const tierName = tierDisplayNames[subscription.tier as keyof typeof tierDisplayNames] || subscription.tier;
+  // Fallback to 'creator' if subscription is somehow null (shouldn't happen but safety first)
+  const tier = subscription?.tier || 'creator';
+  const tierName = tierDisplayNames[tier as keyof typeof tierDisplayNames] || tier;
 
   return (
     <section className="pt-24 pb-12 px-6">
@@ -59,7 +61,7 @@ const SubscriberWelcome: React.FC<SubscriberWelcomeProps> = ({ user, subscriptio
           >
             <div className="flex items-center gap-2 text-green-400">
               <Zap className="w-5 h-5" />
-              <span className="font-medium">Unlimited Prompts</span>
+              <span className="font-medium">High Prompt Limits</span>
             </div>
             <div className="flex items-center gap-2 text-blue-400">
               <Sparkles className="w-5 h-5" />
