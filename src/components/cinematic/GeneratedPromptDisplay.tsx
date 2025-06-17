@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Copy, Download, Star, RotateCcw } from 'lucide-react';
+import { Copy, Download, Star, RotateCcw, Film } from 'lucide-react';
 import { GeneratedPrompt } from './types';
 import { platforms } from './constants';
 
@@ -19,6 +19,8 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
   onDownloadPrompt,
   onGenerateNew
 }) => {
+  const isMultiScene = generatedPrompt.sceneNumber && generatedPrompt.totalScenes && generatedPrompt.totalScenes > 1;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -28,18 +30,26 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
     >
       <div className="text-center space-y-2 sm:space-y-3">
         <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
-          Your Cinematic Prompt is Ready!
+          {isMultiScene ? `Scene ${generatedPrompt.sceneNumber} Complete!` : 'Your Cinematic Prompt is Ready!'}
         </h3>
         <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-purple-300">
           <Star className="w-3 h-3 sm:w-4 sm:h-4" />
           <span>Optimized for {platforms.find(p => p.id === generatedPrompt.platform)?.name}</span>
+          {isMultiScene && (
+            <>
+              <Film className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span>{generatedPrompt.sceneNumber}/{generatedPrompt.totalScenes} Scenes</span>
+            </>
+          )}
           <Star className="w-3 h-3 sm:w-4 sm:h-4" />
         </div>
       </div>
 
       <div className="space-y-3 sm:space-y-4">
         <div className="bg-slate-800/60 rounded-xl p-4 sm:p-6 border border-purple-400/20">
-          <h4 className="text-base sm:text-lg font-semibold text-purple-300 mb-2 sm:mb-3">Main Prompt</h4>
+          <h4 className="text-base sm:text-lg font-semibold text-purple-300 mb-2 sm:mb-3">
+            Main Prompt{isMultiScene ? ` - Scene ${generatedPrompt.sceneNumber}` : ''}
+          </h4>
           <p className="text-gray-200 leading-relaxed text-sm sm:text-base mb-3">{generatedPrompt.mainPrompt}</p>
           <Button
             onClick={() => onCopyToClipboard(generatedPrompt.mainPrompt)}
@@ -85,7 +95,7 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
           className="border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40 text-xs sm:text-sm w-full sm:w-auto order-3"
         >
           <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-          Generate New
+          {isMultiScene ? 'New Project' : 'Generate New'}
         </Button>
       </div>
     </motion.div>

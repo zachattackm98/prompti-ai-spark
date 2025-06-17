@@ -3,7 +3,21 @@ import type { PromptRequest, PlatformConfig } from './types.ts';
 import { PLATFORM_PROMPTS } from './constants.ts';
 
 export function buildSystemPrompt(request: PromptRequest): string {
-  const { platform, emotion, tier, cameraSettings, lightingSettings, dialogSettings, soundSettings, enhancedPrompts, styleReference } = request;
+  const { 
+    platform, 
+    emotion, 
+    tier, 
+    cameraSettings, 
+    lightingSettings, 
+    dialogSettings, 
+    soundSettings, 
+    enhancedPrompts, 
+    styleReference,
+    sceneContext,
+    sceneNumber = 1,
+    totalScenes = 1,
+    isMultiScene = false
+  } = request;
   
   const selectedPlatform = PLATFORM_PROMPTS[platform as keyof typeof PLATFORM_PROMPTS] || PLATFORM_PROMPTS.veo3;
 
@@ -25,6 +39,24 @@ Guidelines:
 
 Current scene emotion/mood: ${emotion}
 User subscription tier: ${tier?.toUpperCase()}`;
+
+  // Add multi-scene context if applicable
+  if (isMultiScene && sceneContext) {
+    systemPrompt += `\n\nMULTI-SCENE PROJECT CONTEXT:
+This is Scene ${sceneNumber} of ${totalScenes} in a cinematic sequence.
+
+IMPORTANT CONTINUITY REQUIREMENTS:
+- Maintain consistent character appearances, clothing, and mannerisms
+- Preserve environmental details and lighting consistency where appropriate
+- Ensure emotional and narrative progression flows naturally from previous scenes
+- Keep the same visual style and color palette established in earlier scenes
+- Use transitional elements that connect this scene to the story arc
+
+PREVIOUS SCENE CONTEXT:
+${sceneContext}
+
+When generating this scene, ensure it feels like a natural continuation of the story while advancing the narrative.`;
+  }
 
   // Add dialog specifications
   if (dialogSettings?.hasDialog) {
@@ -102,7 +134,7 @@ User subscription tier: ${tier?.toUpperCase()}`;
   return systemPrompt;
 }
 
-export function parsePromptResponse(generatedContent: string, platform: string) {
+export function parsePromptResponse(generatedContent: string, platform: string, sceneNumber?: number, totalScenes?: number) {
   const selectedPlatform = PLATFORM_PROMPTS[platform as keyof typeof PLATFORM_PROMPTS] || PLATFORM_PROMPTS.veo3;
   
   // Parse the response into structured sections
@@ -112,6 +144,8 @@ export function parsePromptResponse(generatedContent: string, platform: string) 
     mainPrompt: sections[1]?.trim() || generatedContent,
     technicalSpecs: sections[2]?.trim() || selectedPlatform.technical,
     styleNotes: sections[3]?.trim() || `Professional cinematic quality`,
-    platform: platform
+    platform: platform,
+    sceneNumber,
+    totalScenes
   };
 }

@@ -7,7 +7,10 @@ import { usePromptActions } from './promptActions';
 import StepIndicator from './StepIndicator';
 import StepRenderer from './StepRenderer';
 import GeneratedPromptDisplay from './GeneratedPromptDisplay';
+import ContinueScenePrompt from './ContinueScenePrompt';
+import SceneSelector from './SceneSelector';
 import UsageDisplay from './UsageDisplay';
+import { scrollToStepContent } from '@/utils/scrollUtils';
 
 interface CinematicFormProps {
   user: any;
@@ -50,7 +53,14 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     handleNext,
     handlePrevious,
     handleGenerate,
-    handleGenerateNew
+    handleGenerateNew,
+    // Multi-scene functionality
+    currentProject,
+    isMultiScene,
+    handleContinueScene,
+    handleSceneSelect,
+    handleAddScene,
+    canAddMoreScenes
   } = useCinematicForm(user, subscription, canUseFeature, setShowAuthDialog, loadPromptHistory);
 
   const { copyToClipboard, downloadPrompt } = usePromptActions(subscription);
@@ -67,6 +77,15 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     <>
       {user && (
         <UsageDisplay onUpgrade={handleUpgrade} />
+      )}
+
+      {currentProject && (
+        <SceneSelector
+          project={currentProject}
+          onSceneSelect={handleSceneSelect}
+          onAddScene={handleAddScene}
+          canAddScene={canAddMoreScenes}
+        />
       )}
 
       <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
@@ -105,12 +124,23 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               isLoading={isLoading}
             />
           ) : (
-            <GeneratedPromptDisplay
-              generatedPrompt={generatedPrompt}
-              onCopyToClipboard={copyToClipboard}
-              onDownloadPrompt={() => downloadPrompt(generatedPrompt)}
-              onGenerateNew={handleGenerateNew}
-            />
+            <>
+              <GeneratedPromptDisplay
+                generatedPrompt={generatedPrompt}
+                onCopyToClipboard={copyToClipboard}
+                onDownloadPrompt={() => downloadPrompt(generatedPrompt)}
+                onGenerateNew={handleGenerateNew}
+              />
+              
+              {!isMultiScene && (
+                <ContinueScenePrompt
+                  generatedPrompt={generatedPrompt}
+                  onContinueScene={handleContinueScene}
+                  onStartOver={handleGenerateNew}
+                  isLoading={isLoading}
+                />
+              )}
+            </>
           )}
 
           {!user && !generatedPrompt && (

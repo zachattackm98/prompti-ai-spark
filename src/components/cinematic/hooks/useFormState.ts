@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import { FormState, CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './types';
+import { FormState, CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt, SceneData } from './types';
+import { useMultiSceneState } from './useMultiSceneState';
 
 export const useFormState = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -35,6 +36,8 @@ export const useFormState = () => {
   const [generatedPrompt, setGeneratedPrompt] = useState<GeneratedPrompt | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const multiSceneState = useMultiSceneState();
+
   const resetForm = () => {
     setGeneratedPrompt(null);
     setCurrentStep(1);
@@ -46,6 +49,31 @@ export const useFormState = () => {
     setCameraSettings({ angle: '', movement: '', shot: '' });
     setLightingSettings({ mood: '', style: '', timeOfDay: '' });
     setStyleReference('');
+    multiSceneState.resetProject();
+  };
+
+  const createSceneDataFromCurrentState = (): Omit<SceneData, 'sceneNumber'> => ({
+    sceneIdea,
+    selectedPlatform,
+    selectedEmotion,
+    dialogSettings,
+    soundSettings,
+    cameraSettings,
+    lightingSettings,
+    styleReference,
+    generatedPrompt
+  });
+
+  const loadSceneDataToCurrentState = (sceneData: SceneData) => {
+    setSceneIdea(sceneData.sceneIdea);
+    setSelectedPlatform(sceneData.selectedPlatform);
+    setSelectedEmotion(sceneData.selectedEmotion);
+    setDialogSettings(sceneData.dialogSettings);
+    setSoundSettings(sceneData.soundSettings);
+    setCameraSettings(sceneData.cameraSettings);
+    setLightingSettings(sceneData.lightingSettings);
+    setStyleReference(sceneData.styleReference);
+    setGeneratedPrompt(sceneData.generatedPrompt);
   };
 
   return {
@@ -71,6 +99,9 @@ export const useFormState = () => {
     setGeneratedPrompt,
     isLoading,
     setIsLoading,
-    resetForm
+    resetForm,
+    createSceneDataFromCurrentState,
+    loadSceneDataToCurrentState,
+    ...multiSceneState
   };
 };

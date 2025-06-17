@@ -25,7 +25,12 @@ serve(async (req) => {
       cameraSettings,
       lightingSettings,
       tier = 'starter',
-      enhancedPrompts = false
+      enhancedPrompts = false,
+      // Multi-scene support
+      sceneContext,
+      sceneNumber = 1,
+      totalScenes = 1,
+      isMultiScene = false
     } = requestData;
 
     // Get user from JWT token
@@ -48,8 +53,14 @@ serve(async (req) => {
       });
     }
 
-    // Generate the prompt using OpenAI
-    const prompt = await generatePromptWithOpenAI(requestData);
+    // Generate the prompt using OpenAI with multi-scene context
+    const prompt = await generatePromptWithOpenAI({
+      ...requestData,
+      sceneContext,
+      sceneNumber,
+      totalScenes,
+      isMultiScene
+    });
 
     // Increment prompt count for all tiers after successful generation
     await incrementPromptCount(user.id, tier);

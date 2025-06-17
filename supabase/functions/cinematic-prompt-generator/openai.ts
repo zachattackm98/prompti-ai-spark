@@ -36,5 +36,10 @@ export async function generatePromptWithOpenAI(request: PromptRequest): Promise<
   const data = await response.json();
   const generatedContent = data.choices[0].message.content;
 
-  return parsePromptResponse(generatedContent, request.platform);
+  return parsePromptResponse(
+    generatedContent, 
+    request.platform, 
+    request.sceneNumber, 
+    request.totalScenes
+  );
 }

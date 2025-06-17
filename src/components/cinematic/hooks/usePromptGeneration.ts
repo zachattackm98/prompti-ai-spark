@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { usePromptUsage } from '@/hooks/usePromptUsage';
-import { FormState, GeneratedPrompt } from './types';
+import { FormState, GeneratedPrompt, MultiSceneProject } from './types';
 
 export const usePromptGeneration = (
   user: any,
@@ -13,7 +13,9 @@ export const usePromptGeneration = (
   loadPromptHistory: () => void,
   formState: FormState,
   setGeneratedPrompt: (prompt: GeneratedPrompt | null) => void,
-  setIsLoading: (loading: boolean) => void
+  setIsLoading: (loading: boolean) => void,
+  currentProject?: MultiSceneProject | null,
+  updateScenePrompt?: (sceneIndex: number, prompt: GeneratedPrompt) => void
 ) => {
   const { toast } = useToast();
   const { hasReachedLimit, refetchUsage } = usePromptUsage();
@@ -58,6 +60,27 @@ export const usePromptGeneration = (
     setIsLoading(true);
 
     try {
+      // Build context for multi-scene projects
+      let sceneContext = '';
+      let sceneNumber = 1;
+      let totalScenes = 1;
+
+      if (currentProject) {
+        const currentScene = currentProject.scenes[currentProject.currentSceneIndex];
+        sceneNumber = currentScene.sceneNumber;
+        totalScenes = currentProject.scenes.length;
+        
+        // Build context from previous scenes
+        const previousScenes = currentProject.scenes
+          .filter((scene, index) => index < currentProject.currentSceneIndex && scene.generatedPrompt)
+          .map((scene, index) => `Scene ${scene.sceneNumber}: ${scene.sceneIdea}\nGenerated: ${scene.generatedPrompt?.mainPrompt}`)
+          .join('\n\n');
+        
+        if (previousScenes) {
+          sceneContext = `MULTI-SCENE PROJECT: "${currentProject.title}"\n\nPREVIOUS SCENES FOR CONTINUITY:\n${previousScenes}\n\nCURRENT SCENE (${sceneNumber}/${totalScenes}):`;
+        }
+      }
+
       const { data, error } = await supabase.functions.invoke('cinematic-prompt-generator', {
         body: {
           sceneIdea: formState.sceneIdea,
@@ -69,7 +92,12 @@ export const usePromptGeneration = (
           cameraSettings: canUseFeature('cameraControls') ? formState.cameraSettings : undefined,
           lightingSettings: canUseFeature('lightingOptions') ? formState.lightingSettings : undefined,
           tier: subscription.tier,
-          enhancedPrompts: subscription.tier !== 'starter'
+          enhancedPrompts: subscription.tier !== 'starter',
+          // Multi-scene context
+          sceneContext,
+          sceneNumber,
+          totalScenes,
+          isMultiScene: !!currentProject
         }
       });
 
@@ -102,7 +130,18 @@ export const usePromptGeneration = (
         throw new Error(data.error);
       }
 
-      setGeneratedPrompt(data.prompt);
+      const promptWithSceneInfo = {
+        ...data.prompt,
+        sceneNumber,
+        totalScenes
+      };
+
+      setGeneratedPrompt(promptWithSceneInfo);
+      
+      // Update scene in project if multi-scene
+      if (currentProject && updateScenePrompt) {
+        updateScenePrompt(currentProject.currentSceneIndex, promptWithSceneInfo);
+      }
       
       // Refresh usage data after successful generation
       await refetchUsage();
@@ -112,7 +151,7 @@ export const usePromptGeneration = (
 
       toast({
         title: "Prompt Generated!",
-        description: "Your cinematic prompt has been generated successfully.",
+        description: `Your cinematic prompt${currentProject ? ` for Scene ${sceneNumber}` : ''} has been generated successfully.`,
       });
     } catch (error: any) {
       console.error('Error generating prompt:', error);
@@ -129,7 +168,8 @@ export const usePromptGeneration = (
     formState.styleReference, formState.dialogSettings, formState.soundSettings,
     formState.cameraSettings, formState.lightingSettings, 
     subscription.tier, canUseFeature, setShowAuthDialog, loadPromptHistory, toast, 
-    hasReachedLimit, refetchUsage, setGeneratedPrompt, setIsLoading
+    hasReachedLimit, refetchUsage, setGeneratedPrompt, setIsLoading,
+    currentProject, updateScenePrompt
   ]);
 
   return { handleGenerate };
