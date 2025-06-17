@@ -37,25 +37,29 @@ export const usePromptActions = (subscription: any) => {
     
     const content = `CINEMATIC VIDEO PROMPT
 Generated: ${new Date().toLocaleDateString()}
-Platform: ${generatedPrompt.platform}
-Subscription: ${subscription.tier.toUpperCase()}
-
+Platform: ${generatedPrompt.platform || 'Unknown'}
+${generatedPrompt.projectTitle ? `Project: ${generatedPrompt.projectTitle}\n` : ''}${generatedPrompt.sceneIdea ? `Scene: ${generatedPrompt.sceneIdea}\n` : ''}${subscription?.tier ? `Subscription: ${subscription.tier.toUpperCase()}\n` : ''}
 MAIN PROMPT:
 ${generatedPrompt.mainPrompt}
 
 TECHNICAL SPECIFICATIONS:
-${generatedPrompt.technicalSpecs}
+${generatedPrompt.technicalSpecs || 'N/A'}
 
 STYLE NOTES:
-${generatedPrompt.styleNotes}`;
+${generatedPrompt.styleNotes || 'N/A'}`;
 
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'cinematic-prompt.txt';
+    a.download = `cinematic-prompt-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Downloaded!",
+      description: "Prompt downloaded successfully.",
+    });
   };
 
   return {

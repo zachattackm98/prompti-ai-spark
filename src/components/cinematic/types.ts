@@ -7,6 +7,7 @@ export interface PromptHistory {
   emotion: string;
   generated_prompt: string;
   created_at: string;
+  project_title?: string;
 }
 
 export interface GeneratedPrompt {
