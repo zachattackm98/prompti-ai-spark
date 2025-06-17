@@ -12,6 +12,26 @@ export const usePromptActions = (subscription: any) => {
     });
   };
 
+  const copyAllPrompts = (generatedPrompt: any) => {
+    if (!generatedPrompt) return;
+    
+    let content = generatedPrompt.mainPrompt;
+    
+    if (generatedPrompt.styleNotes) {
+      content += `\n\nStyle Notes:\n${generatedPrompt.styleNotes}`;
+    }
+    
+    if (generatedPrompt.technicalSpecs) {
+      content += `\n\nTechnical Specifications:\n${generatedPrompt.technicalSpecs}`;
+    }
+    
+    navigator.clipboard.writeText(content);
+    toast({
+      title: "Copied!",
+      description: "All prompts copied to clipboard.",
+    });
+  };
+
   const downloadPrompt = (generatedPrompt: any) => {
     if (!generatedPrompt) return;
     
@@ -40,6 +60,7 @@ ${generatedPrompt.styleNotes}`;
 
   return {
     copyToClipboard,
+    copyAllPrompts,
     downloadPrompt
   };
 };

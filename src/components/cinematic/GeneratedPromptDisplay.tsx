@@ -8,14 +8,14 @@ import { GeneratedPrompt } from './hooks/types';
 
 interface GeneratedPromptDisplayProps {
   generatedPrompt: GeneratedPrompt;
-  onCopyToClipboard: (text: string) => void;
+  onCopyAllPrompts: (prompt: GeneratedPrompt) => void;
   onDownloadPrompt: () => void;
   onGenerateNew: () => void;
 }
 
 const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
   generatedPrompt,
-  onCopyToClipboard,
+  onCopyAllPrompts,
   onDownloadPrompt,
   onGenerateNew
 }) => {
@@ -81,13 +81,13 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
 
         <div className="flex flex-wrap gap-3 mt-6 justify-center">
           <Button
-            onClick={() => onCopyToClipboard(generatedPrompt.mainPrompt)}
+            onClick={() => onCopyAllPrompts(generatedPrompt)}
             variant="outline"
             size="sm"
             className="bg-purple-600/20 border-purple-400/30 text-purple-300 hover:bg-purple-600/30"
           >
             <Copy className="w-4 h-4 mr-2" />
-            Copy Main Prompt
+            Copy All Prompts
           </Button>
           
           <Button
