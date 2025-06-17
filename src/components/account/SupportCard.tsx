@@ -13,7 +13,7 @@ const SupportCard = () => {
       <Button
         variant="outline"
         className="w-full border-purple-500/30 text-white hover:bg-purple-500/20 bg-slate-800/80 backdrop-blur-sm"
-        onClick={() => window.open('mailto:support@prompti.ai', '_blank')}
+        onClick={() => window.open('mailto:support@aipromptmachine.com', '_blank')}
       >
         Contact Support
       </Button>
