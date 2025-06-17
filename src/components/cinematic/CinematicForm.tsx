@@ -32,6 +32,10 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     sceneIdea,
     selectedPlatform,
     selectedEmotion,
+    dialogSettings,
+    setDialogSettings,
+    soundSettings,
+    setSoundSettings,
     cameraSettings,
     lightingSettings,
     styleReference,
@@ -84,6 +88,10 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               setSelectedPlatform={setSelectedPlatform}
               selectedEmotion={selectedEmotion}
               setSelectedEmotion={setSelectedEmotion}
+              dialogSettings={dialogSettings}
+              setDialogSettings={setDialogSettings}
+              soundSettings={soundSettings}
+              setSoundSettings={setSoundSettings}
               cameraSettings={cameraSettings}
               setCameraSettings={setCameraSettings}
               lightingSettings={lightingSettings}
