@@ -1,71 +1,29 @@
 
-import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { MultiSceneProject, SceneData } from './types';
+import { useCallback } from 'react';
+import { MultiSceneProject } from './types';
+import { saveProject, loadProject, deleteProject, loadUserProjects } from './database/projectOperations';
+import { saveScenes, loadScenes } from './database/sceneOperations';
+import { useDatabaseState } from './database/databaseState';
 
 export const useMultiSceneDatabase = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { isLoading, setIsLoading, error, setError, clearError } = useDatabaseState();
 
-  const saveProject = useCallback(async (project: MultiSceneProject): Promise<string | null> => {
+  const saveProjectWithScenes = useCallback(async (project: MultiSceneProject): Promise<string | null> => {
     setIsLoading(true);
     setError(null);
     
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setError('User not authenticated');
-        return null;
-      }
-
-      // First, save or update the project
-      const { data: projectData, error: projectError } = await supabase
-        .from('cinematic_projects')
-        .upsert({
-          id: project.id,
-          user_id: user.id,
-          title: project.title,
-          current_scene_index: project.currentSceneIndex,
-          updated_at: new Date().toISOString()
-        })
-        .select()
-        .single();
-
-      if (projectError) {
-        console.error('Error saving project:', projectError);
-        setError(projectError.message);
+      // Save project first
+      const savedProjectId = await saveProject(project);
+      if (!savedProjectId) {
+        setError('Failed to save project');
         return null;
       }
 
       // Then save all scenes
-      const scenesData = project.scenes.map(scene => ({
-        id: scene.id || undefined,
-        project_id: project.id,
-        scene_number: scene.sceneNumber,
-        scene_idea: scene.sceneIdea,
-        selected_platform: scene.selectedPlatform,
-        selected_emotion: scene.selectedEmotion,
-        dialog_settings: scene.dialogSettings as any,
-        sound_settings: scene.soundSettings as any,
-        camera_settings: scene.cameraSettings as any,
-        lighting_settings: scene.lightingSettings as any,
-        style_reference: scene.styleReference,
-        generated_prompt: scene.generatedPrompt as any,
-        updated_at: new Date().toISOString()
-      }));
+      await saveScenes(project.id, project.scenes);
 
-      const { error: scenesError } = await supabase
-        .from('cinematic_scenes')
-        .upsert(scenesData);
-
-      if (scenesError) {
-        console.error('Error saving scenes:', scenesError);
-        setError(scenesError.message);
-        return null;
-      }
-
-      return project.id;
+      return savedProjectId;
     } catch (err) {
       console.error('Error in saveProject:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -73,64 +31,27 @@ export const useMultiSceneDatabase = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setIsLoading, setError]);
 
-  const loadProject = useCallback(async (projectId: string): Promise<MultiSceneProject | null> => {
+  const loadProjectWithScenes = useCallback(async (projectId: string): Promise<MultiSceneProject | null> => {
     setIsLoading(true);
     setError(null);
     
     try {
       // Load project details
-      const { data: projectData, error: projectError } = await supabase
-        .from('cinematic_projects')
-        .select('*')
-        .eq('id', projectId)
-        .single();
-
-      if (projectError) {
-        console.error('Error loading project:', projectError);
-        setError(projectError.message);
+      const project = await loadProject(projectId);
+      if (!project) {
+        setError('Project not found');
         return null;
       }
 
       // Load scenes for the project
-      const { data: scenesData, error: scenesError } = await supabase
-        .from('cinematic_scenes')
-        .select('*')
-        .eq('project_id', projectId)
-        .order('scene_number');
-
-      if (scenesError) {
-        console.error('Error loading scenes:', scenesError);
-        setError(scenesError.message);
-        return null;
-      }
-
-      // Transform database data to our types with proper type casting
-      const scenes: SceneData[] = scenesData.map(scene => ({
-        id: scene.id,
-        sceneNumber: scene.scene_number,
-        sceneIdea: scene.scene_idea,
-        selectedPlatform: scene.selected_platform,
-        selectedEmotion: scene.selected_emotion,
-        dialogSettings: scene.dialog_settings as any,
-        soundSettings: scene.sound_settings as any,
-        cameraSettings: scene.camera_settings as any,
-        lightingSettings: scene.lighting_settings as any,
-        styleReference: scene.style_reference,
-        generatedPrompt: scene.generated_prompt as any
-      }));
-
-      const project: MultiSceneProject = {
-        id: projectData.id,
-        title: projectData.title,
-        scenes,
-        currentSceneIndex: projectData.current_scene_index,
-        createdAt: projectData.created_at,
-        updatedAt: projectData.updated_at
+      const scenes = await loadScenes(projectId);
+      
+      return {
+        ...project,
+        scenes
       };
-
-      return project;
     } catch (err) {
       console.error('Error in loadProject:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -138,25 +59,14 @@ export const useMultiSceneDatabase = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setIsLoading, setError]);
 
-  const deleteProject = useCallback(async (projectId: string): Promise<boolean> => {
+  const deleteProjectById = useCallback(async (projectId: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const { error } = await supabase
-        .from('cinematic_projects')
-        .delete()
-        .eq('id', projectId);
-
-      if (error) {
-        console.error('Error deleting project:', error);
-        setError(error.message);
-        return false;
-      }
-
-      return true;
+      return await deleteProject(projectId);
     } catch (err) {
       console.error('Error in deleteProject:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -164,52 +74,14 @@ export const useMultiSceneDatabase = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setIsLoading, setError]);
 
-  const loadUserProjects = useCallback(async (): Promise<MultiSceneProject[]> => {
+  const loadAllUserProjects = useCallback(async (): Promise<MultiSceneProject[]> => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const { data: projectsData, error: projectsError } = await supabase
-        .from('cinematic_projects')
-        .select(`
-          *,
-          cinematic_scenes (*)
-        `)
-        .order('updated_at', { ascending: false });
-
-      if (projectsError) {
-        console.error('Error loading user projects:', projectsError);
-        setError(projectsError.message);
-        return [];
-      }
-
-      // Transform database data to our types with proper type casting
-      const projects: MultiSceneProject[] = projectsData.map(project => ({
-        id: project.id,
-        title: project.title,
-        scenes: project.cinematic_scenes
-          .sort((a: any, b: any) => a.scene_number - b.scene_number)
-          .map((scene: any) => ({
-            id: scene.id,
-            sceneNumber: scene.scene_number,
-            sceneIdea: scene.scene_idea,
-            selectedPlatform: scene.selected_platform,
-            selectedEmotion: scene.selected_emotion,
-            dialogSettings: scene.dialog_settings as any,
-            soundSettings: scene.sound_settings as any,
-            cameraSettings: scene.camera_settings as any,
-            lightingSettings: scene.lighting_settings as any,
-            styleReference: scene.style_reference,
-            generatedPrompt: scene.generated_prompt as any
-          })),
-        currentSceneIndex: project.current_scene_index,
-        createdAt: project.created_at,
-        updatedAt: project.updated_at
-      }));
-
-      return projects;
+      return await loadUserProjects();
     } catch (err) {
       console.error('Error in loadUserProjects:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -217,15 +89,15 @@ export const useMultiSceneDatabase = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setIsLoading, setError]);
 
   return {
-    saveProject,
-    loadProject,
-    deleteProject,
-    loadUserProjects,
+    saveProject: saveProjectWithScenes,
+    loadProject: loadProjectWithScenes,
+    deleteProject: deleteProjectById,
+    loadUserProjects: loadAllUserProjects,
     isLoading,
     error,
-    clearError: () => setError(null)
+    clearError
   };
 };
