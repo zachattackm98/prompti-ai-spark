@@ -88,6 +88,16 @@ export const usePromptGeneration = (
         console.log('[PROMPT-HISTORY] Created new project:', projectId);
       }
 
+      // Convert GeneratedPrompt to JSON-compatible format
+      const jsonPrompt = {
+        mainPrompt: prompt.mainPrompt,
+        technicalSpecs: prompt.technicalSpecs || '',
+        styleNotes: prompt.styleNotes || '',
+        platform: prompt.platform,
+        sceneNumber: prompt.sceneNumber,
+        totalScenes: prompt.totalScenes
+      };
+
       // Save the scene with the generated prompt
       const { data: scene, error: sceneError } = await supabase
         .from('cinematic_scenes')
@@ -97,7 +107,12 @@ export const usePromptGeneration = (
           selected_platform: formState.selectedPlatform,
           selected_emotion: formState.selectedEmotion,
           style_reference: formState.styleReference || '',
-          generated_prompt: prompt,
+          generated_prompt: jsonPrompt,
+          scene_number: prompt.sceneNumber || 1,
+          dialog_settings: formState.dialogSettings || {},
+          sound_settings: formState.soundSettings || {},
+          camera_settings: formState.cameraSettings || {},
+          lighting_settings: formState.lightingSettings || {},
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })

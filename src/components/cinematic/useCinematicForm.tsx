@@ -142,6 +142,8 @@ export const useCinematicForm = (
     setCameraSettings,
     setLightingSettings,
     setStyleReference,
+    setGeneratedPrompt,
+    setIsLoading,
     handleNext,
     handlePrevious,
     handleGenerate,
@@ -153,6 +155,7 @@ export const useCinematicForm = (
     handleSceneSelect,
     handleAddScene,
     handleLoadProject,
-    canAddMoreScenes
+    canAddMoreScenes,
+    updateScenePrompt
   };
 };
