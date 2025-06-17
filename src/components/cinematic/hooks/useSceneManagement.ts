@@ -25,12 +25,18 @@ export const useSceneManagement = (
     loadSceneDataToCurrentState(selectedScene);
     
     // Reset to step 1 if no prompt exists, otherwise go to final step
-    setCurrentStep(selectedScene.generatedPrompt ? totalSteps : 1);
+    const hasPrompt = selectedScene.generatedPrompt;
+    setCurrentStep(hasPrompt ? totalSteps : 1);
     
-    // Scroll to the cinematic form container instead of step content
+    // Scroll to appropriate location after scene selection
     setTimeout(() => {
-      console.log('useSceneManagement: Scrolling to cinematic form container after scene select');
-      scrollToElementById('cinematic-form-container', 'smooth', 100);
+      if (hasPrompt) {
+        console.log('useSceneManagement: Scrolling to generated prompt display after scene select');
+        scrollToElementById('generated-prompt-display', 'smooth', 100);
+      } else {
+        console.log('useSceneManagement: Scrolling to cinematic form container after scene select');
+        scrollToElementById('cinematic-form-container', 'smooth', 100);
+      }
     }, 200);
   };
 

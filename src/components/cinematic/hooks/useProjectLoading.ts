@@ -16,12 +16,18 @@ export const useProjectLoading = (
       loadSceneDataToCurrentState(currentScene);
       
       // Set appropriate step based on whether the scene has a generated prompt
-      setCurrentStep(currentScene.generatedPrompt ? totalSteps : 1);
+      const hasPrompt = currentScene.generatedPrompt;
+      setCurrentStep(hasPrompt ? totalSteps : 1);
       
-      // Scroll to form after loading
+      // Scroll to appropriate location after loading
       setTimeout(() => {
-        console.log('useProjectLoading: Scrolling to cinematic form container after project load');
-        scrollToElementById('cinematic-form-container', 'smooth', 100);
+        if (hasPrompt) {
+          console.log('useProjectLoading: Scrolling to generated prompt display after project load');
+          scrollToElementById('generated-prompt-display', 'smooth', 100);
+        } else {
+          console.log('useProjectLoading: Scrolling to cinematic form container after project load');
+          scrollToElementById('cinematic-form-container', 'smooth', 100);
+        }
       }, 200);
     }
     return loadedProject;
