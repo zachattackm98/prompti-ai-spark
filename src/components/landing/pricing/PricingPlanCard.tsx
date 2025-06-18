@@ -22,7 +22,7 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
   getButtonText
 }) => {
   // Determine if this is the Studio plan for gold styling
-  const isStudioStudioPlan = plan.tier === 'studio';
+  const isStudioPlan = plan.tier === 'studio';
 
   return (
     <motion.div

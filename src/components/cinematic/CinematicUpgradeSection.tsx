@@ -7,13 +7,15 @@ interface CinematicUpgradeSectionProps {
   generatedPrompt: any;
   canUseFeature: (feature: string) => boolean;
   subscription: any;
+  onUpgrade?: () => void;
 }
 
 const CinematicUpgradeSection: React.FC<CinematicUpgradeSectionProps> = ({
   user,
   generatedPrompt,
   canUseFeature,
-  subscription
+  subscription,
+  onUpgrade
 }) => {
   if (!user || generatedPrompt) return null;
 
@@ -24,6 +26,7 @@ const CinematicUpgradeSection: React.FC<CinematicUpgradeSectionProps> = ({
           feature="Professional Camera Controls"
           requiredTier="creator"
           currentTier={subscription.tier}
+          onUpgrade={onUpgrade}
         />
       )}
       {!canUseFeature('lightingOptions') && (
@@ -31,6 +34,7 @@ const CinematicUpgradeSection: React.FC<CinematicUpgradeSectionProps> = ({
           feature="Advanced Lighting & Visual Styles"
           requiredTier="studio"
           currentTier={subscription.tier}
+          onUpgrade={onUpgrade}
         />
       )}
     </div>

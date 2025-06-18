@@ -26,8 +26,12 @@ export const useSubscriptionOperations = (
     setLoading
   );
 
+  // Create optimistic checkout is the same as regular checkout for now
+  const createOptimisticCheckout = createCheckout;
+
   return {
     createCheckout,
+    createOptimisticCheckout,
     openCustomerPortal,
     fetchBillingData,
     downloadInvoice,
