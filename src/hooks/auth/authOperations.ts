@@ -1,8 +1,12 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { getAuthRedirectUrl, logEnvironmentInfo } from '@/utils/environmentUtils';
 
 export const signUp = async (email: string, password: string, fullName?: string) => {
-  const redirectUrl = `${window.location.origin}/`;
+  logEnvironmentInfo();
+  
+  const redirectUrl = getAuthRedirectUrl('/');
+  console.log('[AUTH] SignUp redirect URL:', redirectUrl);
   
   const { error } = await supabase.auth.signUp({
     email,
@@ -52,7 +56,10 @@ export const signOut = async (session: any) => {
 };
 
 export const resetPassword = async (email: string) => {
-  const redirectUrl = `${window.location.origin}/reset-password`;
+  logEnvironmentInfo();
+  
+  const redirectUrl = getAuthRedirectUrl('/reset-password');
+  console.log('[AUTH] Password reset redirect URL:', redirectUrl);
   
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: redirectUrl,

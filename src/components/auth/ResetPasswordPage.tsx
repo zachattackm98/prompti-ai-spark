@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, Lock, CheckCircle, AlertCircle } from 'lucide-react';
+import { logEnvironmentInfo, getBaseUrl } from '@/utils/environmentUtils';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
@@ -23,6 +24,7 @@ const ResetPasswordPage = () => {
 
   useEffect(() => {
     console.log('[RESET] Checking session validity and URL parameters');
+    logEnvironmentInfo();
     
     // Check URL parameters for reset tokens
     const urlParams = new URLSearchParams(window.location.search);
@@ -35,7 +37,9 @@ const ResetPasswordPage = () => {
     console.log('[RESET] URL params:', { 
       accessToken: accessToken ? 'present' : 'missing',
       refreshToken: refreshToken ? 'present' : 'missing',
-      type 
+      type,
+      currentUrl: window.location.href,
+      baseUrl: getBaseUrl()
     });
     console.log('[RESET] User:', user?.email || 'no user');
     console.log('[RESET] Session:', session ? 'present' : 'not present');
@@ -97,7 +101,9 @@ const ResetPasswordPage = () => {
         });
         
         setTimeout(() => {
-          window.location.href = '/account';
+          const accountUrl = `${getBaseUrl()}/account`;
+          console.log('[RESET] Redirecting to account:', accountUrl);
+          window.location.href = accountUrl;
         }, 3000);
       }
     } catch (error: any) {
@@ -159,7 +165,7 @@ const ResetPasswordPage = () => {
               Your password reset link is invalid or has expired. Please request a new one.
             </p>
             <Button
-              onClick={() => window.location.href = '/'}
+              onClick={() => window.location.href = getBaseUrl()}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
             >
               Back to Home
@@ -191,7 +197,7 @@ const ResetPasswordPage = () => {
               Your password has been successfully updated. You'll be redirected to your account in a few seconds.
             </p>
             <Button
-              onClick={() => window.location.href = '/account'}
+              onClick={() => window.location.href = `${getBaseUrl()}/account`}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
             >
               Go to Account

@@ -8,6 +8,11 @@ import { PasswordResetEmail } from './_templates/password-reset.tsx'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
 
+// Environment-aware URL helper
+const getProductionUrl = (path: string = '') => {
+  return `https://www.aipromptmachine.com${path}`;
+};
+
 Deno.serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 })
@@ -39,11 +44,15 @@ Deno.serve(async (req) => {
     if (email_action_type === 'signup') {
       console.log('Processing signup confirmation email')
       
+      // Use production URL as fallback for signup
+      const finalRedirectUrl = redirect_to || getProductionUrl('/');
+      console.log('Using signup redirect URL:', finalRedirectUrl);
+      
       emailTemplate = React.createElement(SignupConfirmationEmail, {
         supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
         token,
         token_hash,
-        redirect_to: redirect_to || 'https://lovable.dev',
+        redirect_to: finalRedirectUrl,
         email_action_type,
         user_email: user.email,
       })
@@ -52,13 +61,16 @@ Deno.serve(async (req) => {
       
     } else if (email_action_type === 'recovery') {
       console.log('Processing password reset email')
-      console.log('Using redirect_to for password reset:', redirect_to)
+      
+      // Use production URL as fallback for password reset
+      const finalResetUrl = redirect_to || getProductionUrl('/reset-password');
+      console.log('Using password reset redirect URL:', finalResetUrl);
       
       emailTemplate = React.createElement(PasswordResetEmail, {
         supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
         token,
         token_hash,
-        redirect_to: redirect_to || 'https://lovable.dev/reset-password',
+        redirect_to: finalResetUrl,
         email_action_type,
         user_email: user.email,
       })

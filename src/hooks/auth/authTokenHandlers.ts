@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { navigateToHome, navigateToResetPassword } from '@/utils/navigationUtils';
+import { logEnvironmentInfo } from '@/utils/environmentUtils';
 
 export const processTokens = async (
   accessToken: string, 
@@ -10,6 +11,9 @@ export const processTokens = async (
   setConfirmationSuccess: (success: boolean) => void
 ) => {
   try {
+    console.log('[AUTH] Processing tokens with environment awareness');
+    logEnvironmentInfo();
+    
     const { data, error } = await supabase.auth.setSession({
       access_token: accessToken,
       refresh_token: refreshToken,
