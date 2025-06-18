@@ -5,5 +5,7 @@ export const buildResetUrl = (
   emailActionType: string,
   redirectTo: string
 ): string => {
-  return `${supabaseUrl}/auth/v1/verify?token=${token}&type=${emailActionType}&redirect_to=${redirectTo}`;
+  // Use token_hash for the verify endpoint, not token
+  // This is the key issue - Supabase expects token_hash in the URL
+  return `${supabaseUrl}/auth/v1/verify?token=${token}&type=${emailActionType}&redirect_to=${encodeURIComponent(redirectTo)}`;
 };

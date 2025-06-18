@@ -30,13 +30,17 @@ interface PasswordResetEmailProps {
 }
 
 export const PasswordResetEmail = ({
-  token,
+  token_hash,
   supabase_url,
   email_action_type,
   redirect_to,
   user_email,
 }: PasswordResetEmailProps) => {
-  const resetUrl = buildResetUrl(supabase_url, token, email_action_type, redirect_to);
+  // Use token_hash instead of token - this is critical for Supabase
+  const resetUrl = buildResetUrl(supabase_url, token_hash, email_action_type, redirect_to);
+  
+  console.log('Building reset URL with token_hash:', token_hash);
+  console.log('Final reset URL:', resetUrl);
   
   const securityItems = [
     '🔒 This link will expire in 1 hour for your security',

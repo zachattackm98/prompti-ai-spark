@@ -11,7 +11,11 @@ export const processTokens = async (
   setConfirmationSuccess: (success: boolean) => void
 ) => {
   try {
-    console.log('[AUTH] Processing tokens with enhanced error handling');
+    console.log('[AUTH] Processing tokens with enhanced debugging');
+    console.log('[AUTH] Access token length:', accessToken?.length || 0);
+    console.log('[AUTH] Refresh token length:', refreshToken?.length || 0);
+    console.log('[AUTH] Type:', type);
+    
     logEnvironmentInfo();
     
     // Validate tokens before attempting to use them
@@ -33,8 +37,14 @@ export const processTokens = async (
 
     if (error) {
       console.error('[AUTH] Error setting session:', error);
+      console.error('[AUTH] Error code:', error.status);
+      console.error('[AUTH] Error message:', error.message);
       
-      // Provide specific error messages based on error type
+      // Add more specific debugging for token errors
+      if (error.message.includes('Invalid token') || error.message.includes('token')) {
+        console.error('[AUTH] Token validation failed - tokens may be expired or malformed');
+      }
+      
       let errorMessage = "There was an error processing your authentication.";
       
       if (error.message.includes('expired') || error.message.includes('invalid')) {
@@ -54,6 +64,7 @@ export const processTokens = async (
     if (data.session) {
       console.log('[AUTH] Session established successfully');
       console.log('[AUTH] User:', data.session.user?.email);
+      console.log('[AUTH] Session expires at:', data.session.expires_at);
       
       if (type === 'signup') {
         console.log('[AUTH] Processing signup confirmation');
@@ -111,6 +122,8 @@ export const processHashAuth = async (
   toast: any,
   setConfirmationSuccess: (success: boolean) => void
 ) => {
+  console.log('[AUTH] Processing hash auth:', hash);
+  
   const hashParams = new URLSearchParams(hash.substring(1));
   const accessToken = hashParams.get('access_token');
   const refreshToken = hashParams.get('refresh_token');
@@ -118,7 +131,7 @@ export const processHashAuth = async (
   const error = hashParams.get('error');
   const errorDescription = hashParams.get('error_description');
 
-  console.log('[AUTH] Hash params:', { 
+  console.log('[AUTH] Hash params extracted:', { 
     accessToken: accessToken ? 'present' : 'missing',
     refreshToken: refreshToken ? 'present' : 'missing',
     type,
@@ -153,6 +166,12 @@ export const processUrlAuth = async (
   toast: any,
   setConfirmationSuccess: (success: boolean) => void
 ) => {
+  console.log('[AUTH] Processing URL auth with params:', {
+    accessToken: accessToken ? 'present' : 'missing',
+    refreshToken: refreshToken ? 'present' : 'missing',
+    type
+  });
+  
   // Check for URL errors
   const urlParams = new URLSearchParams(window.location.search);
   const error = urlParams.get('error');
