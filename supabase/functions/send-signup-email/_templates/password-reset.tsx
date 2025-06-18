@@ -42,6 +42,7 @@ export const PasswordResetEmail = ({
     throw new Error('token_hash is required for password reset email');
   }
   
+  // Build the Supabase verification URL that will handle token validation
   const resetUrl = buildResetUrl(supabase_url, token_hash, email_action_type, redirect_to);
   
   const securityItems = [

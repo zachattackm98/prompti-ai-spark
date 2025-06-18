@@ -27,30 +27,26 @@ const ResetPasswordPage = () => {
     console.log('[RESET] Initializing password reset page');
     logEnvironmentInfo();
     
-    // Check URL parameters for reset tokens
+    // Check URL parameters for any errors or tokens
     const urlParams = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     
-    const accessToken = urlParams.get('access_token') || hashParams.get('access_token');
-    const refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
-    const type = urlParams.get('type') || hashParams.get('type');
     const error = urlParams.get('error') || hashParams.get('error');
     const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
     
     console.log('[RESET] URL analysis:', { 
-      accessToken: accessToken ? 'present' : 'missing',
-      refreshToken: refreshToken ? 'present' : 'missing',
-      type,
       error,
       errorDescription,
       currentUrl: window.location.href,
-      baseUrl: getBaseUrl()
+      baseUrl: getBaseUrl(),
+      hasSession: !!session,
+      hasUser: !!user
     });
 
     // Check for URL errors first
     if (error) {
       console.log('[RESET] Error in URL parameters:', error, errorDescription);
-      if (error === 'access_denied' || errorDescription?.includes('token')) {
+      if (error === 'access_denied' || errorDescription?.includes('token') || errorDescription?.includes('expired')) {
         setErrorType('expired');
       } else {
         setErrorType('invalid');
@@ -59,26 +55,21 @@ const ResetPasswordPage = () => {
       return;
     }
     
-    // Give time for auth to process tokens and establish session
+    // Wait for auth processing to complete before making final decision
     const sessionCheckTimer = setTimeout(() => {
-      console.log('[RESET] Checking session after delay');
+      console.log('[RESET] Final session check');
       console.log('[RESET] Current user:', user?.email || 'none');
       console.log('[RESET] Current session:', session ? 'present' : 'none');
       
       if (!session || !user) {
-        console.log('[RESET] No valid session found');
-        // Determine error type based on URL params
-        if (accessToken && refreshToken) {
-          setErrorType('expired'); // Tokens were present but didn't work
-        } else {
-          setErrorType('invalid'); // No tokens at all
-        }
+        console.log('[RESET] No valid session found after processing');
+        setErrorType('expired');
         setValidSession(false);
       } else {
-        console.log('[RESET] Valid session confirmed');
+        console.log('[RESET] Valid session confirmed for password reset');
         setValidSession(true);
       }
-    }, 3000); // Increased wait time for token processing
+    }, 2000); // Reduced wait time since auth processing should be faster now
 
     return () => clearTimeout(sessionCheckTimer);
   }, [session, user]);
@@ -143,7 +134,6 @@ const ResetPasswordPage = () => {
       if (result.error) {
         console.error('[RESET] Password update error:', result.error);
         
-        // Handle specific error types
         if (result.error.message.includes('session') || result.error.message.includes('token')) {
           setErrorType('expired');
           setValidSession(false);
@@ -231,8 +221,8 @@ const ResetPasswordPage = () => {
             </h1>
             <p className="text-gray-400 mb-6">
               {errorType === 'expired' 
-                ? 'Your password reset link has expired. Reset links are only valid for a short time for security reasons.'
-                : 'Your password reset link is invalid or has already been used. Please request a new one.'
+                ? 'Your password reset link has expired or has already been used. Reset links are only valid for a short time for security reasons.'
+                : 'Your password reset link is invalid. Please request a new one.'
               }
             </p>
             <div className="space-y-3">
@@ -296,7 +286,7 @@ const ResetPasswordPage = () => {
     );
   }
 
-  // Show password reset form
+  // Show password reset form for valid sessions
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
       <motion.div
