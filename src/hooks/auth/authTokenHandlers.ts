@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { scrollToTop } from '@/utils/scrollUtils';
+import { navigateToHome, navigateToResetPassword } from '@/utils/navigationUtils';
 
 export const processTokens = async (
   accessToken: string, 
@@ -35,25 +35,30 @@ export const processTokens = async (
           title: "Account Confirmed!",
           description: "Your account has been successfully confirmed. Welcome!",
         });
+        
+        // Use navigation utility instead of hard redirect
+        setTimeout(() => {
+          console.log('[AUTH] Navigating to home after signup confirmation');
+          navigateToHome('instant');
+        }, 3000);
       } else if (type === 'recovery') {
-        console.log('[AUTH] Processing password reset, redirecting to reset page');
+        console.log('[AUTH] Processing password reset, navigating to reset page');
         toast({
           title: "Password Reset",
           description: "Please set your new password.",
         });
         
         setTimeout(() => {
-          window.location.href = '/reset-password';
+          navigateToResetPassword();
         }, 100);
         return; // Exit early for password reset
+      } else {
+        // Single navigation point for other successful auth
+        setTimeout(() => {
+          console.log('[AUTH] Navigating to home page');
+          navigateToHome('instant');
+        }, 100);
       }
-      
-      // Single redirect point for all successful auth (except password reset)
-      setTimeout(() => {
-        console.log('[AUTH] Redirecting to home page');
-        scrollToTop('instant');
-        window.location.href = '/';
-      }, type === 'signup' ? 3000 : 100);
     }
   } catch (error) {
     console.error('[AUTH] Exception during token processing:', error);
@@ -83,8 +88,10 @@ export const processHashAuth = async (
 
   if (accessToken && refreshToken) {
     await processTokens(accessToken, refreshToken, type, toast, setConfirmationSuccess);
-    // Clean up hash
-    window.history.replaceState(null, '', window.location.pathname);
+    // Clean up hash without causing reload
+    if (window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
   }
 };
 
@@ -96,6 +103,8 @@ export const processUrlAuth = async (
   setConfirmationSuccess: (success: boolean) => void
 ) => {
   await processTokens(accessToken, refreshToken, type, toast, setConfirmationSuccess);
-  // Clean up URL params
-  window.history.replaceState(null, '', window.location.pathname);
+  // Clean up URL params without causing reload
+  if (window.history.replaceState) {
+    window.history.replaceState(null, '', window.location.pathname);
+  }
 };
