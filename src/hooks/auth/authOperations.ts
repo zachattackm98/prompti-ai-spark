@@ -61,15 +61,56 @@ export const resetPassword = async (email: string) => {
   const redirectUrl = getAuthRedirectUrl('/reset-password');
   console.log('[AUTH] Password reset redirect URL:', redirectUrl);
   
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: redirectUrl,
-  });
-  return { error };
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    });
+    
+    if (error) {
+      console.error('[AUTH] Reset password error:', error);
+    } else {
+      console.log('[AUTH] Reset password email sent successfully');
+    }
+    
+    return { error };
+  } catch (err: any) {
+    console.error('[AUTH] Reset password exception:', err);
+    return { error: err };
+  }
 };
 
 export const updatePassword = async (password: string) => {
-  const { error } = await supabase.auth.updateUser({
-    password: password
-  });
-  return { error };
+  try {
+    console.log('[AUTH] Attempting to update password');
+    
+    // First check if we have a valid session
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error('[AUTH] Session error before password update:', sessionError);
+      return { error: sessionError };
+    }
+    
+    if (!sessionData.session) {
+      console.error('[AUTH] No active session for password update');
+      return { error: new Error('No active session. Please use the reset link again.') };
+    }
+    
+    console.log('[AUTH] Valid session found, proceeding with password update');
+    
+    const { error } = await supabase.auth.updateUser({
+      password: password
+    });
+    
+    if (error) {
+      console.error('[AUTH] Password update error:', error);
+    } else {
+      console.log('[AUTH] Password updated successfully');
+    }
+    
+    return { error };
+  } catch (err: any) {
+    console.error('[AUTH] Password update exception:', err);
+    return { error: err };
+  }
 };

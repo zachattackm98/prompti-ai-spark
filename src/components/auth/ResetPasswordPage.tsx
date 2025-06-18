@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, Lock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Lock, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { logEnvironmentInfo, getBaseUrl } from '@/utils/environmentUtils';
 
 const ResetPasswordPage = () => {
@@ -18,12 +18,13 @@ const ResetPasswordPage = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [validSession, setValidSession] = useState<boolean | null>(null);
+  const [errorType, setErrorType] = useState<'expired' | 'invalid' | 'network' | null>(null);
   
-  const { updatePassword, user, session } = useAuth();
+  const { updatePassword, user, session, resetPassword } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log('[RESET] Checking session validity and URL parameters');
+    console.log('[RESET] Initializing password reset page');
     logEnvironmentInfo();
     
     // Check URL parameters for reset tokens
@@ -33,30 +34,84 @@ const ResetPasswordPage = () => {
     const accessToken = urlParams.get('access_token') || hashParams.get('access_token');
     const refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
     const type = urlParams.get('type') || hashParams.get('type');
+    const error = urlParams.get('error') || hashParams.get('error');
+    const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
     
-    console.log('[RESET] URL params:', { 
+    console.log('[RESET] URL analysis:', { 
       accessToken: accessToken ? 'present' : 'missing',
       refreshToken: refreshToken ? 'present' : 'missing',
       type,
+      error,
+      errorDescription,
       currentUrl: window.location.href,
       baseUrl: getBaseUrl()
     });
-    console.log('[RESET] User:', user?.email || 'no user');
-    console.log('[RESET] Session:', session ? 'present' : 'not present');
+
+    // Check for URL errors first
+    if (error) {
+      console.log('[RESET] Error in URL parameters:', error, errorDescription);
+      if (error === 'access_denied' || errorDescription?.includes('token')) {
+        setErrorType('expired');
+      } else {
+        setErrorType('invalid');
+      }
+      setValidSession(false);
+      return;
+    }
     
-    // Give some time for auth to initialize and process URL params
-    const timer = setTimeout(() => {
+    // Give time for auth to process tokens and establish session
+    const sessionCheckTimer = setTimeout(() => {
+      console.log('[RESET] Checking session after delay');
+      console.log('[RESET] Current user:', user?.email || 'none');
+      console.log('[RESET] Current session:', session ? 'present' : 'none');
+      
       if (!session || !user) {
-        console.log('[RESET] No valid session found, marking as invalid');
+        console.log('[RESET] No valid session found');
+        // Determine error type based on URL params
+        if (accessToken && refreshToken) {
+          setErrorType('expired'); // Tokens were present but didn't work
+        } else {
+          setErrorType('invalid'); // No tokens at all
+        }
         setValidSession(false);
       } else {
-        console.log('[RESET] Valid session found');
+        console.log('[RESET] Valid session confirmed');
         setValidSession(true);
       }
-    }, 2000); // Wait 2 seconds for auth to initialize
+    }, 3000); // Increased wait time for token processing
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(sessionCheckTimer);
   }, [session, user]);
+
+  const handleRequestNewLink = async () => {
+    const email = prompt('Please enter your email address to receive a new reset link:');
+    if (!email) return;
+
+    setLoading(true);
+    try {
+      const result = await resetPassword(email);
+      if (result.error) {
+        toast({
+          title: "Error",
+          description: result.error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "New Reset Link Sent",
+          description: "Please check your email for a new password reset link.",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to send reset link. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,11 +142,18 @@ const ResetPasswordPage = () => {
 
       if (result.error) {
         console.error('[RESET] Password update error:', result.error);
-        toast({
-          title: "Error",
-          description: result.error.message,
-          variant: "destructive",
-        });
+        
+        // Handle specific error types
+        if (result.error.message.includes('session') || result.error.message.includes('token')) {
+          setErrorType('expired');
+          setValidSession(false);
+        } else {
+          toast({
+            title: "Error",
+            description: result.error.message,
+            variant: "destructive",
+          });
+        }
       } else {
         console.log('[RESET] Password updated successfully');
         setSuccess(true);
@@ -108,11 +170,17 @@ const ResetPasswordPage = () => {
       }
     } catch (error: any) {
       console.error('[RESET] Password update exception:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update password",
-        variant: "destructive",
-      });
+      
+      if (error.message?.includes('session') || error.message?.includes('token')) {
+        setErrorType('expired');
+        setValidSession(false);
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to update password",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -133,7 +201,7 @@ const ResetPasswordPage = () => {
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-400"></div>
             </div>
             <h1 className="text-2xl font-bold text-white mb-4">
-              Loading...
+              Verifying Reset Link...
             </h1>
             <p className="text-gray-400">
               Please wait while we verify your password reset link.
@@ -159,17 +227,37 @@ const ResetPasswordPage = () => {
               <AlertCircle className="w-16 h-16 text-red-400" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-4">
-              Invalid Reset Link
+              {errorType === 'expired' ? 'Reset Link Expired' : 'Invalid Reset Link'}
             </h1>
             <p className="text-gray-400 mb-6">
-              Your password reset link is invalid or has expired. Please request a new one.
+              {errorType === 'expired' 
+                ? 'Your password reset link has expired. Reset links are only valid for a short time for security reasons.'
+                : 'Your password reset link is invalid or has already been used. Please request a new one.'
+              }
             </p>
-            <Button
-              onClick={() => window.location.href = getBaseUrl()}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-            >
-              Back to Home
-            </Button>
+            <div className="space-y-3">
+              <Button
+                onClick={handleRequestNewLink}
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  'Request New Reset Link'
+                )}
+              </Button>
+              <Button
+                onClick={() => window.location.href = getBaseUrl()}
+                variant="outline"
+                className="w-full border-white/20 text-white hover:bg-white/10"
+              >
+                Back to Home
+              </Button>
+            </div>
           </Card>
         </motion.div>
       </div>
