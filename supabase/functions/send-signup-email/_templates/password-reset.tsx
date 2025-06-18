@@ -18,7 +18,6 @@ import {
   SecuritySection, 
   EmailFooter 
 } from './shared/EmailComponents.tsx'
-import { buildResetUrl } from './shared/urlUtils.ts'
 
 interface PasswordResetEmailProps {
   supabase_url: string
@@ -42,8 +41,11 @@ export const PasswordResetEmail = ({
     throw new Error('token_hash is required for password reset email');
   }
   
-  // Build the Supabase verification URL that will handle token validation
-  const resetUrl = buildResetUrl(supabase_url, token_hash, email_action_type, redirect_to);
+  // Build the reset URL that goes directly to our app with the token_hash as a URL parameter
+  // This bypasses the problematic Supabase verify endpoint
+  const resetUrl = `${redirect_to}?token_hash=${encodeURIComponent(token_hash)}&type=${email_action_type}`;
+  
+  console.log('Generated reset URL:', resetUrl);
   
   const securityItems = [
     '🔒 This link will expire in 1 hour for your security',

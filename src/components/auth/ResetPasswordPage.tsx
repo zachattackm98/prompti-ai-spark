@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, Lock, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { logEnvironmentInfo, getBaseUrl } from '@/utils/environmentUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
@@ -19,6 +20,7 @@ const ResetPasswordPage = () => {
   const [success, setSuccess] = useState(false);
   const [validSession, setValidSession] = useState<boolean | null>(null);
   const [errorType, setErrorType] = useState<'expired' | 'invalid' | 'network' | null>(null);
+  const [processingToken, setProcessingToken] = useState(false);
   
   const { updatePassword, user, session, resetPassword } = useAuth();
   const { toast } = useToast();
@@ -27,51 +29,89 @@ const ResetPasswordPage = () => {
     console.log('[RESET] Initializing password reset page');
     logEnvironmentInfo();
     
-    // Check URL parameters for any errors or tokens
-    const urlParams = new URLSearchParams(window.location.search);
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    
-    const error = urlParams.get('error') || hashParams.get('error');
-    const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
-    
-    console.log('[RESET] URL analysis:', { 
-      error,
-      errorDescription,
-      currentUrl: window.location.href,
-      baseUrl: getBaseUrl(),
-      hasSession: !!session,
-      hasUser: !!user
-    });
-
-    // Check for URL errors first
-    if (error) {
-      console.log('[RESET] Error in URL parameters:', error, errorDescription);
-      if (error === 'access_denied' || errorDescription?.includes('token') || errorDescription?.includes('expired')) {
-        setErrorType('expired');
-      } else {
-        setErrorType('invalid');
-      }
-      setValidSession(false);
-      return;
-    }
-    
-    // Wait for auth processing to complete before making final decision
-    const sessionCheckTimer = setTimeout(() => {
-      console.log('[RESET] Final session check');
-      console.log('[RESET] Current user:', user?.email || 'none');
-      console.log('[RESET] Current session:', session ? 'present' : 'none');
+    const processResetToken = async () => {
+      // Check URL parameters for token_hash
+      const urlParams = new URLSearchParams(window.location.search);
+      const tokenHash = urlParams.get('token_hash');
+      const type = urlParams.get('type');
       
+      console.log('[RESET] URL parameters:', { 
+        tokenHash: tokenHash ? 'present' : 'missing',
+        type,
+        currentUrl: window.location.href
+      });
+
+      // If we have a token_hash, process it with Supabase
+      if (tokenHash && type === 'recovery') {
+        setProcessingToken(true);
+        console.log('[RESET] Processing token_hash for password reset');
+        
+        try {
+          // Use Supabase's verifyOtp method to verify the token_hash
+          const { data, error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: 'recovery'
+          });
+
+          if (error) {
+            console.error('[RESET] Token verification error:', error);
+            
+            if (error.message.includes('expired') || error.message.includes('invalid')) {
+              setErrorType('expired');
+            } else {
+              setErrorType('invalid');
+            }
+            setValidSession(false);
+          } else if (data.session) {
+            console.log('[RESET] Token verified successfully, session established');
+            setValidSession(true);
+            
+            // Clear the URL parameters
+            if (window.history.replaceState) {
+              window.history.replaceState(null, '', window.location.pathname);
+            }
+          } else {
+            console.error('[RESET] Token verification succeeded but no session created');
+            setErrorType('invalid');
+            setValidSession(false);
+          }
+        } catch (error: any) {
+          console.error('[RESET] Token verification exception:', error);
+          setErrorType('network');
+          setValidSession(false);
+        } finally {
+          setProcessingToken(false);
+        }
+        return;
+      }
+
+      // Check for URL errors
+      const error = urlParams.get('error');
+      const errorDescription = urlParams.get('error_description');
+      
+      if (error) {
+        console.log('[RESET] Error in URL parameters:', error, errorDescription);
+        if (error === 'access_denied' || errorDescription?.includes('token') || errorDescription?.includes('expired')) {
+          setErrorType('expired');
+        } else {
+          setErrorType('invalid');
+        }
+        setValidSession(false);
+        return;
+      }
+      
+      // If no token_hash and no existing session, show expired error
       if (!session || !user) {
-        console.log('[RESET] No valid session found after processing');
+        console.log('[RESET] No token and no existing session');
         setErrorType('expired');
         setValidSession(false);
       } else {
-        console.log('[RESET] Valid session confirmed for password reset');
+        console.log('[RESET] Using existing session for password reset');
         setValidSession(true);
       }
-    }, 2000); // Reduced wait time since auth processing should be faster now
+    };
 
-    return () => clearTimeout(sessionCheckTimer);
+    processResetToken();
   }, [session, user]);
 
   const handleRequestNewLink = async () => {
@@ -176,8 +216,8 @@ const ResetPasswordPage = () => {
     }
   };
 
-  // Show loading while checking session validity
-  if (validSession === null) {
+  // Show loading while processing token
+  if (processingToken || validSession === null) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
         <motion.div
@@ -191,10 +231,13 @@ const ResetPasswordPage = () => {
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-400"></div>
             </div>
             <h1 className="text-2xl font-bold text-white mb-4">
-              Verifying Reset Link...
+              {processingToken ? 'Verifying Reset Link...' : 'Checking Authentication...'}
             </h1>
             <p className="text-gray-400">
-              Please wait while we verify your password reset link.
+              {processingToken 
+                ? 'Please wait while we verify your password reset link.'
+                : 'Please wait while we check your authentication status.'
+              }
             </p>
           </Card>
         </motion.div>
@@ -217,11 +260,14 @@ const ResetPasswordPage = () => {
               <AlertCircle className="w-16 h-16 text-red-400" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-4">
-              {errorType === 'expired' ? 'Reset Link Expired' : 'Invalid Reset Link'}
+              {errorType === 'expired' ? 'Reset Link Expired' : 
+               errorType === 'network' ? 'Connection Error' : 'Invalid Reset Link'}
             </h1>
             <p className="text-gray-400 mb-6">
               {errorType === 'expired' 
                 ? 'Your password reset link has expired or has already been used. Reset links are only valid for a short time for security reasons.'
+                : errorType === 'network'
+                ? 'There was a network error while processing your reset link. Please check your connection and try again.'
                 : 'Your password reset link is invalid. Please request a new one.'
               }
             </p>
