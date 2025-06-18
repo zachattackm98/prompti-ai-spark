@@ -9,7 +9,7 @@ export const useSubscriptionOperations = (
   subscription: any,
   setSubscription: (subscription: any) => void
 ) => {
-  const { createCheckout, createOptimisticCheckout } = useCheckoutOperations(
+  const { createCheckout } = useCheckoutOperations(
     user,
     setLoading,
     subscription,
@@ -28,7 +28,6 @@ export const useSubscriptionOperations = (
 
   return {
     createCheckout,
-    createOptimisticCheckout,
     openCustomerPortal,
     fetchBillingData,
     downloadInvoice,

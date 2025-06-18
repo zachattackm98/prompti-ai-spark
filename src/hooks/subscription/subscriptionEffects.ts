@@ -134,9 +134,6 @@ export const useSubscriptionEffects = (
   const verifySubscriptionStatus = async () => {
     console.log('[SUBSCRIPTION] Starting subscription verification');
     
-    // Clear any optimistic updates first
-    sessionStorage.removeItem('optimistic_update');
-    
     // Single definitive check
     await checkSubscription();
   };
