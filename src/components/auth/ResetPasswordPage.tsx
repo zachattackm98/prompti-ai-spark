@@ -22,11 +22,25 @@ const ResetPasswordPage = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log('[RESET] Checking session validity');
+    console.log('[RESET] Checking session validity and URL parameters');
+    
+    // Check URL parameters for reset tokens
+    const urlParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    
+    const accessToken = urlParams.get('access_token') || hashParams.get('access_token');
+    const refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
+    const type = urlParams.get('type') || hashParams.get('type');
+    
+    console.log('[RESET] URL params:', { 
+      accessToken: accessToken ? 'present' : 'missing',
+      refreshToken: refreshToken ? 'present' : 'missing',
+      type 
+    });
     console.log('[RESET] User:', user?.email || 'no user');
     console.log('[RESET] Session:', session ? 'present' : 'not present');
     
-    // Give some time for auth to initialize
+    // Give some time for auth to initialize and process URL params
     const timer = setTimeout(() => {
       if (!session || !user) {
         console.log('[RESET] No valid session found, marking as invalid');
