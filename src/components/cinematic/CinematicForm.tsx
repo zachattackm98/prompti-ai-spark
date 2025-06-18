@@ -1,14 +1,11 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { useCinematicForm } from './useCinematicForm';
-import { useProjectManagement } from './hooks/useProjectManagement';
-import { usePromptGeneration } from './hooks/usePromptGeneration';
-import StepIndicator from './StepIndicator';
-import CinematicFormContent from './CinematicFormContent';
-import ProjectSelectorsSection from './ProjectSelectorsSection';
-import UsageDisplay from './UsageDisplay';
-import PromptHistoryComponent from './PromptHistory';
+import CinematicFormHeader from './CinematicFormHeader';
+import CinematicFormProjectSection from './CinematicFormProjectSection';
+import CinematicFormMain from './CinematicFormMain';
+import CinematicFormHistory from './CinematicFormHistory';
+import CinematicFormWelcome from './CinematicFormWelcome';
 import { PromptHistory } from './types';
 
 interface CinematicFormProps {
@@ -73,53 +70,6 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     handleStartProjectFromHistory
   } = useCinematicForm(user, subscription, canUseFeature, setShowAuthDialog, loadPromptHistory);
 
-  // Create form state object for the prompt generation hook
-  const formState = {
-    sceneIdea,
-    selectedPlatform,
-    selectedEmotion,
-    dialogSettings,
-    soundSettings,
-    cameraSettings,
-    lightingSettings,
-    styleReference,
-    currentProject,
-    isMultiScene
-  };
-
-  // Use the enhanced prompt generation hook with improved error handling and logging
-  const { handleGenerate, manualSaveToHistory, savingToHistory } = usePromptGeneration(
-    user,
-    subscription,
-    canUseFeature,
-    setShowAuthDialog,
-    loadPromptHistory,
-    formState,
-    setGeneratedPrompt,
-    setIsLoading,
-    currentProject,
-    updateScenePrompt
-  );
-
-  const {
-    userProjects,
-    projectsLoading,
-    loadUserProjectsData,
-    handleDeleteProject
-  } = useProjectManagement(user);
-
-  const handleLoadProjectFromSelector = async (projectId: string) => {
-    try {
-      console.log('[CINEMATIC-FORM] Loading project from selector:', projectId);
-      const project = await handleLoadProject(projectId);
-      if (project) {
-        console.log('[CINEMATIC-FORM] Project loaded and activated:', project.title);
-      }
-    } catch (error) {
-      console.error('[CINEMATIC-FORM] Error loading project:', error);
-    }
-  };
-
   const handleUpgrade = () => {
     // Navigate to pricing section
     const pricingSection = document.getElementById('pricing');
@@ -130,30 +80,29 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
 
   return (
     <>
-      {user && (
-        <UsageDisplay onUpgrade={handleUpgrade} />
-      )}
-
-      <ProjectSelectorsSection
+      <CinematicFormHeader 
         user={user}
-        currentProject={currentProject}
-        userProjects={userProjects}
-        projectsLoading={projectsLoading}
-        canAddMoreScenes={canAddMoreScenes}
-        onLoadProject={handleLoadProjectFromSelector}
-        onDeleteProject={handleDeleteProject}
-        onRefreshProjects={loadUserProjectsData}
-        onSceneSelect={handleSceneSelect}
-        onAddScene={handleAddScene}
+        onUpgrade={handleUpgrade}
       />
 
-      <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
+      <CinematicFormProjectSection
+        user={user}
+        currentProject={currentProject}
+        canAddMoreScenes={canAddMoreScenes}
+        onSceneSelect={handleSceneSelect}
+        onAddScene={handleAddScene}
+        onLoadProject={handleLoadProject}
+      />
 
-      <CinematicFormContent
+      <CinematicFormMain
+        user={user}
         subscription={subscription}
         features={features}
         canUseFeature={canUseFeature}
+        setShowAuthDialog={setShowAuthDialog}
+        loadPromptHistory={loadPromptHistory}
         currentStep={currentStep}
+        totalSteps={totalSteps}
         sceneIdea={sceneIdea}
         selectedPlatform={selectedPlatform}
         selectedEmotion={selectedEmotion}
@@ -165,6 +114,7 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
         generatedPrompt={generatedPrompt}
         isLoading={isLoading}
         isMultiScene={isMultiScene}
+        currentProject={currentProject}
         setSceneIdea={setSceneIdea}
         setSelectedPlatform={setSelectedPlatform}
         setSelectedEmotion={setSelectedEmotion}
@@ -173,37 +123,26 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
         setCameraSettings={setCameraSettings}
         setLightingSettings={setLightingSettings}
         setStyleReference={setStyleReference}
+        setGeneratedPrompt={setGeneratedPrompt}
+        setIsLoading={setIsLoading}
         handleNext={handleNext}
         handlePrevious={handlePrevious}
-        handleGenerate={handleGenerate}
         handleGenerateNew={handleGenerateNew}
         handleContinueScene={handleContinueScene}
-        onManualSave={manualSaveToHistory}
-        savingToHistory={savingToHistory}
+        updateScenePrompt={updateScenePrompt}
       />
 
-      {/* Show history section inline within the form area */}
-      {showHistory && (
-        <PromptHistoryComponent 
-          promptHistory={promptHistory} 
-          showHistory={showHistory}
-          historyLoading={historyLoading}
-          onStartProjectFromHistory={handleStartProjectFromHistory}
-        />
-      )}
+      <CinematicFormHistory
+        showHistory={showHistory}
+        promptHistory={promptHistory}
+        historyLoading={historyLoading}
+        onStartProjectFromHistory={handleStartProjectFromHistory}
+      />
 
-      {!user && !generatedPrompt && (
-        <motion.div 
-          className="text-center mt-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-        >
-          <p className="text-purple-300 text-sm font-medium bg-purple-900/20 border border-purple-400/20 rounded-lg py-2 px-4 inline-block">
-            🎬 Ready to generate? Create your free account to get started!
-          </p>
-        </motion.div>
-      )}
+      <CinematicFormWelcome
+        user={user}
+        generatedPrompt={generatedPrompt}
+      />
     </>
   );
 };
