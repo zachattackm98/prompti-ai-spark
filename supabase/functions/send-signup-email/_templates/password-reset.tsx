@@ -1,4 +1,3 @@
-
 import {
   Body,
   Container,
@@ -23,7 +22,7 @@ interface PasswordResetEmailProps {
 }
 
 export const PasswordResetEmail = ({
-  token_hash,
+  token,
   supabase_url,
   email_action_type,
   redirect_to,
@@ -53,7 +52,7 @@ export const PasswordResetEmail = ({
         
         <Section style={buttonContainer}>
           <Button
-            href={`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
+            href={`${supabase_url}/auth/v1/verify?token=${token}&type=${email_action_type}&redirect_to=${redirect_to}`}
             style={button}
           >
             Reset Your Password
@@ -65,10 +64,10 @@ export const PasswordResetEmail = ({
         </Text>
         
         <Link
-          href={`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
+          href={`${supabase_url}/auth/v1/verify?token=${token}&type=${email_action_type}&redirect_to=${redirect_to}`}
           style={link}
         >
-          {`${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`}
+          {`${supabase_url}/auth/v1/verify?token=${token}&type=${email_action_type}&redirect_to=${redirect_to}`}
         </Link>
         
         <Section style={securitySection}>
