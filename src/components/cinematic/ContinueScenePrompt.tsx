@@ -41,15 +41,15 @@ const ContinueScenePrompt: React.FC<ContinueScenePromptProps> = ({
         animate={{ opacity: 1, y: 0 }}
         className="mt-6 space-y-4"
       >
-        <Card className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-400/30 p-6">
+        <Card className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 border border-purple-400/40 p-6">
           <div className="text-center space-y-4">
-            <div className="flex items-center justify-center gap-2 text-purple-300">
+            <div className="flex items-center justify-center gap-2 text-purple-200">
               <Sparkles className="w-5 h-5" />
               <h3 className="text-lg font-semibold">Love this scene?</h3>
               <Sparkles className="w-5 h-5" />
             </div>
             
-            <p className="text-white text-sm font-medium">
+            <p className="text-gray-100 text-sm font-medium leading-relaxed">
               Turn it into a multi-scene cinematic story! Continue with Scene 2 while maintaining 
               character consistency and narrative flow.
             </p>
@@ -57,7 +57,7 @@ const ContinueScenePrompt: React.FC<ContinueScenePromptProps> = ({
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
               <Button
                 onClick={() => setShowContinueForm(true)}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium"
               >
                 <Film className="w-4 h-4 mr-2" />
                 Continue Scene
@@ -66,7 +66,7 @@ const ContinueScenePrompt: React.FC<ContinueScenePromptProps> = ({
               <Button
                 onClick={onStartOver}
                 variant="outline"
-                className="border-purple-400/50 text-purple-200 hover:bg-purple-900/30 hover:text-white bg-slate-800/60"
+                className="border-purple-400/60 text-purple-100 hover:bg-purple-900/40 hover:text-white bg-slate-800/80 font-medium"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 New Single Scene
