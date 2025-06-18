@@ -34,6 +34,7 @@ export const usePromptGeneration = (
 
   const handleGenerate = useCallback(async () => {
     console.log('[PROMPT-GENERATION] Starting prompt generation');
+    console.log('[PROMPT-GENERATION] Current subscription:', subscription);
     
     if (!user) {
       console.log('[PROMPT-GENERATION] User not authenticated, showing auth dialog');
@@ -65,6 +66,10 @@ export const usePromptGeneration = (
     try {
       console.log('[PROMPT-GENERATION] Calling cinematic prompt generator API');
       
+      // Use the subscription tier directly from the subscription object
+      const userTier = subscription?.tier || 'starter';
+      console.log('[PROMPT-GENERATION] Using subscription tier:', userTier);
+      
       const requestBody = {
         sceneIdea: formState.sceneIdea,
         selectedPlatform: formState.selectedPlatform,
@@ -74,6 +79,7 @@ export const usePromptGeneration = (
         cameraSettings: formState.cameraSettings,
         lightingSettings: formState.lightingSettings,
         styleReference: formState.styleReference,
+        tier: userTier, // Pass the actual subscription tier
         sceneNumber: currentProject ? 
           (currentProject.scenes[currentProject.currentSceneIndex]?.sceneNumber || 1) : 1,
         totalScenes: currentProject ? currentProject.scenes.length : 1,
@@ -82,7 +88,8 @@ export const usePromptGeneration = (
 
       console.log('[PROMPT-GENERATION] Request payload:', {
         ...requestBody,
-        sceneIdea: requestBody.sceneIdea.substring(0, 50) + '...'
+        sceneIdea: requestBody.sceneIdea.substring(0, 50) + '...',
+        tier: requestBody.tier
       });
 
       const { data, error } = await supabase.functions.invoke('cinematic-prompt-generator', {
@@ -128,9 +135,22 @@ export const usePromptGeneration = (
 
     } catch (error: any) {
       console.error('[PROMPT-GENERATION] Generation failed:', error);
+      
+      // Handle specific error cases
+      let errorTitle = "Generation Failed";
+      let errorMessage = error.message || "Failed to generate cinematic prompt. Please try again.";
+      
+      if (error.message?.includes('USAGE_LIMIT_EXCEEDED')) {
+        errorTitle = "Usage Limit Reached";
+        errorMessage = error.message;
+      } else if (error.message?.includes('AUTHENTICATION_ERROR')) {
+        errorTitle = "Authentication Error";
+        errorMessage = "Please sign in again to continue.";
+      }
+      
       toast({
-        title: "Generation Failed",
-        description: error.message || "Failed to generate cinematic prompt. Please try again.",
+        title: errorTitle,
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -138,6 +158,7 @@ export const usePromptGeneration = (
     }
   }, [
     user,
+    subscription, // Add subscription to dependencies
     canUseFeature,
     setShowAuthDialog,
     formState,

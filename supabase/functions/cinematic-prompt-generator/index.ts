@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getUserFromAuth } from './auth.ts';
@@ -46,6 +45,9 @@ serve(async (req) => {
       isMultiScene = false
     } = requestData;
 
+    // Log the tier being used for this request
+    console.log('[CINEMATIC-GENERATOR] User subscription tier for this request:', tier);
+
     // Validate required fields
     if (!sceneIdea?.trim()) {
       console.error('[CINEMATIC-GENERATOR] Missing required field: sceneIdea');
@@ -75,7 +77,7 @@ serve(async (req) => {
     
     try {
       user = await getUserFromAuth(authHeader);
-      console.log('[CINEMATIC-GENERATOR] User authenticated:', user.id);
+      console.log('[CINEMATIC-GENERATOR] User authenticated:', user.id, 'for tier:', tier);
     } catch (authError) {
       console.error('[CINEMATIC-GENERATOR] Authentication failed:', authError);
       return new Response(JSON.stringify({
@@ -88,11 +90,11 @@ serve(async (req) => {
     }
 
     // Check and enforce prompt limits for all tiers
-    console.log('[CINEMATIC-GENERATOR] Checking usage limits...');
+    console.log('[CINEMATIC-GENERATOR] Checking usage limits for tier:', tier);
     const usageCheck = await checkUsageLimit(user.id, tier);
     
     if (usageCheck.exceeded) {
-      console.log('[CINEMATIC-GENERATOR] Usage limit exceeded for user:', user.id);
+      console.log('[CINEMATIC-GENERATOR] Usage limit exceeded for user:', user.id, 'tier:', tier);
       return new Response(JSON.stringify({
         error: usageCheck.error,
         message: usageCheck.message,
@@ -105,7 +107,7 @@ serve(async (req) => {
       });
     }
 
-    console.log('[CINEMATIC-GENERATOR] Usage check passed, generating prompt...');
+    console.log('[CINEMATIC-GENERATOR] Usage check passed for tier:', tier, 'generating prompt...');
 
     // Generate the prompt using OpenAI with multi-scene context
     // Map frontend field names to expected backend field names
@@ -119,14 +121,14 @@ serve(async (req) => {
       isMultiScene
     });
 
-    console.log('[CINEMATIC-GENERATOR] Prompt generated successfully');
+    console.log('[CINEMATIC-GENERATOR] Prompt generated successfully for tier:', tier);
 
     // Increment prompt count for all tiers after successful generation
-    console.log('[CINEMATIC-GENERATOR] Incrementing usage count...');
+    console.log('[CINEMATIC-GENERATOR] Incrementing usage count for tier:', tier);
     await incrementPromptCount(user.id, tier);
 
     // Log successful generation
-    console.log('[CINEMATIC-GENERATOR] Request completed successfully for user:', user.id);
+    console.log('[CINEMATIC-GENERATOR] Request completed successfully for user:', user.id, 'tier:', tier);
 
     return new Response(JSON.stringify({ prompt }), {
       headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
