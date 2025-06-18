@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { UserSubscription } from '@/types/subscription';
 import { BillingDetails, checkSubscription as apiCheckSubscription, showToast, clearSubscriptionCache } from './subscriptionApi';
 
@@ -9,16 +9,21 @@ export const useSubscriptionEffects = (
   setSubscription: (subscription: UserSubscription) => void,
   setBillingDetails: (details: BillingDetails | null) => void
 ) => {
-  const checkSubscription = async (retryCount = 0, maxRetries = 3) => {
+  // Track the last user ID to prevent unnecessary checks
+  const lastUserIdRef = useRef<string | null>(null);
+  const isInitializedRef = useRef(false);
+
+  const checkSubscription = async (retryCount = 0, maxRetries = 3, skipLoadingState = false) => {
     if (!user) {
       console.log('[SUBSCRIPTION] No user found, setting starter subscription');
       setSubscription({ tier: 'starter', isActive: false });
       setBillingDetails(null);
-      setLoading(false); // Important: set loading false even when no user
+      if (!skipLoadingState) setLoading(false);
       return;
     }
 
-    setLoading(true);
+    if (!skipLoadingState) setLoading(true);
+    
     try {
       console.log('[SUBSCRIPTION] Checking subscription for user:', user.email, `(attempt ${retryCount + 1})`);
       const data = await apiCheckSubscription();
@@ -72,7 +77,7 @@ export const useSubscriptionEffects = (
       if (retryCount < maxRetries) {
         console.log(`[SUBSCRIPTION] Retrying in ${(retryCount + 1) * 1000}ms...`);
         setTimeout(() => {
-          checkSubscription(retryCount + 1, maxRetries);
+          checkSubscription(retryCount + 1, maxRetries, skipLoadingState);
         }, (retryCount + 1) * 1000);
         return;
       }
@@ -122,7 +127,7 @@ export const useSubscriptionEffects = (
       }
       setBillingDetails(null);
     } finally {
-      setLoading(false); // Always set loading to false when done
+      if (!skipLoadingState) setLoading(false);
     }
   };
 
@@ -135,12 +140,6 @@ export const useSubscriptionEffects = (
     // Single definitive check
     await checkSubscription();
   };
-
-  // Check subscription when user changes
-  useEffect(() => {
-    console.log('[SUBSCRIPTION] User state changed:', user?.email || 'no user');
-    checkSubscription();
-  }, [user]);
 
   // Enhanced checkout success/cancel handling
   useEffect(() => {
@@ -182,6 +181,30 @@ export const useSubscriptionEffects = (
       clearSubscriptionCache();
     }
   }, []);
+
+  // Optimized subscription check - only check when user actually changes (not just state updates)
+  useEffect(() => {
+    const currentUserId = user?.id || null;
+    
+    // Skip if this is the same user (prevents tab focus reload issues)
+    if (currentUserId === lastUserIdRef.current && isInitializedRef.current) {
+      console.log('[SUBSCRIPTION] User state update detected but same user, skipping check');
+      return;
+    }
+
+    console.log('[SUBSCRIPTION] User changed:', {
+      previousUserId: lastUserIdRef.current,
+      currentUserId,
+      isInitialized: isInitializedRef.current
+    });
+
+    // Update refs
+    lastUserIdRef.current = currentUserId;
+    isInitializedRef.current = true;
+
+    // Check subscription for new user or initial load
+    checkSubscription();
+  }, [user?.id]); // Only depend on user.id, not entire user object
 
   return {
     checkSubscription,

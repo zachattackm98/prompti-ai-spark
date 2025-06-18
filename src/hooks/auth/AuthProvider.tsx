@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -18,9 +18,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
   const [confirmationSuccess, setConfirmationSuccess] = useState(false);
   const { toast } = useToast();
+  
+  // Track initialization to prevent unnecessary auth param processing
+  const isInitializedRef = useRef(false);
+  const lastSessionIdRef = useRef<string | null>(null);
 
   // Memoize auth parameter handler to prevent unnecessary re-renders
   const handleAuthParams = useCallback(async () => {
+    // Only process auth params once during initialization
+    if (isInitializedRef.current) return;
+    
     const hash = window.location.hash;
     const searchParams = new URLSearchParams(window.location.search);
     
@@ -42,9 +49,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [toast]);
 
-  // Memoize auth state change handler
+  // Optimized auth state change handler - prevent unnecessary updates
   const handleAuthStateChange = useCallback((event: string, session: Session | null) => {
+    const currentSessionId = session?.access_token?.substring(0, 20) || null;
+    
+    // Skip if this is the same session (prevents duplicate processing)
+    if (currentSessionId === lastSessionIdRef.current && isInitializedRef.current) {
+      console.log('[AUTH] Same session detected, skipping state change');
+      return;
+    }
+
     console.log('[AUTH] Auth state changed:', event, session?.user?.email || 'no user');
+    
+    // Update refs first
+    lastSessionIdRef.current = currentSessionId;
     
     // Update state synchronously to prevent render loops
     setSession(session);
@@ -54,13 +72,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Handle auth events with minimal side effects
     if (event === 'SIGNED_IN' && session?.user) {
       console.log('[AUTH] User signed in successfully');
-      // Use setTimeout to defer DOM manipulation
+      // Use setTimeout to defer DOM manipulation and prevent interference
       setTimeout(() => {
         scrollToTop('smooth');
       }, 0);
     } else if (event === 'SIGNED_OUT') {
       console.log('[AUTH] User signed out');
       setConfirmationSuccess(false);
+      // Clear session tracking
+      lastSessionIdRef.current = null;
     }
   }, []);
 
@@ -70,8 +90,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     let mounted = true;
 
-    // Handle auth parameters first
-    handleAuthParams();
+    // Handle auth parameters first (only once)
+    if (!isInitializedRef.current) {
+      handleAuthParams();
+    }
 
     // Set up auth state listener with proper cleanup
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
@@ -80,9 +102,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (mounted) {
         console.log('[AUTH] Initial session check:', session?.user?.email || 'no session');
+        const currentSessionId = session?.access_token?.substring(0, 20) || null;
+        lastSessionIdRef.current = currentSessionId;
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        isInitializedRef.current = true;
       }
     });
 
@@ -98,6 +123,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(null);
       setSession(null);
       setConfirmationSuccess(false);
+      lastSessionIdRef.current = null;
     }
     return result;
   };

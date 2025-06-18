@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -22,15 +22,46 @@ const LandingPage = () => {
   const { user, loading: authLoading } = useAuth();
   const { subscription, loading: subscriptionLoading } = useSubscription();
 
-  // Don't render subscription-dependent content until both auth and subscription are loaded
-  const isInitialLoading = authLoading || (user && subscriptionLoading);
+  // Memoize subscription status to prevent unnecessary re-renders
+  const subscriptionStatus = useMemo(() => {
+    // If we have cached subscription data, use it while loading
+    if (subscriptionLoading && user) {
+      const cachedData = localStorage.getItem('subscription_cache');
+      if (cachedData) {
+        try {
+          const cached = JSON.parse(cachedData);
+          const cacheAge = Date.now() - cached.timestamp;
+          // Use cache if less than 5 minutes old
+          if (cacheAge < 5 * 60 * 1000) {
+            return {
+              tier: cached.tier,
+              isActive: cached.isActive,
+              isCancelling: cached.isCancelling || false,
+              expiresAt: cached.expiresAt,
+            };
+          }
+        } catch (e) {
+          console.warn('[LANDING] Failed to parse cached subscription data');
+        }
+      }
+    }
+    
+    return subscription;
+  }, [subscription, subscriptionLoading, user]);
+
+  // Only show loading for critical states
+  const shouldShowLoading = useMemo(() => {
+    return authLoading || (user && subscriptionLoading && !subscriptionStatus);
+  }, [authLoading, user, subscriptionLoading, subscriptionStatus]);
 
   // Check if user has an active paid subscription
-  const hasActivePaidSubscription = user && subscription?.isActive && 
-    (subscription.tier === 'creator' || subscription.tier === 'studio');
+  const hasActivePaidSubscription = useMemo(() => {
+    return user && subscriptionStatus?.isActive && 
+      (subscriptionStatus.tier === 'creator' || subscriptionStatus.tier === 'studio');
+  }, [user, subscriptionStatus]);
 
-  // Show loading state during initial load to prevent flicker
-  if (isInitialLoading) {
+  // Show loading state only when absolutely necessary
+  if (shouldShowLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <Header />
@@ -48,7 +79,7 @@ const LandingPage = () => {
       {hasActivePaidSubscription ? (
         // Simplified view for paid subscribers
         <>
-          <SubscriberWelcome user={user} subscription={subscription} />
+          <SubscriberWelcome user={user} subscription={subscriptionStatus} />
           <Process />
           <CinematicPromptGenerator />
           <Pricing />
