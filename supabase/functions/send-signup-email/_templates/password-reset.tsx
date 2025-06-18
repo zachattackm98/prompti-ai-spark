@@ -36,7 +36,7 @@ export const PasswordResetEmail = ({
   redirect_to,
   user_email,
 }: PasswordResetEmailProps) => {
-  // Use token_hash instead of token - this is critical for Supabase
+  // Use token_hash for URL construction - this is the correct token for verification
   const resetUrl = buildResetUrl(supabase_url, token_hash, email_action_type, redirect_to);
   
   console.log('Building reset URL with token_hash:', token_hash);

@@ -34,6 +34,8 @@ Deno.serve(async (req) => {
 
     console.log('Processing email for:', user.email)
     console.log('Email action type:', email_action_type)
+    console.log('Token received:', token ? 'present' : 'missing')
+    console.log('Token hash received:', token_hash ? 'present' : 'missing')
     console.log('Redirect URL received:', redirect_to)
 
     let html: string
@@ -61,6 +63,7 @@ Deno.serve(async (req) => {
       
     } else if (email_action_type === 'recovery') {
       console.log('Processing password reset email')
+      console.log('Using token_hash for reset URL:', token_hash)
       
       // Use production URL as fallback for password reset
       const finalResetUrl = redirect_to || getProductionUrl('/reset-password');
@@ -69,7 +72,7 @@ Deno.serve(async (req) => {
       emailTemplate = React.createElement(PasswordResetEmail, {
         supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
         token,
-        token_hash,
+        token_hash, // This is the critical parameter for password resets
         redirect_to: finalResetUrl,
         email_action_type,
         user_email: user.email,
