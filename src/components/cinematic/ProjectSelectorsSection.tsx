@@ -10,7 +10,7 @@ interface ProjectSelectorsSectionProps {
   userProjects: MultiSceneProject[];
   projectsLoading: boolean;
   canAddMoreScenes: boolean;
-  onLoadProject: (projectId: string) => void;
+  onLoadProject: (projectId: string) => Promise<void>;
   onDeleteProject: (projectId: string) => void;
   onRefreshProjects: () => void;
   onSceneSelect: (sceneIndex: number) => void;

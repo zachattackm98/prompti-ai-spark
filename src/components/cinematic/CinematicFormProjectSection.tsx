@@ -10,7 +10,7 @@ interface CinematicFormProjectSectionProps {
   canAddMoreScenes: boolean;
   onSceneSelect: (index: number) => void;
   onAddScene: () => void;
-  onLoadProject: (projectId: string) => Promise<void>;
+  onLoadProject: (projectId: string) => Promise<MultiSceneProject | null>;
 }
 
 const CinematicFormProjectSection: React.FC<CinematicFormProjectSectionProps> = ({
