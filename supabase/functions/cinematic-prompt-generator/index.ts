@@ -22,16 +22,16 @@ serve(async (req) => {
     requestData = await req.json();
     console.log('[CINEMATIC-GENERATOR] Request data parsed:', {
       sceneIdea: requestData.sceneIdea?.substring(0, 50) + '...',
-      platform: requestData.platform,
-      emotion: requestData.emotion,
+      selectedPlatform: requestData.selectedPlatform,
+      selectedEmotion: requestData.selectedEmotion,
       tier: requestData.tier || 'starter',
       isMultiScene: requestData.isMultiScene || false
     });
 
     const { 
       sceneIdea, 
-      platform, 
-      emotion, 
+      selectedPlatform, 
+      selectedEmotion, 
       styleReference, 
       dialogSettings,
       soundSettings,
@@ -58,8 +58,8 @@ serve(async (req) => {
       });
     }
 
-    if (!platform?.trim()) {
-      console.error('[CINEMATIC-GENERATOR] Missing required field: platform');
+    if (!selectedPlatform?.trim()) {
+      console.error('[CINEMATIC-GENERATOR] Missing required field: selectedPlatform');
       return new Response(JSON.stringify({
         error: 'VALIDATION_ERROR',
         message: 'Platform selection is required'
@@ -108,8 +108,11 @@ serve(async (req) => {
     console.log('[CINEMATIC-GENERATOR] Usage check passed, generating prompt...');
 
     // Generate the prompt using OpenAI with multi-scene context
+    // Map frontend field names to expected backend field names
     const prompt = await generatePromptWithOpenAI({
       ...requestData,
+      platform: selectedPlatform,
+      emotion: selectedEmotion,
       previousScenePrompts,
       sceneNumber,
       totalScenes,
