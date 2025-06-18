@@ -13,15 +13,32 @@ export const useSceneManagement = (
   totalSteps: number
 ) => {
   const handleSceneSelect = async (sceneIndex: number) => {
-    if (!currentProject) return;
+    if (!currentProject) {
+      console.error('[SCENE-MANAGEMENT] No current project for scene selection');
+      return;
+    }
     
-    // Save current scene data
+    console.log('[SCENE-MANAGEMENT] Switching to scene index:', sceneIndex);
+    
+    // Save current scene data before switching
     const currentSceneData = createSceneDataFromCurrentState();
+    console.log('[SCENE-MANAGEMENT] Saving current scene data before switch');
     await updateCurrentScene(currentSceneData);
     
     // Switch to selected scene
     await setCurrentSceneIndex(sceneIndex);
     const selectedScene = currentProject.scenes[sceneIndex];
+    
+    if (!selectedScene) {
+      console.error('[SCENE-MANAGEMENT] Selected scene not found at index:', sceneIndex);
+      return;
+    }
+    
+    console.log('[SCENE-MANAGEMENT] Loading selected scene data:', {
+      sceneNumber: selectedScene.sceneNumber,
+      hasPrompt: !!selectedScene.generatedPrompt
+    });
+    
     loadSceneDataToCurrentState(selectedScene);
     
     // Reset to step 1 if no prompt exists, otherwise go to final step
@@ -31,40 +48,51 @@ export const useSceneManagement = (
     // Scroll to appropriate location after scene selection
     setTimeout(() => {
       if (hasPrompt) {
-        console.log('useSceneManagement: Scene has prompt, scrolling to generated prompt');
+        console.log('[SCENE-MANAGEMENT] Scene has prompt, scrolling to generated prompt');
         scrollToGeneratedPrompt('smooth');
       } else {
-        console.log('useSceneManagement: No prompt, scrolling to step 1');
+        console.log('[SCENE-MANAGEMENT] No prompt, scrolling to step 1');
         scrollToStepContent(1, 'smooth');
       }
     }, 300);
   };
 
   const handleAddScene = async () => {
-    if (!currentProject) return;
+    if (!currentProject) {
+      console.error('[SCENE-MANAGEMENT] No current project for adding scene');
+      return;
+    }
     
-    // Save current scene data
+    console.log('[SCENE-MANAGEMENT] Adding new scene to project');
+    
+    // Save current scene data before adding new one
     const currentSceneData = createSceneDataFromCurrentState();
+    console.log('[SCENE-MANAGEMENT] Saving current scene before adding new scene');
     await updateCurrentScene(currentSceneData);
     
-    // Create new scene with inherited settings but reset prompt
+    // Create new scene with inherited settings but reset prompt and scene idea
     const newSceneData = {
       ...currentSceneData,
-      sceneIdea: '',
-      generatedPrompt: null
+      sceneIdea: '', // Reset for new scene
+      generatedPrompt: null // Reset prompt for new scene
     };
     
-    await addNewScene(newSceneData);
-    loadSceneDataToCurrentState({
-      ...newSceneData,
-      sceneNumber: currentProject.scenes.length + 1
-    });
+    console.log('[SCENE-MANAGEMENT] Creating new scene with inherited settings');
+    const updatedProject = await addNewScene(newSceneData);
     
-    setCurrentStep(1);
-    
-    setTimeout(() => {
-      scrollToStepContent(1);
-    }, 200);
+    if (updatedProject) {
+      // Load the new scene data (should be the last scene in the array)
+      const newScene = updatedProject.scenes[updatedProject.scenes.length - 1];
+      loadSceneDataToCurrentState(newScene);
+      
+      // Go to step 1 for the new scene
+      setCurrentStep(1);
+      
+      setTimeout(() => {
+        console.log('[SCENE-MANAGEMENT] New scene added, scrolling to step 1');
+        scrollToStepContent(1);
+      }, 200);
+    }
   };
 
   return {

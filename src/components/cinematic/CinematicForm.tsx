@@ -87,7 +87,7 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     isMultiScene
   };
 
-  // Use the enhanced prompt generation hook
+  // Use the enhanced prompt generation hook with improved error handling and logging
   const { handleGenerate, manualSaveToHistory, savingToHistory } = usePromptGeneration(
     user,
     subscription,
@@ -110,12 +110,13 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
 
   const handleLoadProjectFromSelector = async (projectId: string) => {
     try {
+      console.log('[CINEMATIC-FORM] Loading project from selector:', projectId);
       const project = await handleLoadProject(projectId);
       if (project) {
-        console.log('Project loaded and activated:', project);
+        console.log('[CINEMATIC-FORM] Project loaded and activated:', project.title);
       }
     } catch (error) {
-      console.error('Error loading project:', error);
+      console.error('[CINEMATIC-FORM] Error loading project:', error);
     }
   };
 

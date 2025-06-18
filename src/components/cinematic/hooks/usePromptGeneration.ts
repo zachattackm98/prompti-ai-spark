@@ -1,8 +1,9 @@
 
-import { useState } from 'react';
+import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { GeneratedPrompt, MultiSceneProject } from './types';
 import { useToast } from '@/hooks/use-toast';
+import { GeneratedPrompt, MultiSceneProject } from './types';
+import { saveSceneToHistory } from './database/sceneOperations';
 
 interface FormState {
   sceneIdea: string;
@@ -13,16 +14,8 @@ interface FormState {
   cameraSettings: any;
   lightingSettings: any;
   styleReference: string;
-  currentProject: MultiSceneProject | null;
-  isMultiScene: boolean;
-}
-
-interface PreviousScenePrompt {
-  sceneNumber: number;
-  sceneIdea: string;
-  mainPrompt: string;
-  technicalSpecs: string;
-  styleNotes: string;
+  currentProject?: MultiSceneProject | null;
+  isMultiScene?: boolean;
 }
 
 export const usePromptGeneration = (
@@ -35,281 +28,218 @@ export const usePromptGeneration = (
   setGeneratedPrompt: (prompt: GeneratedPrompt | null) => void,
   setIsLoading: (loading: boolean) => void,
   currentProject: MultiSceneProject | null,
-  updateScenePrompt: (sceneIndex: number, prompt: GeneratedPrompt) => void
+  updateScenePrompt?: (sceneIndex: number, prompt: GeneratedPrompt) => Promise<MultiSceneProject | null>
 ) => {
   const { toast } = useToast();
-  const [savingToHistory, setSavingToHistory] = useState(false);
 
-  const buildPreviousScenePrompts = (): PreviousScenePrompt[] => {
-    if (!currentProject || currentProject.currentSceneIndex === 0) {
-      return [];
-    }
-
-    const previousScenes = currentProject.scenes.slice(0, currentProject.currentSceneIndex);
+  const handleGenerate = useCallback(async () => {
+    console.log('[PROMPT-GENERATION] Starting prompt generation');
     
-    return previousScenes
-      .filter(scene => scene.generatedPrompt)
-      .map(scene => ({
-        sceneNumber: scene.sceneNumber,
-        sceneIdea: scene.sceneIdea,
-        mainPrompt: scene.generatedPrompt!.mainPrompt,
-        technicalSpecs: scene.generatedPrompt!.technicalSpecs,
-        styleNotes: scene.generatedPrompt!.styleNotes
-      }));
-  };
-
-  const savePromptToHistory = async (prompt: GeneratedPrompt, retryCount = 0): Promise<boolean> => {
-    const maxRetries = 3;
-    console.log(`[PROMPT-HISTORY] Attempting to save prompt to history (attempt ${retryCount + 1}/${maxRetries + 1})`);
-    
-    try {
-      // First, try to save to cinematic_projects and cinematic_scenes tables
-      let projectId = currentProject?.id;
-      
-      if (!projectId) {
-        console.log('[PROMPT-HISTORY] No current project, creating new project for history');
-        const { data: newProject, error: projectError } = await supabase
-          .from('cinematic_projects')
-          .insert({
-            title: `Project: ${formState.sceneIdea.substring(0, 30)}...`,
-            user_id: user.id,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .select()
-          .single();
-
-        if (projectError) {
-          console.error('[PROMPT-HISTORY] Error creating project:', projectError);
-          throw projectError;
-        }
-
-        projectId = newProject.id;
-        console.log('[PROMPT-HISTORY] Created new project:', projectId);
-      }
-
-      // Convert GeneratedPrompt to JSON-compatible format
-      const jsonPrompt = {
-        mainPrompt: prompt.mainPrompt,
-        technicalSpecs: prompt.technicalSpecs || '',
-        styleNotes: prompt.styleNotes || '',
-        platform: prompt.platform,
-        sceneNumber: prompt.sceneNumber,
-        totalScenes: prompt.totalScenes
-      };
-
-      // Save the scene with the generated prompt
-      const { data: scene, error: sceneError } = await supabase
-        .from('cinematic_scenes')
-        .insert({
-          project_id: projectId,
-          scene_idea: formState.sceneIdea,
-          selected_platform: formState.selectedPlatform,
-          selected_emotion: formState.selectedEmotion,
-          style_reference: formState.styleReference || '',
-          generated_prompt: jsonPrompt,
-          scene_number: prompt.sceneNumber || 1,
-          dialog_settings: formState.dialogSettings || {},
-          sound_settings: formState.soundSettings || {},
-          camera_settings: formState.cameraSettings || {},
-          lighting_settings: formState.lightingSettings || {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .select()
-        .single();
-
-      if (sceneError) {
-        console.error('[PROMPT-HISTORY] Error saving scene:', sceneError);
-        throw sceneError;
-      }
-
-      console.log('[PROMPT-HISTORY] Successfully saved scene to database:', scene.id);
-      return true;
-    } catch (error) {
-      console.error(`[PROMPT-HISTORY] Save attempt ${retryCount + 1} failed:`, error);
-      
-      if (retryCount < maxRetries) {
-        console.log(`[PROMPT-HISTORY] Retrying in ${(retryCount + 1) * 1000}ms...`);
-        await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 1000));
-        return savePromptToHistory(prompt, retryCount + 1);
-      }
-      
-      return false;
-    }
-  };
-
-  const manualSaveToHistory = async (prompt: GeneratedPrompt) => {
     if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to save prompts to history.",
-        variant: "destructive"
-      });
+      console.log('[PROMPT-GENERATION] User not authenticated, showing auth dialog');
+      setShowAuthDialog(true);
       return;
     }
 
-    setSavingToHistory(true);
-    
-    try {
-      const success = await savePromptToHistory(prompt);
-      
-      if (success) {
-        toast({
-          title: "Saved to History",
-          description: "Prompt has been saved to your history successfully.",
-        });
-        loadPromptHistory();
-      } else {
-        toast({
-          title: "Save Failed",
-          description: "Failed to save prompt to history after multiple attempts. Please try again.",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('[PROMPT-HISTORY] Manual save failed:', error);
+    if (!canUseFeature('cinematic_prompts')) {
+      console.log('[PROMPT-GENERATION] User cannot use cinematic prompts feature');
       toast({
-        title: "Save Error",
-        description: "An error occurred while saving to history.",
+        title: "Upgrade Required",
+        description: "Please upgrade your plan to generate cinematic prompts.",
         variant: "destructive"
       });
-    } finally {
-      setSavingToHistory(false);
-    }
-  };
-
-  const handleGenerate = async () => {
-    if (!user) {
-      setShowAuthDialog(true);
       return;
     }
 
     if (!formState.sceneIdea.trim()) {
       toast({
         title: "Scene Required",
-        description: "Please enter a scene idea before generating.",
+        description: "Please describe your scene idea before generating.",
         variant: "destructive"
       });
       return;
     }
 
-    console.log('[PROMPT-GENERATION] Starting prompt generation process');
     setIsLoading(true);
 
     try {
-      // Build enhanced context for multi-scene projects
-      let sceneNumber = 1;
-      let totalScenes = 1;
-      let isMultiScene = false;
-      let previousScenePrompts: PreviousScenePrompt[] = [];
-
-      if (currentProject && currentProject.scenes.length > 0) {
-        isMultiScene = true;
-        sceneNumber = currentProject.currentSceneIndex + 1;
-        totalScenes = currentProject.scenes.length;
-        previousScenePrompts = buildPreviousScenePrompts();
-        
-        console.log('[PROMPT-GENERATION] Multi-scene context:', {
-          isMultiScene,
-          sceneNumber,
-          totalScenes,
-          previousScenesWithPrompts: previousScenePrompts.length
-        });
-      }
-
-      const requestData = {
+      console.log('[PROMPT-GENERATION] Calling cinematic prompt generator API');
+      
+      const requestBody = {
         sceneIdea: formState.sceneIdea,
-        platform: formState.selectedPlatform,
-        emotion: formState.selectedEmotion,
-        styleReference: formState.styleReference,
+        selectedPlatform: formState.selectedPlatform,
+        selectedEmotion: formState.selectedEmotion,
         dialogSettings: formState.dialogSettings,
         soundSettings: formState.soundSettings,
         cameraSettings: formState.cameraSettings,
         lightingSettings: formState.lightingSettings,
-        tier: subscription.tier,
-        enhancedPrompts: canUseFeature('enhancedPrompts'),
-        previousScenePrompts,
-        sceneNumber,
-        totalScenes,
-        isMultiScene
+        styleReference: formState.styleReference,
+        sceneNumber: currentProject ? 
+          (currentProject.scenes[currentProject.currentSceneIndex]?.sceneNumber || 1) : 1,
+        totalScenes: currentProject ? currentProject.scenes.length : 1,
+        isMultiScene: !!currentProject
       };
 
-      console.log('[PROMPT-GENERATION] Calling cinematic-prompt-generator function');
+      console.log('[PROMPT-GENERATION] Request payload:', {
+        ...requestBody,
+        sceneIdea: requestBody.sceneIdea.substring(0, 50) + '...'
+      });
 
       const { data, error } = await supabase.functions.invoke('cinematic-prompt-generator', {
-        body: requestData
+        body: requestBody
       });
 
       if (error) {
-        console.error('[PROMPT-GENERATION] Function error:', error);
-        
-        if (error.message?.includes('limit exceeded') || error.message?.includes('usage limit')) {
-          toast({
-            title: "Usage Limit Reached",
-            description: "You've reached your monthly prompt limit. Please upgrade your plan or wait until next month.",
-            variant: "destructive"
-          });
-          return;
-        }
-        
+        console.error('[PROMPT-GENERATION] API error:', error);
         throw error;
       }
 
-      if (data?.prompt) {
-        console.log('[PROMPT-GENERATION] Prompt generated successfully');
-        
-        const generatedPrompt: GeneratedPrompt = {
-          ...data.prompt,
-          sceneNumber,
-          totalScenes
-        };
-        
-        setGeneratedPrompt(generatedPrompt);
-        
-        // Update the scene prompt in multi-scene project
-        if (currentProject) {
-          updateScenePrompt(currentProject.currentSceneIndex, generatedPrompt);
-        }
-        
-        // Attempt to save to history with better error handling
-        console.log('[PROMPT-GENERATION] Attempting to save to history');
-        const historySuccess = await savePromptToHistory(generatedPrompt);
-        
-        if (historySuccess) {
-          console.log('[PROMPT-GENERATION] Successfully saved to history');
-          toast({
-            title: "Prompt Generated",
-            description: "Your cinematic prompt has been generated and saved to history!",
-          });
-          loadPromptHistory();
-        } else {
-          console.warn('[PROMPT-GENERATION] Failed to save to history, but prompt was generated');
-          toast({
-            title: "Prompt Generated",
-            description: "Your prompt was generated successfully, but couldn't be saved to history. Use the manual save button below.",
-            variant: "destructive"
-          });
-        }
-      } else {
-        throw new Error('No prompt data received from the function');
+      if (!data || !data.prompt) {
+        console.error('[PROMPT-GENERATION] Invalid response data:', data);
+        throw new Error('Invalid response from prompt generator');
       }
-    } catch (error) {
-      console.error('[PROMPT-GENERATION] Generation failed:', error);
+
+      console.log('[PROMPT-GENERATION] Prompt generated successfully');
       
+      const generatedPrompt: GeneratedPrompt = {
+        mainPrompt: data.prompt.mainPrompt,
+        technicalSpecs: data.prompt.technicalSpecs,
+        styleNotes: data.prompt.styleNotes,
+        platform: formState.selectedPlatform,
+        sceneNumber: requestBody.sceneNumber,
+        totalScenes: requestBody.totalScenes
+      };
+
+      setGeneratedPrompt(generatedPrompt);
+
+      // If we're in a multi-scene project, update the scene with the new prompt
+      if (currentProject && updateScenePrompt) {
+        console.log('[PROMPT-GENERATION] Updating multi-scene project with new prompt');
+        await updateScenePrompt(currentProject.currentSceneIndex, generatedPrompt);
+      }
+
+      // Reload prompt history to show the new prompt
+      loadPromptHistory();
+
+      toast({
+        title: "Prompt Generated!",
+        description: "Your cinematic prompt has been created and saved to your history.",
+      });
+
+    } catch (error: any) {
+      console.error('[PROMPT-GENERATION] Generation failed:', error);
       toast({
         title: "Generation Failed",
-        description: error instanceof Error ? error.message : "Failed to generate prompt. Please try again.",
+        description: error.message || "Failed to generate cinematic prompt. Please try again.",
         variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [
+    user,
+    canUseFeature,
+    setShowAuthDialog,
+    formState,
+    setGeneratedPrompt,
+    setIsLoading,
+    currentProject,
+    updateScenePrompt,
+    loadPromptHistory,
+    toast
+  ]);
 
-  return { 
-    handleGenerate, 
+  const manualSaveToHistory = useCallback(async () => {
+    console.log('[PROMPT-GENERATION] Starting manual save to history');
+    
+    if (!user) {
+      console.log('[PROMPT-GENERATION] User not authenticated for manual save');
+      setShowAuthDialog(true);
+      return false;
+    }
+
+    // Get current scene data
+    let currentSceneData;
+    if (currentProject) {
+      currentSceneData = currentProject.scenes[currentProject.currentSceneIndex];
+      if (!currentSceneData) {
+        console.error('[PROMPT-GENERATION] No current scene data found');
+        toast({
+          title: "Save Failed",
+          description: "No scene data found to save.",
+          variant: "destructive"
+        });
+        return false;
+      }
+    } else {
+      // Create scene data from form state
+      currentSceneData = {
+        id: crypto.randomUUID(),
+        sceneNumber: 1,
+        sceneIdea: formState.sceneIdea,
+        selectedPlatform: formState.selectedPlatform,
+        selectedEmotion: formState.selectedEmotion,
+        dialogSettings: formState.dialogSettings,
+        soundSettings: formState.soundSettings,
+        cameraSettings: formState.cameraSettings,
+        lightingSettings: formState.lightingSettings,
+        styleReference: formState.styleReference,
+        generatedPrompt: null
+      };
+    }
+
+    if (!currentSceneData.generatedPrompt) {
+      console.warn('[PROMPT-GENERATION] No generated prompt to save');
+      toast({
+        title: "Nothing to Save",
+        description: "Generate a prompt first before saving to history.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    try {
+      const projectTitle = currentProject ? 
+        currentProject.title : 
+        `Manual Save - ${new Date().toLocaleDateString()}`;
+
+      console.log('[PROMPT-GENERATION] Saving to history with title:', projectTitle);
+      
+      const success = await saveSceneToHistory(currentSceneData, projectTitle);
+      
+      if (success) {
+        console.log('[PROMPT-GENERATION] Successfully saved to history');
+        toast({
+          title: "Saved to History!",
+          description: "Your prompt has been saved to your history.",
+        });
+        
+        // Reload history to show the new entry
+        loadPromptHistory();
+        return true;
+      } else {
+        console.error('[PROMPT-GENERATION] Failed to save to history');
+        toast({
+          title: "Save Failed",
+          description: "Failed to save prompt to history. Please try again.",
+          variant: "destructive"
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error('[PROMPT-GENERATION] Error during manual save:', error);
+      toast({
+        title: "Save Error",
+        description: "An error occurred while saving to history.",
+        variant: "destructive"
+      });
+      return false;
+    }
+  }, [user, currentProject, formState, setShowAuthDialog, loadPromptHistory, toast]);
+
+  return {
+    handleGenerate,
     manualSaveToHistory,
-    savingToHistory
+    savingToHistory: false // We can add a loading state later if needed
   };
 };
