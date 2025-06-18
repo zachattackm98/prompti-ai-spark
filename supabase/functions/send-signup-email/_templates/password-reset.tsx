@@ -36,11 +36,34 @@ export const PasswordResetEmail = ({
   redirect_to,
   user_email,
 }: PasswordResetEmailProps) => {
-  // Use token_hash for URL construction - this is the correct token for verification
-  const resetUrl = buildResetUrl(supabase_url, token_hash, email_action_type, redirect_to);
+  console.log('=== PASSWORD RESET EMAIL TEMPLATE DEBUG ===');
+  console.log('Received props:');
+  console.log('- token_hash:', token_hash ? `present (length: ${token_hash.length})` : 'missing');
+  console.log('- supabase_url:', supabase_url);
+  console.log('- email_action_type:', email_action_type);
+  console.log('- redirect_to:', redirect_to);
+  console.log('- user_email:', user_email);
   
-  console.log('Building reset URL with token_hash:', token_hash);
-  console.log('Final reset URL:', resetUrl);
+  // Validate token_hash before building URL
+  if (!token_hash) {
+    console.error('CRITICAL: token_hash is missing in email template');
+    throw new Error('Cannot render password reset email: token_hash is required');
+  }
+  
+  if (token_hash.length < 10) {
+    console.error('CRITICAL: token_hash is too short in email template, length:', token_hash.length);
+    throw new Error('Cannot render password reset email: token_hash appears invalid');
+  }
+  
+  // Use token_hash for URL construction - this is the correct token for verification
+  let resetUrl: string;
+  try {
+    resetUrl = buildResetUrl(supabase_url, token_hash, email_action_type, redirect_to);
+    console.log('Successfully built reset URL');
+  } catch (urlError) {
+    console.error('FAILED to build reset URL:', urlError);
+    throw new Error('Cannot render password reset email: ' + urlError.message);
+  }
   
   const securityItems = [
     '🔒 This link will expire in 1 hour for your security',
@@ -55,6 +78,8 @@ export const PasswordResetEmail = ({
     'Complete the password reset within 1 hour',
     'If the link doesn\'t work, request a new password reset'
   ];
+
+  console.log('=== EMAIL TEMPLATE RENDER SUCCESS ===');
 
   return (
     <Html>
