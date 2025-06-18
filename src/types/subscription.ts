@@ -21,9 +21,10 @@ export interface TierFeatures {
   apiAccess: boolean;
 }
 
+// Ensure these limits match the edge function constants exactly
 export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
   starter: {
-    maxPrompts: 5,
+    maxPrompts: 5, // Matches TIER_LIMITS.starter in edge function
     platforms: ['veo3', 'sora'],
     emotions: ['Dramatic', 'Uplifting', 'Mysterious', 'Serene'],
     cameraControls: false,
@@ -35,7 +36,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     apiAccess: false,
   },
   creator: {
-    maxPrompts: 500, // Changed from -1 to 500
+    maxPrompts: 500, // Matches TIER_LIMITS.creator in edge function
     platforms: ['veo3', 'sora', 'runway', 'pika'],
     emotions: ['Dramatic', 'Mysterious', 'Uplifting', 'Melancholic', 'Intense', 'Serene', 'Suspenseful', 'Romantic', 'Epic', 'Intimate'],
     cameraControls: true,
@@ -47,7 +48,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     apiAccess: false,
   },
   studio: {
-    maxPrompts: 1000, // Changed from -1 to 1000
+    maxPrompts: 1000, // Matches TIER_LIMITS.studio in edge function
     platforms: ['veo3', 'sora', 'runway', 'pika'],
     emotions: ['Dramatic', 'Mysterious', 'Uplifting', 'Melancholic', 'Intense', 'Serene', 'Suspenseful', 'Romantic', 'Epic', 'Intimate'],
     cameraControls: true,
