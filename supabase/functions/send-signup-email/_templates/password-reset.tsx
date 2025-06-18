@@ -36,34 +36,13 @@ export const PasswordResetEmail = ({
   redirect_to,
   user_email,
 }: PasswordResetEmailProps) => {
-  console.log('=== PASSWORD RESET EMAIL TEMPLATE DEBUG ===');
-  console.log('Received props:');
-  console.log('- token_hash:', token_hash ? `present (length: ${token_hash.length})` : 'missing');
-  console.log('- supabase_url:', supabase_url);
-  console.log('- email_action_type:', email_action_type);
-  console.log('- redirect_to:', redirect_to);
-  console.log('- user_email:', user_email);
+  console.log('Password reset email - token_hash:', token_hash ? 'present' : 'missing');
   
-  // Validate token_hash before building URL
   if (!token_hash) {
-    console.error('CRITICAL: token_hash is missing in email template');
-    throw new Error('Cannot render password reset email: token_hash is required');
+    throw new Error('token_hash is required for password reset email');
   }
   
-  if (token_hash.length < 10) {
-    console.error('CRITICAL: token_hash is too short in email template, length:', token_hash.length);
-    throw new Error('Cannot render password reset email: token_hash appears invalid');
-  }
-  
-  // Use token_hash for URL construction - this is the correct token for verification
-  let resetUrl: string;
-  try {
-    resetUrl = buildResetUrl(supabase_url, token_hash, email_action_type, redirect_to);
-    console.log('Successfully built reset URL');
-  } catch (urlError) {
-    console.error('FAILED to build reset URL:', urlError);
-    throw new Error('Cannot render password reset email: ' + urlError.message);
-  }
+  const resetUrl = buildResetUrl(supabase_url, token_hash, email_action_type, redirect_to);
   
   const securityItems = [
     '🔒 This link will expire in 1 hour for your security',
@@ -71,15 +50,6 @@ export const PasswordResetEmail = ({
     '🛡️ Only use this link if you requested a password reset',
     '⚠️ If you didn\'t request this, please ignore this email and your account remains secure'
   ];
-
-  const importantTips = [
-    'Click the button above rather than copying the link when possible',
-    'Do not share this email or link with anyone',
-    'Complete the password reset within 1 hour',
-    'If the link doesn\'t work, request a new password reset'
-  ];
-
-  console.log('=== EMAIL TEMPLATE RENDER SUCCESS ===');
 
   return (
     <Html>
@@ -98,22 +68,15 @@ export const PasswordResetEmail = ({
           </Text>
           
           <Text style={emailStyles.text}>
-            <strong>Important:</strong> This link expires in 1 hour and can only be used once. Click the button below to reset your password immediately:
+            <strong>Important:</strong> This link expires in 1 hour and can only be used once. Click the button below to reset your password:
           </Text>
           
           <ResetButton href={resetUrl}>
             Reset Your Password Now
           </ResetButton>
           
-          <Section style={emailStyles.securitySection}>
-            <Text style={emailStyles.securityTitle}>🚨 Important Instructions:</Text>
-            {importantTips.map((tip, index) => (
-              <Text key={index} style={emailStyles.securityItem}>• {tip}</Text>
-            ))}
-          </Section>
-          
           <Text style={emailStyles.text}>
-            <strong>If the button doesn't work,</strong> copy and paste this link in your browser (but use it quickly):
+            <strong>If the button doesn't work,</strong> copy and paste this link in your browser:
           </Text>
           
           <Link
@@ -127,10 +90,6 @@ export const PasswordResetEmail = ({
             title="Security Information:"
             items={securityItems}
           />
-          
-          <Text style={emailStyles.footerText}>
-            <strong>Troubleshooting:</strong> If you're having trouble with this reset link, it may have expired. Simply request a new password reset from the login page. If you continue to have issues, this usually means the link was used already or has expired - just request a fresh one.
-          </Text>
           
           <Text style={emailStyles.footerText}>
             If you didn't request a password reset, you can safely ignore this email. Your account remains secure and no changes have been made.
