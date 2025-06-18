@@ -29,7 +29,8 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
   );
 
   const { 
-    createCheckout, 
+    createCheckout,
+    createOptimisticCheckout,
     openCustomerPortal,
     fetchBillingData,
     downloadInvoice
@@ -50,6 +51,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
       checkSubscription,
       verifySubscriptionStatus,
       createCheckout,
+      createOptimisticCheckout,
       openCustomerPortal,
       fetchBillingData,
       downloadInvoice,
