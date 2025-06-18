@@ -29,6 +29,7 @@ Deno.serve(async (req) => {
 
     console.log('Processing email for:', user.email)
     console.log('Email action type:', email_action_type)
+    console.log('Redirect URL received:', redirect_to)
 
     let html: string
     let subject: string
@@ -42,7 +43,7 @@ Deno.serve(async (req) => {
         supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
         token,
         token_hash,
-        redirect_to: redirect_to || 'https://aipromptmachine.com',
+        redirect_to: redirect_to || 'https://lovable.dev',
         email_action_type,
         user_email: user.email,
       })
@@ -51,12 +52,13 @@ Deno.serve(async (req) => {
       
     } else if (email_action_type === 'recovery') {
       console.log('Processing password reset email')
+      console.log('Using redirect_to for password reset:', redirect_to)
       
       emailTemplate = React.createElement(PasswordResetEmail, {
         supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
         token,
         token_hash,
-        redirect_to: redirect_to || 'https://aipromptmachine.com/reset-password',
+        redirect_to: redirect_to || 'https://lovable.dev/reset-password',
         email_action_type,
         user_email: user.email,
       })
@@ -93,7 +95,7 @@ Deno.serve(async (req) => {
       headers: { 'Content-Type': 'application/json' },
     })
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in send-signup-email function:', error)
     
     return new Response(
