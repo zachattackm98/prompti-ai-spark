@@ -19,14 +19,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [confirmationSuccess, setConfirmationSuccess] = useState(false);
   const { toast } = useToast();
   
-  // Track initialization to prevent unnecessary auth param processing
-  const isInitializedRef = useRef(false);
+  // Track last processed URL to prevent duplicate processing
+  const lastProcessedUrlRef = useRef<string>('');
   const lastSessionIdRef = useRef<string | null>(null);
 
-  // Memoize auth parameter handler to prevent unnecessary re-renders
+  // Process auth parameters when URL contains tokens
   const handleAuthParams = useCallback(async () => {
-    // Only process auth params once during initialization
-    if (isInitializedRef.current) return;
+    const currentUrl = window.location.href;
+    
+    // Skip if we've already processed this exact URL
+    if (currentUrl === lastProcessedUrlRef.current) {
+      console.log('[AUTH] URL already processed, skipping');
+      return;
+    }
     
     const hash = window.location.hash;
     const searchParams = new URLSearchParams(window.location.search);
@@ -34,6 +39,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Check hash parameters (legacy)
     if (hash && hash.includes('access_token')) {
       console.log('[AUTH] Found access_token in hash, parsing parameters');
+      lastProcessedUrlRef.current = currentUrl;
       await processHashAuth(hash, toast, setConfirmationSuccess);
       return;
     }
@@ -45,6 +51,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     
     if (accessToken && refreshToken) {
       console.log('[AUTH] Found tokens in URL params, type:', type);
+      lastProcessedUrlRef.current = currentUrl;
       await processUrlAuth(accessToken, refreshToken, type, toast, setConfirmationSuccess);
     }
   }, [toast]);
@@ -54,7 +61,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const currentSessionId = session?.access_token?.substring(0, 20) || null;
     
     // Skip if this is the same session (prevents duplicate processing)
-    if (currentSessionId === lastSessionIdRef.current && isInitializedRef.current) {
+    if (currentSessionId === lastSessionIdRef.current && currentSessionId !== null) {
       console.log('[AUTH] Same session detected, skipping state change');
       return;
     }
@@ -81,6 +88,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setConfirmationSuccess(false);
       // Clear session tracking
       lastSessionIdRef.current = null;
+      // Clear processed URL tracking
+      lastProcessedUrlRef.current = '';
     }
   }, []);
 
@@ -90,10 +99,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     let mounted = true;
 
-    // Handle auth parameters first (only once)
-    if (!isInitializedRef.current) {
-      handleAuthParams();
-    }
+    // Always check for auth parameters in the URL
+    handleAuthParams();
 
     // Set up auth state listener with proper cleanup
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
@@ -107,7 +114,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        isInitializedRef.current = true;
       }
     });
 
@@ -124,6 +130,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setSession(null);
       setConfirmationSuccess(false);
       lastSessionIdRef.current = null;
+      lastProcessedUrlRef.current = '';
     }
     return result;
   };
