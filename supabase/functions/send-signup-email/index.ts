@@ -63,7 +63,41 @@ Deno.serve(async (req) => {
       
     } else if (email_action_type === 'recovery') {
       console.log('Processing password reset email')
-      console.log('Using token_hash for reset URL:', token_hash)
+      
+      // CRITICAL: Validate token_hash before proceeding
+      if (!token_hash) {
+        console.error('CRITICAL ERROR: token_hash is missing for password reset');
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Missing token_hash for password reset',
+              details: 'token_hash is required for password reset URLs',
+            },
+          }),
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
+      
+      if (token_hash.length < 10) {
+        console.error('CRITICAL ERROR: token_hash appears invalid, length:', token_hash.length);
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Invalid token_hash for password reset',
+              details: 'token_hash appears to be malformed',
+            },
+          }),
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
+      
+      console.log('Using validated token_hash for reset URL (length:', token_hash.length, ')');
       
       // Use production URL as fallback for password reset
       const finalResetUrl = redirect_to || getProductionUrl('/reset-password');
@@ -86,7 +120,23 @@ Deno.serve(async (req) => {
     }
 
     // Render the email template
-    html = await renderAsync(emailTemplate)
+    try {
+      html = await renderAsync(emailTemplate)
+    } catch (templateError: any) {
+      console.error('Error rendering email template:', templateError)
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Failed to render email template',
+            details: templateError.message,
+          },
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
 
     console.log('Sending email via Resend to:', user.email)
 
