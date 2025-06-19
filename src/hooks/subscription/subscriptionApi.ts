@@ -15,7 +15,7 @@ export interface BillingDetails {
 }
 
 export const checkSubscription = async () => {
-  console.log('[SUBSCRIPTION] Checking subscription...');
+  console.log('[SUBSCRIPTION] Starting subscription check...');
   
   const session = await supabase.auth.getSession();
   if (!session.data.session?.access_token) {
@@ -30,6 +30,9 @@ export const checkSubscription = async () => {
       headers: {
         Authorization: `Bearer ${session.data.session.access_token}`,
         'Content-Type': 'application/json',
+        // Add cache-busting header
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
       },
     });
 
@@ -38,30 +41,25 @@ export const checkSubscription = async () => {
       throw error;
     }
 
-    console.log('[SUBSCRIPTION] Response from check-subscription:', data);
+    console.log('[SUBSCRIPTION] Raw response from check-subscription:', data);
     
-    // Clear any cached data if subscription status has changed significantly
-    const cachedData = localStorage.getItem('subscription_cache');
-    if (cachedData) {
-      try {
-        const cached = JSON.parse(cachedData);
-        const statusChanged = cached.subscribed !== data.subscribed || 
-                            cached.subscription_tier !== data.subscription_tier ||
-                            (data.billing_details?.cancel_at_period_end && !cached.cancel_at_period_end);
-        
-        if (statusChanged) {
-          console.log('[SUBSCRIPTION] Status changed, clearing cache');
-          localStorage.removeItem('subscription_cache');
-          sessionStorage.removeItem('pending_tier');
-          sessionStorage.removeItem('optimistic_update');
-        }
-      } catch (e) {
-        console.log('[SUBSCRIPTION] Error parsing cached data, clearing cache');
-        localStorage.removeItem('subscription_cache');
-      }
+    // Validate the response structure
+    if (!data || typeof data !== 'object') {
+      console.error('[SUBSCRIPTION] Invalid response format:', data);
+      throw new Error('Invalid response format from subscription check');
     }
     
-    return data;
+    // Ensure we have the required fields
+    const validatedData = {
+      subscribed: Boolean(data.subscribed),
+      subscription_tier: data.subscription_tier || 'starter',
+      subscription_end: data.subscription_end || null,
+      billing_details: data.billing_details || null
+    };
+    
+    console.log('[SUBSCRIPTION] Validated subscription data:', validatedData);
+    
+    return validatedData;
   } catch (error) {
     console.error('[SUBSCRIPTION] Failed to check subscription:', error);
     throw error;
@@ -85,9 +83,8 @@ export const createCheckoutSession = async (planType: 'creator' | 'studio') => {
   console.log('[SUBSCRIPTION] Invoking create-checkout function with planType:', planType);
 
   try {
-    // Remove Content-Type header and let Supabase handle serialization
     const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: { planType }, // Pass as plain object
+      body: { planType },
       headers: {
         Authorization: `Bearer ${session.data.session.access_token}`,
       },
@@ -173,10 +170,28 @@ export const showToast = (title: string, description: string, variant?: 'default
   });
 };
 
-// Helper function to force clear all subscription cache
+// Enhanced cache clearing function
 export const clearSubscriptionCache = () => {
-  console.log('[SUBSCRIPTION] Clearing all subscription cache');
+  console.log('[SUBSCRIPTION] Clearing all subscription cache and storage');
+  
+  // Clear localStorage cache
   localStorage.removeItem('subscription_cache');
+  
+  // Clear sessionStorage cache
   sessionStorage.removeItem('pending_tier');
   sessionStorage.removeItem('optimistic_update');
+  sessionStorage.removeItem('subscription_data');
+  
+  // Clear any browser cache related to subscription
+  if ('caches' in window) {
+    caches.keys().then(names => {
+      names.forEach(name => {
+        if (name.includes('subscription') || name.includes('supabase')) {
+          caches.delete(name);
+        }
+      });
+    });
+  }
+  
+  console.log('[SUBSCRIPTION] All subscription cache cleared');
 };

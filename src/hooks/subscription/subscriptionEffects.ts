@@ -27,24 +27,36 @@ export const useSubscriptionEffects = (
     
     try {
       console.log('[SUBSCRIPTION] Checking subscription for user:', user.email, `(attempt ${retryCount + 1})`);
+      
+      // Clear all cache before checking to ensure fresh data
+      console.log('[SUBSCRIPTION] Clearing all cache for fresh check');
+      clearSubscriptionCache();
+      
       const data = await apiCheckSubscription();
 
-      console.log('[SUBSCRIPTION] Subscription data received:', data);
+      console.log('[SUBSCRIPTION] Raw subscription data received:', data);
       
-      // Handle subscription state properly
+      // Handle subscription state properly with detailed logging
       const isSubscribed = data.subscribed || false;
       const isCancelling = data.billing_details?.cancel_at_period_end || false;
       const subscriptionTier = data.subscription_tier || 'starter';
-      
-      // For starter tier users, they should be considered active for basic features
-      // For paid subscriptions, only active if actually subscribed
-      const effectivelyActive = subscriptionTier === 'starter' ? true : isSubscribed;
       
       console.log('[SUBSCRIPTION] Processing subscription state:', {
         isSubscribed,
         isCancelling,
         subscriptionTier,
-        effectivelyActive
+        rawData: data
+      });
+      
+      // For starter tier users, they should be considered active for basic features
+      // For paid subscriptions, only active if actually subscribed
+      const effectivelyActive = subscriptionTier === 'starter' ? true : isSubscribed;
+      
+      console.log('[SUBSCRIPTION] Final subscription state:', {
+        tier: subscriptionTier,
+        isActive: effectivelyActive,
+        isCancelling: isCancelling,
+        expiresAt: data.subscription_end
       });
       
       setSubscription({
@@ -56,21 +68,25 @@ export const useSubscriptionEffects = (
 
       setBillingDetails(data.billing_details || null);
       
-      console.log('[SUBSCRIPTION] Subscription state updated:', {
-        tier: subscriptionTier,
-        isActive: effectivelyActive,
-        isCancelling: isCancelling,
-        expiresAt: data.subscription_end
-      });
-
       // Store successful subscription data in localStorage for persistence
-      localStorage.setItem('subscription_cache', JSON.stringify({
+      const cacheData = {
         tier: subscriptionTier,
         isActive: effectivelyActive,
         isCancelling: isCancelling,
         expiresAt: data.subscription_end,
         timestamp: Date.now()
-      }));
+      };
+      
+      console.log('[SUBSCRIPTION] Storing cache data:', cacheData);
+      localStorage.setItem('subscription_cache', JSON.stringify(cacheData));
+
+      // Show success toast for paid subscriptions
+      if (subscriptionTier !== 'starter' && isSubscribed) {
+        showToast(
+          "Subscription Active",
+          `Your ${subscriptionTier} subscription is active and ready to use.`
+        );
+      }
 
     } catch (error: any) {
       console.error('[SUBSCRIPTION] Error checking subscription:', error);
@@ -98,38 +114,9 @@ export const useSubscriptionEffects = (
         "destructive"
       );
       
-      // Try to load from cache as fallback
-      const cachedData = localStorage.getItem('subscription_cache');
-      if (cachedData) {
-        try {
-          const cached = JSON.parse(cachedData);
-          const cacheAge = Date.now() - cached.timestamp;
-          
-          // Only use cache if it's recent (less than 5 minutes)
-          if (cacheAge < 5 * 60 * 1000) {
-            console.log('[SUBSCRIPTION] Loading from cache:', cached);
-            setSubscription({
-              tier: cached.tier,
-              isActive: cached.isActive,
-              isCancelling: cached.isCancelling || false,
-              expiresAt: cached.expiresAt,
-            });
-          } else {
-            console.log('[SUBSCRIPTION] Cache too old, clearing');
-            clearSubscriptionCache();
-            // Default to active starter for users when cache fails
-            setSubscription({ tier: 'starter', isActive: true });
-          }
-        } catch (e) {
-          console.error('[SUBSCRIPTION] Failed to parse cached data');
-          clearSubscriptionCache();
-          // Default to active starter for users when cache fails
-          setSubscription({ tier: 'starter', isActive: true });
-        }
-      } else {
-        // Default to active starter for users when no cache
-        setSubscription({ tier: 'starter', isActive: true });
-      }
+      // Clear cache and set to starter as fallback
+      clearSubscriptionCache();
+      setSubscription({ tier: 'starter', isActive: true });
       setBillingDetails(null);
     } finally {
       if (!skipLoadingState) setLoading(false);
@@ -137,7 +124,10 @@ export const useSubscriptionEffects = (
   };
 
   const verifySubscriptionStatus = async () => {
-    console.log('[SUBSCRIPTION] Starting subscription verification');
+    console.log('[SUBSCRIPTION] Starting subscription verification - forcing fresh check');
+    
+    // Clear all cache and force fresh check
+    clearSubscriptionCache();
     
     // Single definitive check
     await checkSubscription();
@@ -149,7 +139,7 @@ export const useSubscriptionEffects = (
     const checkout = urlParams.get('checkout');
     
     if (checkout === 'success') {
-      console.log('[SUBSCRIPTION] Checkout success detected');
+      console.log('[SUBSCRIPTION] Checkout success detected - clearing cache and verifying');
       
       showToast(
         "Payment Successful!",
@@ -184,29 +174,27 @@ export const useSubscriptionEffects = (
     }
   }, []);
 
-  // Optimized subscription check - only check when user actually changes (not just state updates)
+  // Force fresh subscription check when user changes
   useEffect(() => {
     const currentUserId = user?.id || null;
     
-    // Skip if this is the same user (prevents tab focus reload issues)
-    if (currentUserId === lastUserIdRef.current && isInitializedRef.current) {
-      console.log('[SUBSCRIPTION] User state update detected but same user, skipping check');
-      return;
+    // Check if this is a new user or initial load
+    if (currentUserId !== lastUserIdRef.current || !isInitializedRef.current) {
+      console.log('[SUBSCRIPTION] User changed or initial load:', {
+        previousUserId: lastUserIdRef.current,
+        currentUserId,
+        isInitialized: isInitializedRef.current
+      });
+
+      // Update refs
+      lastUserIdRef.current = currentUserId;
+      isInitializedRef.current = true;
+
+      // Force fresh check for any user change
+      console.log('[SUBSCRIPTION] Forcing fresh subscription check');
+      verifySubscriptionStatus();
     }
-
-    console.log('[SUBSCRIPTION] User changed:', {
-      previousUserId: lastUserIdRef.current,
-      currentUserId,
-      isInitialized: isInitializedRef.current
-    });
-
-    // Update refs
-    lastUserIdRef.current = currentUserId;
-    isInitializedRef.current = true;
-
-    // Check subscription for new user or initial load
-    checkSubscription();
-  }, [user?.id]); // Only depend on user.id, not entire user object
+  }, [user?.id]);
 
   return {
     checkSubscription,

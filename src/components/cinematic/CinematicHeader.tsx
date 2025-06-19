@@ -2,7 +2,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, Film, Sparkles, History, LogOut, User } from 'lucide-react';
+import { Camera, Film, Sparkles, History, LogOut, User, RefreshCw } from 'lucide-react';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface CinematicHeaderProps {
   user: any;
@@ -19,6 +20,15 @@ const CinematicHeader: React.FC<CinematicHeaderProps> = ({
   setShowHistory,
   onSignOut
 }) => {
+  const { refreshSubscription } = useSubscription();
+
+  const handleRefreshSubscription = async () => {
+    console.log('[SUBSCRIPTION] Manual refresh requested from header');
+    if (refreshSubscription) {
+      await refreshSubscription();
+    }
+  };
+
   return (
     <div className="flex flex-col lg:flex-row justify-between items-center gap-4 lg:gap-0 mb-6 sm:mb-8">
       {/* Title Section */}
@@ -76,6 +86,18 @@ const CinematicHeader: React.FC<CinematicHeaderProps> = ({
             >
               <History className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               History
+            </Button>
+            
+            {/* Debug: Refresh Subscription Button */}
+            <Button
+              onClick={handleRefreshSubscription}
+              variant="outline"
+              size="sm"
+              className="border-white/20 text-white hover:bg-white/10 bg-slate-800/40 w-full sm:w-auto text-xs sm:text-sm"
+              title="Refresh subscription status"
+            >
+              <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              Refresh
             </Button>
             
             {/* User Info and Sign Out */}

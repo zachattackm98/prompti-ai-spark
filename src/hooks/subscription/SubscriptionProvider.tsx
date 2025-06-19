@@ -3,8 +3,8 @@ import React, { createContext } from 'react';
 import { useAuth } from '../useAuth';
 import { SubscriptionContextType } from './subscriptionTypes';
 import { useSubscriptionState } from './subscriptionState';
-import { useSubscriptionEffects } from './useSubscriptionEffects';
-import { useSubscriptionOperations } from './useSubscriptionOperations';
+import { useSubscriptionEffects } from './subscriptionEffects';
+import { useSubscriptionOperations } from './subscriptionOperations';
 import { createSubscriptionHelpers } from './subscriptionHelpers';
 
 export const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -38,6 +38,12 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
 
   const subscriptionHelpers = createSubscriptionHelpers(subscription);
 
+  // Add manual refresh function for debugging
+  const refreshSubscription = async () => {
+    console.log('[SUBSCRIPTION] Manual refresh triggered');
+    await verifySubscriptionStatus();
+  };
+
   return (
     <SubscriptionContext.Provider value={{
       subscription,
@@ -45,6 +51,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
       loading,
       checkSubscription,
       verifySubscriptionStatus,
+      refreshSubscription,
       createCheckout,
       createOptimisticCheckout,
       openCustomerPortal,
