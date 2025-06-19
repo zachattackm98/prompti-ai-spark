@@ -5,6 +5,7 @@ import { usePromptGeneration } from './hooks/usePromptGeneration';
 import { useCinematicFormActions } from './hooks/useCinematicFormActions';
 import { useProjectLoading } from './hooks/useProjectLoading';
 import { useSubscriptionLimits } from './hooks/useSubscriptionLimits';
+import { useHistoryActions } from './hooks/useHistoryActions';
 
 // Re-export types for backward compatibility
 export type { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './hooks/types';
@@ -85,8 +86,7 @@ export const useCinematicForm = (
     handleGenerateNew,
     handleContinueScene,
     handleSceneSelect,
-    handleAddScene,
-    handleStartProjectFromHistory
+    handleAddScene
   } = useCinematicFormActions(
     resetForm,
     setCurrentStep,
@@ -108,6 +108,13 @@ export const useCinematicForm = (
   );
 
   const { canAddMoreScenes } = useSubscriptionLimits(subscription, currentProject);
+
+  // Use the proper history actions hook
+  const { handleStartProjectFromHistory } = useHistoryActions(
+    startNewProject,
+    loadSceneDataToCurrentState,
+    setCurrentStep
+  );
 
   return {
     currentStep,
