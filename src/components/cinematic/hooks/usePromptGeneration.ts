@@ -69,10 +69,10 @@ export const usePromptGeneration = (
         scene_idea: formState.sceneIdea,
         selected_platform: formState.selectedPlatform,
         selected_emotion: formState.selectedEmotion,
-        dialog_settings: formState.dialogSettings,
-        sound_settings: formState.soundSettings,
-        camera_settings: formState.cameraSettings,
-        lighting_settings: formState.lightingSettings,
+        dialog_settings: formState.dialogSettings as any,
+        sound_settings: formState.soundSettings as any,
+        camera_settings: formState.cameraSettings as any,
+        lighting_settings: formState.lightingSettings as any,
         style_reference: formState.styleReference,
         generated_prompt: generatedPrompt as any // Cast to Json type for database
       };
