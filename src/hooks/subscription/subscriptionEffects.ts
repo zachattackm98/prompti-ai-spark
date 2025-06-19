@@ -161,7 +161,10 @@ export const useSubscriptionEffects = (
       // Clear all cache and pending states
       clearSubscriptionCache();
       
-      // Give Stripe and our webhook time to process, then verify
+      // IMMEDIATE verification - this is the key change
+      verifySubscriptionStatus();
+      
+      // Give Stripe and our webhook time to process, then verify again as backup
       setTimeout(() => {
         verifySubscriptionStatus();
       }, 3000);
