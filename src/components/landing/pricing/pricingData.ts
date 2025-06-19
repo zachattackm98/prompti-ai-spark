@@ -11,7 +11,7 @@ export const pricingPlans: PricingPlan[] = [
     features: [
       "5 prompts per month",
       "2 AI video platforms (Veo3, Sora)",
-      "4 basic emotions/moods",
+      "10 cinematic emotions/moods",
       "Standard prompt quality",
       "Email support"
     ],
@@ -30,7 +30,7 @@ export const pricingPlans: PricingPlan[] = [
       "All 4 AI video platforms",
       "10 cinematic emotions/moods", 
       "Professional camera controls",
-      "Advanced lighting & visual styles",
+      "Enhanced visual styles",
       "Enhanced prompt quality",
       "Priority support",
       "Batch processing",
@@ -50,6 +50,7 @@ export const pricingPlans: PricingPlan[] = [
     features: [
       "1000 prompts per month",
       "Everything in Creator",
+      "Advanced lighting controls",
       "Team collaboration",
       "Priority access to new platforms",
       "Custom brand style guides",
