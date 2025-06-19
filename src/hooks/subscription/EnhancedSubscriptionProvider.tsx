@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext } from 'react';
 import { useEnhancedSubscription } from './useEnhancedSubscription';
-import { SubscriptionTier, TIER_FEATURES } from '@/types/subscription';
+import { SubscriptionTier, TIER_FEATURES, TierFeatures } from '@/types/subscription';
 
 interface EnhancedSubscriptionContextType {
   // Core data
@@ -13,7 +13,7 @@ interface EnhancedSubscriptionContextType {
   hasReachedLimit: boolean;
   
   // Enhanced methods
-  canUseFeature: (feature: keyof typeof TIER_FEATURES[SubscriptionTier]) => boolean;
+  canUseFeature: (feature: keyof TierFeatures) => boolean;
   validateUsageForGeneration: () => any;
   createCheckout: (tier: 'creator' | 'studio') => Promise<void>;
   forceRefresh: () => Promise<void>;
@@ -22,11 +22,14 @@ interface EnhancedSubscriptionContextType {
   needsRefresh: boolean;
   usageUrgency: 'low' | 'medium' | 'high' | 'critical';
   
+  // Features (added missing property)
+  features: TierFeatures;
+  
   // Legacy operations
   createOptimisticCheckout: (tier: 'creator' | 'studio') => Promise<void>;
   openCustomerPortal: () => Promise<void>;
   fetchBillingData: () => Promise<any>;
-  downloadInvoice: () => Promise<void>;
+  downloadInvoice: (invoiceId: string, downloadUrl: string) => Promise<void>;
   checkSubscription: () => Promise<void>;
   verifySubscriptionStatus: () => Promise<void>;
 }

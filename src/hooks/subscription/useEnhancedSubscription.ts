@@ -7,7 +7,7 @@ import { useSubscriptionOperations } from './useSubscriptionOperations';
 import { SubscriptionService } from '@/services/subscriptionService';
 import { UsageService } from '@/services/usageService';
 import { usePromptUsage } from '../usePromptUsage';
-import { SubscriptionTier, UserSubscription } from '@/types/subscription';
+import { SubscriptionTier, UserSubscription, TIER_FEATURES, TierFeatures } from '@/types/subscription';
 
 export const useEnhancedSubscription = () => {
   const { user } = useAuth();
@@ -36,8 +36,11 @@ export const useEnhancedSubscription = () => {
 
   const subscriptionOperations = useSubscriptionOperations(user, setLoading);
 
+  // Get features for current tier
+  const features = TIER_FEATURES[subscription.tier];
+
   // Enhanced feature access check
-  const canUseFeature = useCallback((feature: keyof typeof TIER_FEATURES[SubscriptionTier]) => {
+  const canUseFeature = useCallback((feature: keyof TierFeatures) => {
     const canAccess = SubscriptionService.canAccessFeature(subscription, feature);
     
     console.log('[ENHANCED-SUBSCRIPTION] Feature access check:', {
@@ -115,6 +118,9 @@ export const useEnhancedSubscription = () => {
     // Usage data
     usage,
     hasReachedLimit,
+    
+    // Features
+    features,
     
     // Enhanced methods
     canUseFeature,

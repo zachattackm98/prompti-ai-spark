@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { EnhancedSubscriptionProvider } from "@/hooks/subscription/EnhancedSubscriptionProvider";
 import Index from "./pages/Index";
-import AccountPage from "./pages/AccountPage";
+import Account from "./pages/Account";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +21,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/account" element={<AccountPage />} />
+              <Route path="/account" element={<Account />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
