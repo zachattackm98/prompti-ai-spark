@@ -1,12 +1,8 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { getAuthRedirectUrl, logEnvironmentInfo } from '@/utils/environmentUtils';
 
 export const signUp = async (email: string, password: string, fullName?: string) => {
-  logEnvironmentInfo();
-  
-  const redirectUrl = getAuthRedirectUrl('/');
-  console.log('[AUTH] SignUp redirect URL:', redirectUrl);
+  const redirectUrl = `${window.location.origin}/`;
   
   const { error } = await supabase.auth.signUp({
     email,
@@ -56,61 +52,17 @@ export const signOut = async (session: any) => {
 };
 
 export const resetPassword = async (email: string) => {
-  logEnvironmentInfo();
+  const redirectUrl = `${window.location.origin}/`;
   
-  const redirectUrl = getAuthRedirectUrl('/reset-password');
-  console.log('[AUTH] Password reset redirect URL:', redirectUrl);
-  
-  try {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: redirectUrl,
-    });
-    
-    if (error) {
-      console.error('[AUTH] Reset password error:', error);
-    } else {
-      console.log('[AUTH] Reset password email sent successfully');
-    }
-    
-    return { error };
-  } catch (err: any) {
-    console.error('[AUTH] Reset password exception:', err);
-    return { error: err };
-  }
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: redirectUrl,
+  });
+  return { error };
 };
 
 export const updatePassword = async (password: string) => {
-  try {
-    console.log('[AUTH] Attempting to update password');
-    
-    // First check if we have a valid session
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError) {
-      console.error('[AUTH] Session error before password update:', sessionError);
-      return { error: sessionError };
-    }
-    
-    if (!sessionData.session) {
-      console.error('[AUTH] No active session for password update');
-      return { error: new Error('No active session. Please use the reset link again.') };
-    }
-    
-    console.log('[AUTH] Valid session found, proceeding with password update');
-    
-    const { error } = await supabase.auth.updateUser({
-      password: password
-    });
-    
-    if (error) {
-      console.error('[AUTH] Password update error:', error);
-    } else {
-      console.log('[AUTH] Password updated successfully');
-    }
-    
-    return { error };
-  } catch (err: any) {
-    console.error('[AUTH] Password update exception:', err);
-    return { error: err };
-  }
+  const { error } = await supabase.auth.updateUser({
+    password: password
+  });
+  return { error };
 };

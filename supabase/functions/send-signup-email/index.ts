@@ -8,11 +8,6 @@ import { PasswordResetEmail } from './_templates/password-reset.tsx'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
 
-// Environment-aware URL helper
-const getProductionUrl = (path: string = '') => {
-  return `https://www.aipromptmachine.com${path}`;
-};
-
 Deno.serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 })
@@ -22,7 +17,7 @@ Deno.serve(async (req) => {
     const payload = await req.text()
     const headers = Object.fromEntries(req.headers)
     
-    console.log('Received email webhook');
+    console.log('Received email webhook payload')
     
     // Parse the webhook payload
     const webhookData = JSON.parse(payload)
@@ -34,7 +29,6 @@ Deno.serve(async (req) => {
 
     console.log('Processing email for:', user.email)
     console.log('Email action type:', email_action_type)
-    console.log('Token hash present:', token_hash ? 'yes' : 'no')
 
     let html: string
     let subject: string
@@ -44,13 +38,11 @@ Deno.serve(async (req) => {
     if (email_action_type === 'signup') {
       console.log('Processing signup confirmation email')
       
-      const finalRedirectUrl = redirect_to || getProductionUrl('/');
-      
       emailTemplate = React.createElement(SignupConfirmationEmail, {
         supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
         token,
         token_hash,
-        redirect_to: finalRedirectUrl,
+        redirect_to: redirect_to || 'https://aipromptmachine.com',
         email_action_type,
         user_email: user.email,
       })
@@ -60,18 +52,11 @@ Deno.serve(async (req) => {
     } else if (email_action_type === 'recovery') {
       console.log('Processing password reset email')
       
-      if (!token_hash) {
-        console.error('No token_hash provided for password reset');
-        return new Response('Missing token_hash for password reset', { status: 400 });
-      }
-      
-      const finalResetUrl = redirect_to || getProductionUrl('/reset-password');
-      
       emailTemplate = React.createElement(PasswordResetEmail, {
         supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
         token,
         token_hash,
-        redirect_to: finalResetUrl,
+        redirect_to: redirect_to || 'https://aipromptmachine.com/reset-password',
         email_action_type,
         user_email: user.email,
       })
@@ -79,6 +64,7 @@ Deno.serve(async (req) => {
       subject = 'Reset Your AiPromptMachine Password'
       
     } else {
+      console.log('Unsupported email action type:', email_action_type)
       return new Response(`Unsupported email action type: ${email_action_type}`, { status: 400 })
     }
 
@@ -107,7 +93,7 @@ Deno.serve(async (req) => {
       headers: { 'Content-Type': 'application/json' },
     })
     
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in send-signup-email function:', error)
     
     return new Response(

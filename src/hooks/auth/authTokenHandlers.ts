@@ -1,7 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { navigateToHome, navigateToResetPassword } from '@/utils/navigationUtils';
-import { logEnvironmentInfo } from '@/utils/environmentUtils';
+import { scrollToTop } from '@/utils/scrollUtils';
 
 export const processTokens = async (
   accessToken: string, 
@@ -11,25 +10,6 @@ export const processTokens = async (
   setConfirmationSuccess: (success: boolean) => void
 ) => {
   try {
-    console.log('[AUTH] Processing tokens with enhanced debugging');
-    console.log('[AUTH] Access token length:', accessToken?.length || 0);
-    console.log('[AUTH] Refresh token length:', refreshToken?.length || 0);
-    console.log('[AUTH] Type:', type);
-    
-    logEnvironmentInfo();
-    
-    // Validate tokens before attempting to use them
-    if (!accessToken || !refreshToken) {
-      console.error('[AUTH] Missing required tokens');
-      toast({
-        title: "Authentication Error",
-        description: "Invalid authentication tokens. Please request a new reset link.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    console.log('[AUTH] Setting session with tokens');
     const { data, error } = await supabase.auth.setSession({
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -37,25 +17,9 @@ export const processTokens = async (
 
     if (error) {
       console.error('[AUTH] Error setting session:', error);
-      console.error('[AUTH] Error code:', error.status);
-      console.error('[AUTH] Error message:', error.message);
-      
-      // Add more specific debugging for token errors
-      if (error.message.includes('Invalid token') || error.message.includes('token')) {
-        console.error('[AUTH] Token validation failed - tokens may be expired or malformed');
-      }
-      
-      let errorMessage = "There was an error processing your authentication.";
-      
-      if (error.message.includes('expired') || error.message.includes('invalid')) {
-        errorMessage = "Your authentication link has expired or is invalid. Please request a new one.";
-      } else if (error.message.includes('token')) {
-        errorMessage = "Invalid authentication token. Please try requesting a new reset link.";
-      }
-      
       toast({
         title: "Authentication Error",
-        description: errorMessage,
+        description: "There was an error processing your authentication. Please try again.",
         variant: "destructive",
       });
       return;
@@ -63,8 +27,6 @@ export const processTokens = async (
 
     if (data.session) {
       console.log('[AUTH] Session established successfully');
-      console.log('[AUTH] User:', data.session.user?.email);
-      console.log('[AUTH] Session expires at:', data.session.expires_at);
       
       if (type === 'signup') {
         console.log('[AUTH] Processing signup confirmation');
@@ -73,39 +35,25 @@ export const processTokens = async (
           title: "Account Confirmed!",
           description: "Your account has been successfully confirmed. Welcome!",
         });
-        
-        setTimeout(() => {
-          console.log('[AUTH] Navigating to home after signup confirmation');
-          navigateToHome('instant');
-        }, 3000);
       } else if (type === 'recovery') {
-        console.log('[AUTH] Processing password reset, user authenticated for reset');
+        console.log('[AUTH] Processing password reset, redirecting to reset page');
         toast({
-          title: "Authentication Successful",
-          description: "You can now set your new password.",
+          title: "Password Reset",
+          description: "Please set your new password.",
         });
         
-        // Don't redirect immediately, let the reset page handle it
         setTimeout(() => {
-          // Only redirect if we're not already on the reset page
-          if (!window.location.pathname.includes('reset-password')) {
-            navigateToResetPassword();
-          }
+          window.location.href = '/reset-password';
         }, 100);
-        return;
-      } else {
-        setTimeout(() => {
-          console.log('[AUTH] Navigating to home page');
-          navigateToHome('instant');
-        }, 100);
+        return; // Exit early for password reset
       }
-    } else {
-      console.error('[AUTH] No session created despite successful token processing');
-      toast({
-        title: "Authentication Error", 
-        description: "Failed to establish session. Please try again.",
-        variant: "destructive",
-      });
+      
+      // Single redirect point for all successful auth (except password reset)
+      setTimeout(() => {
+        console.log('[AUTH] Redirecting to home page');
+        scrollToTop('instant');
+        window.location.href = '/';
+      }, type === 'signup' ? 3000 : 100);
     }
   } catch (error) {
     console.error('[AUTH] Exception during token processing:', error);
@@ -122,40 +70,21 @@ export const processHashAuth = async (
   toast: any,
   setConfirmationSuccess: (success: boolean) => void
 ) => {
-  console.log('[AUTH] Processing hash auth:', hash);
-  
   const hashParams = new URLSearchParams(hash.substring(1));
   const accessToken = hashParams.get('access_token');
   const refreshToken = hashParams.get('refresh_token');
   const type = hashParams.get('type');
-  const error = hashParams.get('error');
-  const errorDescription = hashParams.get('error_description');
 
-  console.log('[AUTH] Hash params extracted:', { 
+  console.log('[AUTH] Hash params:', { 
     accessToken: accessToken ? 'present' : 'missing',
     refreshToken: refreshToken ? 'present' : 'missing',
-    type,
-    error,
-    errorDescription
+    type 
   });
-
-  // Check for errors in hash
-  if (error) {
-    console.error('[AUTH] Error in hash params:', error, errorDescription);
-    toast({
-      title: "Authentication Error",
-      description: errorDescription || "Authentication failed. Please try again.",
-      variant: "destructive",
-    });
-    return;
-  }
 
   if (accessToken && refreshToken) {
     await processTokens(accessToken, refreshToken, type, toast, setConfirmationSuccess);
-    // Clean up hash without causing reload
-    if (window.history.replaceState) {
-      window.history.replaceState(null, '', window.location.pathname);
-    }
+    // Clean up hash
+    window.history.replaceState(null, '', window.location.pathname);
   }
 };
 
@@ -166,30 +95,7 @@ export const processUrlAuth = async (
   toast: any,
   setConfirmationSuccess: (success: boolean) => void
 ) => {
-  console.log('[AUTH] Processing URL auth with params:', {
-    accessToken: accessToken ? 'present' : 'missing',
-    refreshToken: refreshToken ? 'present' : 'missing',
-    type
-  });
-  
-  // Check for URL errors
-  const urlParams = new URLSearchParams(window.location.search);
-  const error = urlParams.get('error');
-  const errorDescription = urlParams.get('error_description');
-
-  if (error) {
-    console.error('[AUTH] Error in URL params:', error, errorDescription);
-    toast({
-      title: "Authentication Error",
-      description: errorDescription || "Authentication failed. Please try again.",
-      variant: "destructive",
-    });
-    return;
-  }
-
   await processTokens(accessToken, refreshToken, type, toast, setConfirmationSuccess);
-  // Clean up URL params without causing reload
-  if (window.history.replaceState) {
-    window.history.replaceState(null, '', window.location.pathname);
-  }
+  // Clean up URL params
+  window.history.replaceState(null, '', window.location.pathname);
 };

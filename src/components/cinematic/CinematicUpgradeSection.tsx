@@ -7,7 +7,7 @@ interface CinematicUpgradeSectionProps {
   generatedPrompt: any;
   canUseFeature: (feature: string) => boolean;
   subscription: any;
-  onUpgrade?: () => void;
+  onUpgrade: () => void;
 }
 
 const CinematicUpgradeSection: React.FC<CinematicUpgradeSectionProps> = ({

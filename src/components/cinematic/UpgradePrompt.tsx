@@ -30,7 +30,7 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
   requiredTier,
   currentTier
 }) => {
-  const { createCheckout, loading } = useSubscription();
+  const { createCheckout, loading, subscription } = useSubscription();
   const [error, setError] = React.useState<string | null>(null);
 
   const handleUpgrade = async () => {

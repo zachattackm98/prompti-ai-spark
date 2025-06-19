@@ -1,159 +1,104 @@
 
 import React from 'react';
-import { Card } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Copy, Download, RotateCcw, Save, Loader2, Crown } from 'lucide-react';
-import { GeneratedPrompt } from './hooks/types';
-import { useSubscription } from '@/hooks/useSubscription';
-import UpgradePrompt from './UpgradePrompt';
+import { Copy, Download, Star, RotateCcw, Film } from 'lucide-react';
+import { GeneratedPrompt } from './types';
+import { platforms } from './constants';
 
 interface GeneratedPromptDisplayProps {
   generatedPrompt: GeneratedPrompt;
-  onCopyAllPrompts: (prompt: GeneratedPrompt) => void;
+  onCopyToClipboard: (text: string) => void;
   onDownloadPrompt: () => void;
   onGenerateNew: () => void;
-  onManualSave?: (prompt: GeneratedPrompt) => void;
-  savingToHistory?: boolean;
 }
 
 const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
   generatedPrompt,
-  onCopyAllPrompts,
+  onCopyToClipboard,
   onDownloadPrompt,
-  onGenerateNew,
-  onManualSave,
-  savingToHistory = false
+  onGenerateNew
 }) => {
-  const { subscription, canUseFeature } = useSubscription();
-  const canSaveToHistory = canUseFeature('promptHistory');
+  const isMultiScene = generatedPrompt.sceneNumber && generatedPrompt.totalScenes && generatedPrompt.totalScenes > 1;
 
   return (
-    <div className="space-y-6">
-      {/* Scene Info Header */}
-      {generatedPrompt.sceneNumber && generatedPrompt.totalScenes && (
-        <div className="text-center">
-          <span className="bg-purple-900/40 text-purple-300 px-3 py-1 rounded-full text-sm font-medium">
-            Scene {generatedPrompt.sceneNumber} of {generatedPrompt.totalScenes}
-          </span>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="space-y-4 sm:space-y-6"
+    >
+      <div className="text-center space-y-2 sm:space-y-3">
+        <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+          {isMultiScene ? `Scene ${generatedPrompt.sceneNumber} Complete!` : 'Your Cinematic Prompt is Ready!'}
+        </h3>
+        <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-purple-300">
+          <Star className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span>Optimized for {platforms.find(p => p.id === generatedPrompt.platform)?.name}</span>
+          {isMultiScene && (
+            <>
+              <Film className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span>{generatedPrompt.sceneNumber}/{generatedPrompt.totalScenes} Scenes</span>
+            </>
+          )}
+          <Star className="w-3 h-3 sm:w-4 sm:h-4" />
         </div>
-      )}
+      </div>
 
-      {/* Main Prompt */}
-      <Card className="bg-slate-800/60 border border-slate-700 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-purple-300">Main Prompt</h3>
+      <div className="space-y-3 sm:space-y-4">
+        <div className="bg-slate-800/60 rounded-xl p-4 sm:p-6 border border-purple-400/20">
+          <h4 className="text-base sm:text-lg font-semibold text-purple-300 mb-2 sm:mb-3">
+            Main Prompt{isMultiScene ? ` - Scene ${generatedPrompt.sceneNumber}` : ''}
+          </h4>
+          <p className="text-gray-200 leading-relaxed text-sm sm:text-base mb-3">{generatedPrompt.mainPrompt}</p>
           <Button
-            onClick={() => navigator.clipboard.writeText(generatedPrompt.mainPrompt)}
-            variant="outline"
+            onClick={() => onCopyToClipboard(generatedPrompt.mainPrompt)}
             size="sm"
-            className="bg-purple-600/20 border-purple-400/30 text-purple-300 hover:bg-purple-600/30"
+            variant="outline"
+            className="border-purple-400/30 text-purple-300 hover:bg-purple-900/30 bg-slate-800/40 text-xs sm:text-sm w-full sm:w-auto"
           >
-            <Copy className="w-4 h-4 mr-2" />
-            Copy
+            <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+            Copy Main Prompt
           </Button>
         </div>
-        <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-          {generatedPrompt.mainPrompt}
-        </p>
-      </Card>
 
-      {/* Technical Specifications */}
-      {generatedPrompt.technicalSpecs && (
-        <Card className="bg-slate-800/60 border border-slate-700 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-blue-300">Technical Specifications</h3>
-            <Button
-              onClick={() => navigator.clipboard.writeText(generatedPrompt.technicalSpecs)}
-              variant="outline"
-              size="sm"
-              className="bg-blue-600/20 border-blue-400/30 text-blue-300 hover:bg-blue-600/30"
-            >
-              <Copy className="w-4 h-4 mr-2" />
-              Copy
-            </Button>
-          </div>
-          <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-            {generatedPrompt.technicalSpecs}
-          </p>
-        </Card>
-      )}
+        <div className="bg-slate-800/60 rounded-xl p-4 sm:p-6 border border-blue-400/20">
+          <h4 className="text-base sm:text-lg font-semibold text-blue-300 mb-2 sm:mb-3">Technical Specifications</h4>
+          <p className="text-gray-200 leading-relaxed text-sm sm:text-base">{generatedPrompt.technicalSpecs}</p>
+        </div>
 
-      {/* Style Notes */}
-      {generatedPrompt.styleNotes && (
-        <Card className="bg-slate-800/60 border border-slate-700 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-pink-300">Style Notes</h3>
-            <Button
-              onClick={() => navigator.clipboard.writeText(generatedPrompt.styleNotes)}
-              variant="outline"
-              size="sm"
-              className="bg-pink-600/20 border-pink-400/30 text-pink-300 hover:bg-pink-600/30"
-            >
-              <Copy className="w-4 h-4 mr-2" />
-              Copy
-            </Button>
-          </div>
-          <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-            {generatedPrompt.styleNotes}
-          </p>
-        </Card>
-      )}
+        <div className="bg-slate-800/60 rounded-xl p-4 sm:p-6 border border-pink-400/20">
+          <h4 className="text-base sm:text-lg font-semibold text-pink-300 mb-2 sm:mb-3">Style Notes</h4>
+          <p className="text-gray-200 leading-relaxed text-sm sm:text-base">{generatedPrompt.styleNotes}</p>
+        </div>
+      </div>
 
-      {/* Upgrade Prompt for History Feature */}
-      {!canSaveToHistory && onManualSave && (
-        <UpgradePrompt
-          feature="Prompt History"
-          requiredTier="creator"
-          currentTier={subscription.tier}
-        />
-      )}
-
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3 justify-center">
+      <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 pt-2 sm:pt-4">
         <Button
-          onClick={() => onCopyAllPrompts(generatedPrompt)}
-          variant="outline"
-          className="bg-purple-600/20 border-purple-400/30 text-purple-300 hover:bg-purple-600/30"
+          onClick={() => onCopyToClipboard(`${generatedPrompt.mainPrompt}\n\n${generatedPrompt.technicalSpecs}\n\n${generatedPrompt.styleNotes}`)}
+          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xs sm:text-sm w-full sm:w-auto order-1"
         >
-          <Copy className="w-4 h-4 mr-2" />
+          <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
           Copy All
         </Button>
-        
         <Button
           onClick={onDownloadPrompt}
           variant="outline"
-          className="bg-blue-600/20 border-blue-400/30 text-blue-300 hover:bg-blue-600/30"
+          className="border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40 text-xs sm:text-sm w-full sm:w-auto order-2"
         >
-          <Download className="w-4 h-4 mr-2" />
+          <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
           Download
         </Button>
-
-        {onManualSave && canSaveToHistory && (
-          <Button
-            onClick={() => onManualSave(generatedPrompt)}
-            disabled={savingToHistory}
-            variant="outline"
-            className="bg-green-600/20 border-green-400/30 text-green-300 hover:bg-green-600/30 disabled:opacity-50"
-          >
-            {savingToHistory ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4 mr-2" />
-            )}
-            {savingToHistory ? 'Saving...' : 'Save to History'}
-          </Button>
-        )}
-        
         <Button
           onClick={onGenerateNew}
           variant="outline"
-          className="bg-slate-600/20 border-slate-400/30 text-slate-300 hover:bg-slate-600/30"
+          className="border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40 text-xs sm:text-sm w-full sm:w-auto order-3"
         >
-          <RotateCcw className="w-4 h-4 mr-2" />
-          Generate New
+          <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+          {isMultiScene ? 'New Project' : 'Generate New'}
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

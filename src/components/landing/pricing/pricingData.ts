@@ -9,7 +9,7 @@ export const pricingPlans: PricingPlan[] = [
     price: "Free",
     description: "Perfect for trying out Prompti.ai",
     features: [
-      "5 prompts per month", // Matches TIER_LIMITS.starter
+      "5 prompts per month",
       "2 AI video platforms (Veo3, Sora)",
       "4 basic emotions/moods",
       "Standard prompt quality",
@@ -26,7 +26,7 @@ export const pricingPlans: PricingPlan[] = [
     period: "/month",
     description: "For serious content creators",
     features: [
-      "500 prompts per month", // Matches TIER_LIMITS.creator
+      "500 prompts per month",
       "All 4 AI video platforms",
       "10 cinematic emotions/moods", 
       "Professional camera controls",
@@ -46,7 +46,7 @@ export const pricingPlans: PricingPlan[] = [
     period: "/month",
     description: "For teams and agencies",
     features: [
-      "1000 prompts per month", // Matches TIER_LIMITS.studio
+      "1000 prompts per month",
       "Everything in Creator",
       "Team collaboration",
       "Priority access to new platforms",

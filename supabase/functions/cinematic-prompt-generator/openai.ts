@@ -11,14 +11,6 @@ export async function generatePromptWithOpenAI(request: PromptRequest): Promise<
 
   const systemPrompt = buildSystemPrompt(request);
 
-  // Build user prompt with enhanced context information
-  let userPrompt = `Scene idea: ${request.sceneIdea}`;
-
-  // Add context information for multi-scene projects
-  if (request.isMultiScene && request.previousScenePrompts && request.previousScenePrompts.length > 0) {
-    userPrompt += `\n\nThis is Scene ${request.sceneNumber} of ${request.totalScenes}. Please ensure this scene continues naturally from the previous scenes while maintaining character and environmental consistency.`;
-  }
-
   // Generate the prompt using OpenAI
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -30,7 +22,7 @@ export async function generatePromptWithOpenAI(request: PromptRequest): Promise<
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
+        { role: 'user', content: `Scene idea: ${request.sceneIdea}` }
       ],
       max_tokens: request.enhancedPrompts ? 1500 : 1000,
       temperature: 0.7,

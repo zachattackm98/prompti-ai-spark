@@ -43,7 +43,7 @@ const StyleStep: React.FC<StyleStepProps> = ({
           onChange={(e) => setStyleReference(e.target.value)}
           className="min-h-[100px] sm:min-h-[120px] bg-slate-800/60 border-slate-600 text-white placeholder-gray-400 resize-none text-sm sm:text-base"
         />
-        <p className="text-xs sm:text-sm text-gray-300">
+        <p className="text-xs sm:text-sm text-gray-400">
           Examples: "Cinematic like Blade Runner 2049", "Warm golden hour lighting", "Film noir aesthetic"
         </p>
       </div>

@@ -1,12 +1,20 @@
 
-import { useCallback } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { GeneratedPrompt } from './types';
-import { PromptGenerationHookParams } from './prompt/types';
-import { createSingleSceneProject } from './prompt/projectCreation';
-import { generatePrompt } from './prompt/promptGeneration';
-import { performManualSave } from './prompt/manualSave';
-import { usePromptUsage } from '@/hooks/usePromptUsage';
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { GeneratedPrompt, MultiSceneProject } from './types';
+
+interface FormState {
+  sceneIdea: string;
+  selectedPlatform: string;
+  selectedEmotion: string;
+  dialogSettings: any;
+  soundSettings: any;
+  cameraSettings: any;
+  lightingSettings: any;
+  styleReference: string;
+  currentProject: MultiSceneProject | null;
+  isMultiScene: boolean;
+}
 
 export const usePromptGeneration = (
   user: any,
@@ -14,199 +22,109 @@ export const usePromptGeneration = (
   canUseFeature: (feature: string) => boolean,
   setShowAuthDialog: (show: boolean) => void,
   loadPromptHistory: () => void,
-  formState: PromptGenerationHookParams['formState'],
+  formState: FormState,
   setGeneratedPrompt: (prompt: GeneratedPrompt | null) => void,
   setIsLoading: (loading: boolean) => void,
-  currentProject: PromptGenerationHookParams['currentProject'],
-  updateScenePrompt?: (sceneIndex: number, prompt: GeneratedPrompt) => Promise<any>
+  currentProject: MultiSceneProject | null,
+  updateScenePrompt: (sceneIndex: number, prompt: GeneratedPrompt) => void
 ) => {
-  const { toast } = useToast();
-  const { hasReachedLimit, refetchUsage } = usePromptUsage();
-
-  const handleGenerate = useCallback(async () => {
-    console.log('[PROMPT-GENERATION] Starting prompt generation');
-    console.log('[PROMPT-GENERATION] Current subscription:', subscription);
-    console.log('[PROMPT-GENERATION] Usage status:', { hasReachedLimit });
-    
+  const handleGenerate = async () => {
     if (!user) {
-      console.log('[PROMPT-GENERATION] User not authenticated, showing auth dialog');
       setShowAuthDialog(true);
       return;
     }
 
-    // Check usage limits first
-    if (hasReachedLimit) {
-      console.log('[PROMPT-GENERATION] User has reached usage limit');
-      const tierName = subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1);
-      
-      let upgradeMessage = '';
-      if (subscription.tier === 'starter') {
-        upgradeMessage = 'Upgrade to Creator (500 prompts/month) or Studio (1000 prompts/month) for more prompts.';
-      } else if (subscription.tier === 'creator') {
-        upgradeMessage = 'Upgrade to Studio plan for 1000 prompts per month.';
-      } else {
-        upgradeMessage = 'Your usage will reset next month.';
-      }
-      
-      toast({
-        title: "Usage Limit Reached",
-        description: `You have reached your monthly limit on the ${tierName} plan. ${upgradeMessage}`,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!canUseFeature('cinematic_prompts')) {
-      console.log('[PROMPT-GENERATION] User cannot use cinematic prompts feature');
-      toast({
-        title: "Upgrade Required",
-        description: "Please upgrade your plan to generate cinematic prompts.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (!formState.sceneIdea.trim()) {
-      toast({
-        title: "Scene Required",
-        description: "Please describe your scene idea before generating.",
-        variant: "destructive"
-      });
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const generatedPrompt = await generatePrompt(subscription, formState, currentProject);
-      setGeneratedPrompt(generatedPrompt);
+      // Build context for multi-scene projects
+      let sceneContext = '';
+      let sceneNumber = 1;
+      let totalScenes = 1;
+      let isMultiScene = false;
 
-      // Refresh usage after successful generation
-      await refetchUsage();
-
-      // Check if user can save to history
-      const canSaveToHistory = canUseFeature('promptHistory');
-      
-      // Handle saving based on whether we're in a multi-scene project or not
-      if (currentProject && updateScenePrompt) {
-        console.log('[PROMPT-GENERATION] Updating multi-scene project with new prompt');
-        await updateScenePrompt(currentProject.currentSceneIndex, generatedPrompt);
+      if (currentProject && currentProject.scenes.length > 0) {
+        isMultiScene = true;
+        sceneNumber = currentProject.currentSceneIndex + 1;
+        totalScenes = currentProject.scenes.length;
         
-        if (canSaveToHistory) {
-          // Reload prompt history to show the new prompt
-          loadPromptHistory();
+        // Build context from previous scenes
+        const previousScenes = currentProject.scenes.slice(0, currentProject.currentSceneIndex);
+        if (previousScenes.length > 0) {
+          sceneContext = previousScenes.map((scene, index) => {
+            let context = `Scene ${index + 1}: ${scene.sceneIdea}`;
+            if (scene.generatedPrompt) {
+              context += `\nGenerated content: ${scene.generatedPrompt.mainPrompt.substring(0, 200)}...`;
+            }
+            return context;
+          }).join('\n\n');
         }
-      } else if (canSaveToHistory) {
-        // For single-scene prompts, automatically create a project and save to history (only for creator/studio)
-        console.log('[PROMPT-GENERATION] Auto-saving single-scene prompt to history');
-        try {
-          await createSingleSceneProject(user, formState, generatedPrompt);
-          console.log('[PROMPT-GENERATION] Single-scene prompt automatically saved to history');
-          
-          // Reload prompt history to show the new prompt
-          loadPromptHistory();
-          
-          toast({
-            title: "Prompt Generated!",
-            description: "Your cinematic prompt has been created and saved to your history.",
-          });
-        } catch (saveError) {
-          console.error('[PROMPT-GENERATION] Error auto-saving to history:', saveError);
-          // Don't fail the entire generation if history save fails
-          toast({
-            title: "Prompt Generated",
-            description: "Your prompt was generated but couldn't be saved to history. You can manually save it using the save button.",
-            variant: "destructive"
-          });
-        }
-      } else {
-        // For starter tier users, just show success without saving
-        toast({
-          title: "Prompt Generated!",
-          description: "Your cinematic prompt has been created. Upgrade to Creator or Studio to save prompts to your history.",
-        });
       }
 
-    } catch (error: any) {
-      console.error('[PROMPT-GENERATION] Generation failed:', error);
-      
-      // Handle specific error cases
-      let errorTitle = "Generation Failed";
-      let errorMessage = error.message || "Failed to generate cinematic prompt. Please try again.";
-      
-      if (error.message?.includes('USAGE_LIMIT_EXCEEDED')) {
-        errorTitle = "Usage Limit Reached";
-        errorMessage = error.message;
-        // Refresh usage to reflect current state
-        await refetchUsage();
-      } else if (error.message?.includes('AUTHENTICATION_ERROR')) {
-        errorTitle = "Authentication Error";
-        errorMessage = "Please sign in again to continue.";
-      }
-      
-      toast({
-        title: errorTitle,
-        description: errorMessage,
-        variant: "destructive"
+      const requestData = {
+        sceneIdea: formState.sceneIdea,
+        platform: formState.selectedPlatform,
+        emotion: formState.selectedEmotion,
+        styleReference: formState.styleReference,
+        dialogSettings: formState.dialogSettings,
+        soundSettings: formState.soundSettings,
+        cameraSettings: formState.cameraSettings,
+        lightingSettings: formState.lightingSettings,
+        tier: subscription.tier,
+        enhancedPrompts: canUseFeature('enhancedPrompts'),
+        // Multi-scene context
+        sceneContext,
+        sceneNumber,
+        totalScenes,
+        isMultiScene
+      };
+
+      console.log('Generating prompt with multi-scene context:', {
+        isMultiScene,
+        sceneNumber,
+        totalScenes,
+        hasContext: !!sceneContext
       });
+
+      const { data, error } = await supabase.functions.invoke('cinematic-prompt-generator', {
+        body: requestData
+      });
+
+      if (error) {
+        console.error('Error generating prompt:', error);
+        if (error.message?.includes('limit exceeded') || error.message?.includes('usage limit')) {
+          // Handle usage limit errors gracefully
+          return;
+        }
+        throw error;
+      }
+
+      if (data?.prompt) {
+        const generatedPrompt: GeneratedPrompt = {
+          ...data.prompt,
+          sceneNumber,
+          totalScenes
+        };
+        
+        setGeneratedPrompt(generatedPrompt);
+        
+        // Update the scene prompt in multi-scene project
+        if (currentProject) {
+          updateScenePrompt(currentProject.currentSceneIndex, generatedPrompt);
+        }
+        
+        loadPromptHistory();
+      }
+    } catch (error) {
+      console.error('Error generating prompt:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [
-    user,
-    subscription,
-    canUseFeature,
-    setShowAuthDialog,
-    formState,
-    setGeneratedPrompt,
-    setIsLoading,
-    currentProject,
-    updateScenePrompt,
-    loadPromptHistory,
-    toast,
-    hasReachedLimit,
-    refetchUsage
-  ]);
-
-  const manualSaveToHistory = useCallback(async () => {
-    const success = await performManualSave(user, currentProject, formState, canUseFeature);
-    
-    if (!user) {
-      setShowAuthDialog(true);
-      return false;
-    }
-
-    if (!canUseFeature('promptHistory')) {
-      toast({
-        title: "Upgrade Required",
-        description: "Upgrade to Creator or Studio to save prompts to your history.",
-        variant: "destructive"
-      });
-      return false;
-    }
-
-    if (!success) {
-      toast({
-        title: "Save Failed",
-        description: "Failed to save prompt to history. Please try again.",
-        variant: "destructive"
-      });
-      return false;
-    }
-
-    toast({
-      title: "Saved to History!",
-      description: "Your prompt has been saved to your history.",
-    });
-    
-    // Reload history to show the new entry
-    loadPromptHistory();
-    return true;
-  }, [user, currentProject, formState, setShowAuthDialog, loadPromptHistory, canUseFeature, toast]);
-
-  return {
-    handleGenerate,
-    manualSaveToHistory,
-    savingToHistory: false
   };
+
+  return { handleGenerate };
 };

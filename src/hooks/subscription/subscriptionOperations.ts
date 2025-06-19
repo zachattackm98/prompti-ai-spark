@@ -9,7 +9,7 @@ export const useSubscriptionOperations = (
   subscription: any,
   setSubscription: (subscription: any) => void
 ) => {
-  const { createCheckout } = useCheckoutOperations(
+  const { createCheckout, createOptimisticCheckout } = useCheckoutOperations(
     user,
     setLoading,
     subscription,
@@ -25,9 +25,6 @@ export const useSubscriptionOperations = (
     user,
     setLoading
   );
-
-  // Create optimistic checkout is the same as regular checkout for now
-  const createOptimisticCheckout = createCheckout;
 
   return {
     createCheckout,

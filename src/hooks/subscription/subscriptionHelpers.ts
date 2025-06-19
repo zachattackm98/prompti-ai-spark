@@ -11,12 +11,6 @@ export const createSubscriptionHelpers = (subscription: UserSubscription) => {
   };
 
   const canUseFeature = (feature: keyof typeof TIER_FEATURES[SubscriptionTier]) => {
-    // For starter tier, allow basic features regardless of subscription status
-    if (subscription.tier === 'starter' && feature === 'cinematic_prompts') {
-      return true;
-    }
-    
-    // For paid tiers, check both active status and feature availability
     return subscription.isActive && hasFeature(feature);
   };
 
@@ -31,7 +25,7 @@ export const createSubscriptionHelpers = (subscription: UserSubscription) => {
     const tierOrder = { starter: 0, creator: 1, studio: 2 };
     const currentTierLevel = tierOrder[currentTier as SubscriptionTier] || 0;
     
-    const allFeatures = ['cameraControls', 'lightingOptions', 'visualStyles', 'enhancedPrompts', 'batchProcessing', 'teamCollaboration', 'apiAccess', 'promptHistory'];
+    const allFeatures = ['cameraControls', 'lightingOptions', 'visualStyles', 'enhancedPrompts', 'batchProcessing', 'teamCollaboration', 'apiAccess'];
     
     return allFeatures.filter(feature => {
       // Check which tiers have this feature

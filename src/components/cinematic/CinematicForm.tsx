@@ -1,13 +1,15 @@
-
 import React from 'react';
+import { motion } from 'framer-motion';
+import { Card } from '@/components/ui/card';
 import { useCinematicForm } from './useCinematicForm';
-import CinematicFormHeader from './CinematicFormHeader';
-import CinematicFormProjectSection from './CinematicFormProjectSection';
-import CinematicFormMain from './CinematicFormMain';
-import CinematicFormHistory from './CinematicFormHistory';
-import CinematicFormWelcome from './CinematicFormWelcome';
-import { PromptHistory } from './types';
-import { useSubscription } from '@/hooks/useSubscription';
+import { usePromptActions } from './promptActions';
+import StepIndicator from './StepIndicator';
+import StepRenderer from './StepRenderer';
+import GeneratedPromptDisplay from './GeneratedPromptDisplay';
+import ContinueScenePrompt from './ContinueScenePrompt';
+import SceneSelector from './SceneSelector';
+import UsageDisplay from './UsageDisplay';
+import { scrollToStepContent } from '@/utils/scrollUtils';
 
 interface CinematicFormProps {
   user: any;
@@ -16,9 +18,6 @@ interface CinematicFormProps {
   canUseFeature: (feature: string) => boolean;
   setShowAuthDialog: (show: boolean) => void;
   loadPromptHistory: () => void;
-  promptHistory?: PromptHistory[];
-  showHistory?: boolean;
-  historyLoading?: boolean;
 }
 
 const CinematicForm: React.FC<CinematicFormProps> = ({
@@ -27,14 +26,8 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
   features,
   canUseFeature,
   setShowAuthDialog,
-  loadPromptHistory,
-  promptHistory = [],
-  showHistory = false,
-  historyLoading = false
+  loadPromptHistory
 }) => {
-  const { canUseFeature: canUseSubscriptionFeature } = useSubscription();
-  const canAccessHistory = canUseSubscriptionFeature('promptHistory');
-
   const {
     currentStep,
     totalSteps,
@@ -58,21 +51,37 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     setStyleReference,
     handleNext,
     handlePrevious,
+    handleGenerate,
     handleGenerateNew,
-    setGeneratedPrompt,
-    setIsLoading,
     // Multi-scene functionality
     currentProject,
     isMultiScene,
     handleContinueScene,
     handleSceneSelect,
     handleAddScene,
-    handleLoadProject,
-    canAddMoreScenes,
-    updateScenePrompt,
-    // History functionality
-    handleStartProjectFromHistory
+    canAddMoreScenes
   } = useCinematicForm(user, subscription, canUseFeature, setShowAuthDialog, loadPromptHistory);
+
+  // Add project management
+  const [userProjects, setUserProjects] = React.useState([]);
+  const [projectsLoading, setProjectsLoading] = React.useState(false);
+
+  const loadUserProjects = React.useCallback(async () => {
+    if (!user) return;
+    
+    setProjectsLoading(true);
+    try {
+      // This will be implemented through the hook
+      const projects = []; // Placeholder for now
+      setUserProjects(projects);
+    } catch (error) {
+      console.error('Error loading user projects:', error);
+    } finally {
+      setProjectsLoading(false);
+    }
+  }, [user]);
+
+  const { copyToClipboard, downloadPrompt } = usePromptActions(subscription);
 
   const handleUpgrade = () => {
     // Navigate to pricing section
@@ -84,69 +93,99 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
 
   return (
     <>
-      <CinematicFormHeader 
-        user={user}
-        onUpgrade={handleUpgrade}
-      />
+      {user && (
+        <UsageDisplay onUpgrade={handleUpgrade} />
+      )}
 
-      <CinematicFormProjectSection
-        user={user}
-        currentProject={currentProject}
-        canAddMoreScenes={canAddMoreScenes}
-        onSceneSelect={handleSceneSelect}
-        onAddScene={handleAddScene}
-        onLoadProject={handleLoadProject}
-      />
+      {/* Add project selector for authenticated users */}
+      {user && !currentProject && userProjects.length > 0 && (
+        <ProjectSelector
+          projects={userProjects}
+          onLoadProject={() => {}} // Will be implemented
+          onDeleteProject={() => {}} // Will be implemented
+          onRefresh={loadUserProjects}
+          isLoading={projectsLoading}
+        />
+      )}
 
-      <CinematicFormMain
-        user={user}
-        subscription={subscription}
-        features={features}
-        canUseFeature={canUseFeature}
-        setShowAuthDialog={setShowAuthDialog}
-        loadPromptHistory={loadPromptHistory}
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-        sceneIdea={sceneIdea}
-        selectedPlatform={selectedPlatform}
-        selectedEmotion={selectedEmotion}
-        dialogSettings={dialogSettings}
-        soundSettings={soundSettings}
-        cameraSettings={cameraSettings}
-        lightingSettings={lightingSettings}
-        styleReference={styleReference}
-        generatedPrompt={generatedPrompt}
-        isLoading={isLoading}
-        isMultiScene={isMultiScene}
-        currentProject={currentProject}
-        setSceneIdea={setSceneIdea}
-        setSelectedPlatform={setSelectedPlatform}
-        setSelectedEmotion={setSelectedEmotion}
-        setDialogSettings={setDialogSettings}
-        setSoundSettings={setSoundSettings}
-        setCameraSettings={setCameraSettings}
-        setLightingSettings={setLightingSettings}
-        setStyleReference={setStyleReference}
-        setGeneratedPrompt={setGeneratedPrompt}
-        setIsLoading={setIsLoading}
-        handleNext={handleNext}
-        handlePrevious={handlePrevious}
-        handleGenerateNew={handleGenerateNew}
-        handleContinueScene={handleContinueScene}
-        updateScenePrompt={updateScenePrompt}
-      />
+      {currentProject && (
+        <SceneSelector
+          project={currentProject}
+          onSceneSelect={handleSceneSelect}
+          onAddScene={handleAddScene}
+          canAddScene={canAddMoreScenes}
+        />
+      )}
 
-      <CinematicFormHistory
-        showHistory={showHistory}
-        promptHistory={canAccessHistory ? promptHistory : []}
-        historyLoading={canAccessHistory ? historyLoading : false}
-        onStartProjectFromHistory={handleStartProjectFromHistory}
-      />
+      <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
-      <CinematicFormWelcome
-        user={user}
-        generatedPrompt={generatedPrompt}
-      />
+      <motion.div
+        id="cinematic-form-container"
+        initial={{ y: 30, opacity: 0 }}
+        whileInView={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+      >
+        <Card className="bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 border border-purple-500/20 shadow-2xl shadow-purple-500/10 p-8 backdrop-blur-sm">
+          {!generatedPrompt ? (
+            <StepRenderer
+              currentStep={currentStep}
+              canUseFeature={canUseFeature}
+              features={features}
+              sceneIdea={sceneIdea}
+              setSceneIdea={setSceneIdea}
+              selectedPlatform={selectedPlatform}
+              setSelectedPlatform={setSelectedPlatform}
+              selectedEmotion={selectedEmotion}
+              setSelectedEmotion={setSelectedEmotion}
+              dialogSettings={dialogSettings}
+              setDialogSettings={setDialogSettings}
+              soundSettings={soundSettings}
+              setSoundSettings={setSoundSettings}
+              cameraSettings={cameraSettings}
+              setCameraSettings={setCameraSettings}
+              lightingSettings={lightingSettings}
+              setLightingSettings={setLightingSettings}
+              styleReference={styleReference}
+              setStyleReference={setStyleReference}
+              handleNext={handleNext}
+              handlePrevious={handlePrevious}
+              handleGenerate={handleGenerate}
+              isLoading={isLoading}
+            />
+          ) : (
+            <>
+              <GeneratedPromptDisplay
+                generatedPrompt={generatedPrompt}
+                onCopyToClipboard={copyToClipboard}
+                onDownloadPrompt={() => downloadPrompt(generatedPrompt)}
+                onGenerateNew={handleGenerateNew}
+              />
+              
+              {!isMultiScene && (
+                <ContinueScenePrompt
+                  generatedPrompt={generatedPrompt}
+                  onContinueScene={handleContinueScene}
+                  onStartOver={handleGenerateNew}
+                  isLoading={isLoading}
+                />
+              )}
+            </>
+          )}
+
+          {!user && !generatedPrompt && (
+            <motion.div 
+              className="text-center mt-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+            >
+              <p className="text-purple-300 text-sm font-medium bg-purple-900/20 border border-purple-400/20 rounded-lg py-2 px-4 inline-block">
+                🎬 Ready to generate? Create your free account to get started!
+              </p>
+            </motion.div>
+          )}
+        </Card>
+      </motion.div>
     </>
   );
 };

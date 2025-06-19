@@ -1,11 +1,7 @@
-
 import { useFormState } from './hooks/useFormState';
 import { useStepNavigation } from './hooks/useStepNavigation';
 import { usePromptGeneration } from './hooks/usePromptGeneration';
-import { useCinematicFormActions } from './hooks/useCinematicFormActions';
-import { useProjectLoading } from './hooks/useProjectLoading';
-import { useSubscriptionLimits } from './hooks/useSubscriptionLimits';
-import { useHistoryActions } from './hooks/useHistoryActions';
+import { scrollToStepContent, scrollToElementById } from '@/utils/scrollUtils';
 
 // Re-export types for backward compatibility
 export type { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './hooks/types';
@@ -43,7 +39,6 @@ export const useCinematicForm = (
     resetForm,
     createSceneDataFromCurrentState,
     loadSceneDataToCurrentState,
-    getFormState,
     // Multi-scene state
     currentProject,
     isMultiScene,
@@ -53,8 +48,7 @@ export const useCinematicForm = (
     updateCurrentScene,
     setCurrentSceneIndex,
     updateScenePrompt,
-    resetProject,
-    loadProjectById
+    resetProject
   } = useFormState();
 
   const { totalSteps, handleNext, handlePrevious, scrollToForm } = useStepNavigation(
@@ -63,8 +57,18 @@ export const useCinematicForm = (
     canUseFeature
   );
 
-  const formStateForPromptGeneration = {
-    ...getFormState(),
+  const formState = {
+    currentStep,
+    sceneIdea,
+    selectedPlatform,
+    selectedEmotion,
+    dialogSettings,
+    soundSettings,
+    cameraSettings,
+    lightingSettings,
+    styleReference,
+    generatedPrompt,
+    isLoading,
     currentProject,
     isMultiScene
   };
@@ -75,46 +79,110 @@ export const useCinematicForm = (
     canUseFeature,
     setShowAuthDialog,
     loadPromptHistory,
-    formStateForPromptGeneration,
+    formState,
     setGeneratedPrompt,
     setIsLoading,
     currentProject,
     updateScenePrompt
   );
 
-  const {
-    handleGenerateNew,
-    handleContinueScene,
-    handleSceneSelect,
-    handleAddScene
-  } = useCinematicFormActions(
-    resetForm,
-    setCurrentStep,
-    createSceneDataFromCurrentState,
-    loadSceneDataToCurrentState,
-    startNewProject,
-    addNewScene,
-    updateCurrentScene,
-    setCurrentSceneIndex,
-    currentProject,
-    totalSteps
-  );
+  const handleGenerateNew = () => {
+    resetForm();
+    // Scroll to the first step after reset with a delay to allow state update
+    setTimeout(() => {
+      console.log('useCinematicForm: Scrolling to step 1 after reset');
+      scrollToStepContent(1);
+    }, 200);
+  };
 
-  const { handleLoadProject } = useProjectLoading(
-    loadProjectById,
-    loadSceneDataToCurrentState,
-    setCurrentStep,
-    totalSteps
-  );
+  const handleContinueScene = (projectTitle: string, nextSceneIdea: string) => {
+    const currentSceneData = createSceneDataFromCurrentState();
+    const project = startNewProject(projectTitle, currentSceneData);
+    
+    // Add the next scene
+    const nextSceneData = {
+      ...currentSceneData,
+      sceneIdea: nextSceneIdea,
+      generatedPrompt: null
+    };
+    
+    addNewScene(nextSceneData);
+    
+    // Load the next scene data to current state
+    loadSceneDataToCurrentState({
+      ...nextSceneData,
+      sceneNumber: 2
+    });
+    
+    // Reset to step 1 for the new scene
+    setCurrentStep(1);
+    
+    setTimeout(() => {
+      scrollToStepContent(1);
+    }, 200);
+  };
 
-  const { canAddMoreScenes } = useSubscriptionLimits(subscription, currentProject);
+  const handleSceneSelect = (sceneIndex: number) => {
+    if (!currentProject) return;
+    
+    // Save current scene data
+    const currentSceneData = createSceneDataFromCurrentState();
+    updateCurrentScene(currentSceneData);
+    
+    // Switch to selected scene
+    setCurrentSceneIndex(sceneIndex);
+    const selectedScene = currentProject.scenes[sceneIndex];
+    loadSceneDataToCurrentState(selectedScene);
+    
+    // Reset to step 1 if no prompt exists, otherwise go to final step
+    setCurrentStep(selectedScene.generatedPrompt ? totalSteps : 1);
+    
+    // Scroll to the cinematic form container instead of step content
+    setTimeout(() => {
+      console.log('useCinematicForm: Scrolling to cinematic form container after scene select');
+      scrollToElementById('cinematic-form-container', 'smooth', 100);
+    }, 200);
+  };
 
-  // Use the proper history actions hook
-  const { handleStartProjectFromHistory } = useHistoryActions(
-    startNewProject,
-    loadSceneDataToCurrentState,
-    setCurrentStep
-  );
+  const handleAddScene = () => {
+    if (!currentProject) return;
+    
+    // Save current scene data
+    const currentSceneData = createSceneDataFromCurrentState();
+    updateCurrentScene(currentSceneData);
+    
+    // Create new scene with inherited settings but reset prompt
+    const newSceneData = {
+      ...currentSceneData,
+      sceneIdea: '',
+      generatedPrompt: null
+    };
+    
+    addNewScene(newSceneData);
+    loadSceneDataToCurrentState({
+      ...newSceneData,
+      sceneNumber: currentProject.scenes.length + 1
+    });
+    
+    setCurrentStep(1);
+    
+    setTimeout(() => {
+      scrollToStepContent(1);
+    }, 200);
+  };
+
+  const canAddMoreScenes = () => {
+    // Basic tier: max 2 scenes
+    if (subscription.tier === 'starter') {
+      return !currentProject || currentProject.scenes.length < 2;
+    }
+    // Creator tier: max 5 scenes
+    if (subscription.tier === 'creator') {
+      return !currentProject || currentProject.scenes.length < 5;
+    }
+    // Studio tier: max 10 scenes
+    return !currentProject || currentProject.scenes.length < 10;
+  };
 
   return {
     currentStep,
@@ -137,8 +205,6 @@ export const useCinematicForm = (
     setCameraSettings,
     setLightingSettings,
     setStyleReference,
-    setGeneratedPrompt,
-    setIsLoading,
     handleNext,
     handlePrevious,
     handleGenerate,
@@ -149,10 +215,6 @@ export const useCinematicForm = (
     handleContinueScene,
     handleSceneSelect,
     handleAddScene,
-    handleLoadProject,
-    canAddMoreScenes,
-    updateScenePrompt,
-    // History functionality
-    handleStartProjectFromHistory
+    canAddMoreScenes: canAddMoreScenes()
   };
 };

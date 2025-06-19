@@ -32,21 +32,29 @@ export const useCheckoutOperations = (
       // Clear any existing cache before starting new checkout
       clearSubscriptionCache();
       
+      // Store expected tier for verification
+      sessionStorage.setItem('pending_tier', planType);
+      
       const data = await createCheckoutSession(planType);
       
       console.log('[SUBSCRIPTION] Checkout session created, redirecting...');
       
-      // Show simple feedback message
+      // Show specific feedback for upgrades
+      const isUpgrade = subscription.tier !== 'starter' && subscription.tier !== planType;
+      const upgradeMessage = isUpgrade 
+        ? `Upgrading from ${subscription.tier} to ${planType}. Your previous subscription will be cancelled automatically.`
+        : "Opening secure payment page...";
+      
       showToast(
-        "Redirecting to Payment",
-        "Opening secure payment page...",
+        isUpgrade ? "Upgrading Subscription" : "Redirecting to Payment",
+        upgradeMessage,
       );
       
       handleCheckoutRedirect(data.url);
     } catch (error: any) {
       console.error('[SUBSCRIPTION] Error creating checkout:', error);
       
-      // Clear any pending state on error
+      // Clear pending tier on error
       clearSubscriptionCache();
       
       // Provide more specific error messages based on error type
@@ -82,7 +90,89 @@ export const useCheckoutOperations = (
     }
   };
 
+  const createOptimisticCheckout = async (planType: 'creator' | 'studio') => {
+    if (!user) {
+      console.error('[SUBSCRIPTION] No user found for checkout');
+      showToast(
+        "Authentication Required",
+        "Please sign in to subscribe.",
+        "destructive"
+      );
+      return;
+    }
+
+    console.log('[SUBSCRIPTION] Starting optimistic checkout for:', planType);
+    setLoading(true);
+    
+    // Store current subscription state for rollback
+    const previousState = { ...subscription };
+    
+    try {
+      // Clear any existing cache/optimistic updates
+      clearSubscriptionCache();
+      
+      // Optimistic UI update - immediately show the new tier
+      console.log('[SUBSCRIPTION] Applying optimistic update');
+      setSubscription({
+        tier: planType,
+        isActive: true,
+        isCancelling: false,
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+      });
+      
+      // Store for verification
+      sessionStorage.setItem('pending_tier', planType);
+      sessionStorage.setItem('optimistic_update', 'true');
+      
+      // Show specific feedback for upgrades
+      const isUpgrade = previousState.tier !== 'starter' && previousState.tier !== planType;
+      const upgradeMessage = isUpgrade 
+        ? `Upgrading from ${previousState.tier} to ${planType}. Your previous subscription will be cancelled automatically.`
+        : "Setting up your subscription...";
+      
+      showToast(
+        isUpgrade ? "Processing Upgrade" : "Processing Payment",
+        upgradeMessage,
+      );
+      
+      const data = await createCheckoutSession(planType);
+      
+      console.log('[SUBSCRIPTION] Checkout session created, redirecting...');
+      handleCheckoutRedirect(data.url);
+      
+    } catch (error: any) {
+      console.error('[SUBSCRIPTION] Error creating optimistic checkout:', error);
+      
+      // Rollback optimistic update
+      console.log('[SUBSCRIPTION] Rolling back optimistic update');
+      setSubscription(previousState);
+      clearSubscriptionCache();
+      
+      let errorMessage = 'Failed to create checkout session';
+      let errorTitle = 'Checkout Error';
+      
+      if (error.message?.includes('already have an active')) {
+        errorTitle = 'Subscription Already Active';
+        errorMessage = error.message;
+      } else if (error.message?.includes('Cannot downgrade')) {
+        errorTitle = 'Downgrade Not Allowed'; 
+        errorMessage = error.message;
+      } else if (error.message?.includes('Authentication')) {
+        errorTitle = 'Authentication Error';
+        errorMessage = 'Your session has expired. Please sign in again.';
+      } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        errorTitle = 'Network Error';
+        errorMessage = 'Connection failed. Please check your internet and try again.';
+      }
+      
+      showToast(errorTitle, errorMessage, "destructive");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     createCheckout,
+    createOptimisticCheckout,
   };
 };

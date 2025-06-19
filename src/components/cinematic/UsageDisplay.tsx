@@ -24,9 +24,6 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
     promptLimit
   } = usePromptUsage();
 
-  console.log('[USAGE-DISPLAY] Current subscription:', subscription);
-  console.log('[USAGE-DISPLAY] Usage data:', { usage, promptLimit, remainingPrompts });
-
   const tierConfig = {
     starter: {
       name: 'Starter Plan',
@@ -48,9 +45,7 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
     }
   };
 
-  // Use actual subscription tier from subscription object
-  const actualTier = subscription?.tier || 'starter';
-  const config = tierConfig[actualTier];
+  const config = tierConfig[subscription.tier];
 
   return (
     <motion.div
@@ -70,7 +65,7 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
               )}
             </div>
           </div>
-          {onUpgrade && actualTier !== 'studio' && (
+          {onUpgrade && subscription.tier !== 'studio' && (
             <Button
               onClick={onUpgrade}
               size="sm"
@@ -115,18 +110,18 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
                 <span>Ready to create more?</span>
               </div>
               <p className="text-xs text-gray-400 mb-3">
-                {actualTier === 'starter' && 'Upgrade to Creator (500/month) or Studio (1000/month) for more prompts.'}
-                {actualTier === 'creator' && 'Upgrade to Studio plan for 1000 prompts per month.'}
-                {actualTier === 'studio' && 'Your usage will reset next month.'}
+                {subscription.tier === 'starter' && 'Upgrade to Creator (500/month) or Studio (1000/month) for more prompts.'}
+                {subscription.tier === 'creator' && 'Upgrade to Studio plan for 1000 prompts per month.'}
+                {subscription.tier === 'studio' && 'Your usage will reset next month.'}
               </p>
-              {onUpgrade && actualTier !== 'studio' && (
+              {onUpgrade && subscription.tier !== 'studio' && (
                 <Button
                   onClick={onUpgrade}
                   size="sm"
                   className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
                 >
                   <Crown className="w-3 h-3 mr-2" />
-                  {actualTier === 'starter' ? 'Upgrade Now' : 'Upgrade to Studio'}
+                  {subscription.tier === 'starter' ? 'Upgrade Now' : 'Upgrade to Studio'}
                 </Button>
               )}
             </div>

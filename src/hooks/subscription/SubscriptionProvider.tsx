@@ -29,20 +29,19 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
   );
 
   const { 
-    createCheckout,
-    createOptimisticCheckout,
+    createCheckout, 
+    createOptimisticCheckout, 
     openCustomerPortal,
     fetchBillingData,
     downloadInvoice
-  } = useSubscriptionOperations(user, setLoading);
+  } = useSubscriptionOperations(
+    user,
+    setLoading,
+    subscription,
+    setSubscription
+  );
 
   const subscriptionHelpers = createSubscriptionHelpers(subscription);
-
-  // Add manual refresh function for debugging
-  const refreshSubscription = async () => {
-    console.log('[SUBSCRIPTION] Manual refresh triggered');
-    await verifySubscriptionStatus();
-  };
 
   return (
     <SubscriptionContext.Provider value={{
@@ -51,7 +50,6 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
       loading,
       checkSubscription,
       verifySubscriptionStatus,
-      refreshSubscription,
       createCheckout,
       createOptimisticCheckout,
       openCustomerPortal,
