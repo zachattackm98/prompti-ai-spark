@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
@@ -9,7 +10,6 @@ import GeneratedPromptDisplay from './GeneratedPromptDisplay';
 import ContinueScenePrompt from './ContinueScenePrompt';
 import SceneSelector from './SceneSelector';
 import UsageDisplay from './UsageDisplay';
-import { scrollToStepContent } from '@/utils/scrollUtils';
 
 interface CinematicFormProps {
   user: any;
@@ -62,25 +62,6 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     canAddMoreScenes
   } = useCinematicForm(user, subscription, canUseFeature, setShowAuthDialog, loadPromptHistory);
 
-  // Add project management
-  const [userProjects, setUserProjects] = React.useState([]);
-  const [projectsLoading, setProjectsLoading] = React.useState(false);
-
-  const loadUserProjects = React.useCallback(async () => {
-    if (!user) return;
-    
-    setProjectsLoading(true);
-    try {
-      // This will be implemented through the hook
-      const projects = []; // Placeholder for now
-      setUserProjects(projects);
-    } catch (error) {
-      console.error('Error loading user projects:', error);
-    } finally {
-      setProjectsLoading(false);
-    }
-  }, [user]);
-
   const { copyToClipboard, downloadPrompt } = usePromptActions(subscription);
 
   const handleUpgrade = () => {
@@ -95,17 +76,6 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     <>
       {user && (
         <UsageDisplay onUpgrade={handleUpgrade} />
-      )}
-
-      {/* Add project selector for authenticated users */}
-      {user && !currentProject && userProjects.length > 0 && (
-        <ProjectSelector
-          projects={userProjects}
-          onLoadProject={() => {}} // Will be implemented
-          onDeleteProject={() => {}} // Will be implemented
-          onRefresh={loadUserProjects}
-          isLoading={projectsLoading}
-        />
       )}
 
       {currentProject && (
