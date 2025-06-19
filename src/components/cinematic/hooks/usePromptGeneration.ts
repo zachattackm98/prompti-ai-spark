@@ -6,6 +6,7 @@ import { PromptGenerationHookParams } from './prompt/types';
 import { createSingleSceneProject } from './prompt/projectCreation';
 import { generatePrompt } from './prompt/promptGeneration';
 import { performManualSave } from './prompt/manualSave';
+import { usePromptUsage } from '@/hooks/usePromptUsage';
 
 export const usePromptGeneration = (
   user: any,
@@ -20,14 +21,38 @@ export const usePromptGeneration = (
   updateScenePrompt?: (sceneIndex: number, prompt: GeneratedPrompt) => Promise<any>
 ) => {
   const { toast } = useToast();
+  const { hasReachedLimit, refetchUsage } = usePromptUsage();
 
   const handleGenerate = useCallback(async () => {
     console.log('[PROMPT-GENERATION] Starting prompt generation');
     console.log('[PROMPT-GENERATION] Current subscription:', subscription);
+    console.log('[PROMPT-GENERATION] Usage status:', { hasReachedLimit });
     
     if (!user) {
       console.log('[PROMPT-GENERATION] User not authenticated, showing auth dialog');
       setShowAuthDialog(true);
+      return;
+    }
+
+    // Check usage limits first
+    if (hasReachedLimit) {
+      console.log('[PROMPT-GENERATION] User has reached usage limit');
+      const tierName = subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1);
+      
+      let upgradeMessage = '';
+      if (subscription.tier === 'starter') {
+        upgradeMessage = 'Upgrade to Creator (500 prompts/month) or Studio (1000 prompts/month) for more prompts.';
+      } else if (subscription.tier === 'creator') {
+        upgradeMessage = 'Upgrade to Studio plan for 1000 prompts per month.';
+      } else {
+        upgradeMessage = 'Your usage will reset next month.';
+      }
+      
+      toast({
+        title: "Usage Limit Reached",
+        description: `You have reached your monthly limit on the ${tierName} plan. ${upgradeMessage}`,
+        variant: "destructive"
+      });
       return;
     }
 
@@ -55,6 +80,9 @@ export const usePromptGeneration = (
     try {
       const generatedPrompt = await generatePrompt(subscription, formState, currentProject);
       setGeneratedPrompt(generatedPrompt);
+
+      // Refresh usage after successful generation
+      await refetchUsage();
 
       // Check if user can save to history
       const canSaveToHistory = canUseFeature('promptHistory');
@@ -109,6 +137,8 @@ export const usePromptGeneration = (
       if (error.message?.includes('USAGE_LIMIT_EXCEEDED')) {
         errorTitle = "Usage Limit Reached";
         errorMessage = error.message;
+        // Refresh usage to reflect current state
+        await refetchUsage();
       } else if (error.message?.includes('AUTHENTICATION_ERROR')) {
         errorTitle = "Authentication Error";
         errorMessage = "Please sign in again to continue.";
@@ -133,7 +163,9 @@ export const usePromptGeneration = (
     currentProject,
     updateScenePrompt,
     loadPromptHistory,
-    toast
+    toast,
+    hasReachedLimit,
+    refetchUsage
   ]);
 
   const manualSaveToHistory = useCallback(async () => {

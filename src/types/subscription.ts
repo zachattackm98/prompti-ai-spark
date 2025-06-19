@@ -20,6 +20,7 @@ export interface TierFeatures {
   teamCollaboration: boolean;
   apiAccess: boolean;
   promptHistory: boolean;
+  cinematic_prompts: boolean; // Add the missing feature that the code checks for
 }
 
 // Ensure these limits match the edge function constants exactly
@@ -36,6 +37,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     teamCollaboration: false,
     apiAccess: false,
     promptHistory: false,
+    cinematic_prompts: true, // Allow starter users to generate basic cinematic prompts
   },
   creator: {
     maxPrompts: 500, // Matches TIER_LIMITS.creator in edge function
@@ -49,6 +51,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     teamCollaboration: false,
     apiAccess: false,
     promptHistory: true,
+    cinematic_prompts: true,
   },
   studio: {
     maxPrompts: 1000, // Matches TIER_LIMITS.studio in edge function
@@ -62,5 +65,6 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     teamCollaboration: true,
     apiAccess: true,
     promptHistory: true,
+    cinematic_prompts: true,
   },
 };

@@ -16,7 +16,8 @@ export const useSubscriptionEffects = (
   const checkSubscription = async (retryCount = 0, maxRetries = 3, skipLoadingState = false) => {
     if (!user) {
       console.log('[SUBSCRIPTION] No user found, setting starter subscription');
-      setSubscription({ tier: 'starter', isActive: false });
+      // For starter users, they should be active to use basic features
+      setSubscription({ tier: 'starter', isActive: true });
       setBillingDetails(null);
       if (!skipLoadingState) setLoading(false);
       return;
@@ -35,8 +36,9 @@ export const useSubscriptionEffects = (
       const isCancelling = data.billing_details?.cancel_at_period_end || false;
       const subscriptionTier = data.subscription_tier || 'starter';
       
-      // For active subscriptions, even if scheduled for cancellation, they're still active until period end
-      const effectivelyActive = isSubscribed;
+      // For starter tier users, they should be considered active for basic features
+      // For paid subscriptions, only active if actually subscribed
+      const effectivelyActive = subscriptionTier === 'starter' ? true : isSubscribed;
       
       console.log('[SUBSCRIPTION] Processing subscription state:', {
         isSubscribed,
@@ -115,15 +117,18 @@ export const useSubscriptionEffects = (
           } else {
             console.log('[SUBSCRIPTION] Cache too old, clearing');
             clearSubscriptionCache();
-            setSubscription({ tier: 'starter', isActive: false });
+            // Default to active starter for users when cache fails
+            setSubscription({ tier: 'starter', isActive: true });
           }
         } catch (e) {
           console.error('[SUBSCRIPTION] Failed to parse cached data');
           clearSubscriptionCache();
-          setSubscription({ tier: 'starter', isActive: false });
+          // Default to active starter for users when cache fails
+          setSubscription({ tier: 'starter', isActive: true });
         }
       } else {
-        setSubscription({ tier: 'starter', isActive: false });
+        // Default to active starter for users when no cache
+        setSubscription({ tier: 'starter', isActive: true });
       }
       setBillingDetails(null);
     } finally {
