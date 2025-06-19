@@ -64,11 +64,10 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   handleGenerate,
   isLoading
 }) => {
-  let stepCounter = 1;
-  
-  if (currentStep === stepCounter) {
+  // Step 1: Scene
+  if (currentStep === 1) {
     return (
-      <div id={`step-content-${stepCounter}`}>
+      <div id="step-content-1">
         <SceneStep
           sceneIdea={sceneIdea}
           setSceneIdea={setSceneIdea}
@@ -77,11 +76,11 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       </div>
     );
   }
-  stepCounter++;
 
-  if (currentStep === stepCounter) {
+  // Step 2: Platform
+  if (currentStep === 2) {
     return (
-      <div id={`step-content-${stepCounter}`}>
+      <div id="step-content-2">
         <PlatformStep
           selectedPlatform={selectedPlatform}
           setSelectedPlatform={setSelectedPlatform}
@@ -95,12 +94,11 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       </div>
     );
   }
-  stepCounter++;
 
-  // Dialog Step (All Tiers)
-  if (currentStep === stepCounter) {
+  // Step 3: Dialog
+  if (currentStep === 3) {
     return (
-      <div id={`step-content-${stepCounter}`}>
+      <div id="step-content-3">
         <DialogStep
           dialogSettings={dialogSettings}
           setDialogSettings={setDialogSettings}
@@ -110,12 +108,11 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       </div>
     );
   }
-  stepCounter++;
 
-  // Sound Step (All Tiers)
-  if (currentStep === stepCounter) {
+  // Step 4: Sound
+  if (currentStep === 4) {
     return (
-      <div id={`step-content-${stepCounter}`}>
+      <div id="step-content-4">
         <SoundStep
           soundSettings={soundSettings}
           setSoundSettings={setSoundSettings}
@@ -125,46 +122,41 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       </div>
     );
   }
-  stepCounter++;
 
-  // Camera Controls Step (Creator+ only)
-  if (canUseFeature('cameraControls')) {
-    if (currentStep === stepCounter) {
-      return (
-        <div id={`step-content-${stepCounter}`}>
-          <CameraControlsStep
-            cameraSettings={cameraSettings}
-            setCameraSettings={setCameraSettings}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-          />
-        </div>
-      );
-    }
-    stepCounter++;
-  }
-
-  // Lighting Step (Creator+ only)
-  if (canUseFeature('lightingOptions')) {
-    if (currentStep === stepCounter) {
-      return (
-        <div id={`step-content-${stepCounter}`}>
-          <LightingStep
-            lightingSettings={lightingSettings}
-            setLightingSettings={setLightingSettings}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-          />
-        </div>
-      );
-    }
-    stepCounter++;
-  }
-
-  // Style Step (final step)
-  if (currentStep === stepCounter) {
+  // Step 5: Camera Controls (always show, but with upgrade prompt for Starter users)
+  if (currentStep === 5) {
     return (
-      <div id={`step-content-${stepCounter}`}>
+      <div id="step-content-5">
+        <CameraControlsStep
+          cameraSettings={cameraSettings}
+          setCameraSettings={setCameraSettings}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          showUpgrade={!canUseFeature('cameraControls')}
+        />
+      </div>
+    );
+  }
+
+  // Step 6: Lighting (always show, but with upgrade prompt for Starter users)
+  if (currentStep === 6) {
+    return (
+      <div id="step-content-6">
+        <LightingStep
+          lightingSettings={lightingSettings}
+          setLightingSettings={setLightingSettings}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          showUpgrade={!canUseFeature('lightingOptions')}
+        />
+      </div>
+    );
+  }
+
+  // Step 7: Style (final step)
+  if (currentStep === 7) {
+    return (
+      <div id="step-content-7">
         <StyleStep
           styleReference={styleReference}
           setStyleReference={setStyleReference}

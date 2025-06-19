@@ -4,12 +4,14 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Camera, Crown } from 'lucide-react';
 import { CameraSettings } from './useCinematicForm';
+import UpgradePrompt from './UpgradePrompt';
 
 interface CameraControlsStepProps {
   cameraSettings: CameraSettings;
   setCameraSettings: (settings: CameraSettings) => void;
   onNext: () => void;
   onPrevious: () => void;
+  showUpgrade?: boolean;
 }
 
 const cameraAngles = [
@@ -28,7 +30,8 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
   cameraSettings,
   setCameraSettings,
   onNext,
-  onPrevious
+  onPrevious,
+  showUpgrade = false
 }) => {
   const handleSettingChange = (key: keyof CameraSettings, value: string) => {
     setCameraSettings({
@@ -36,6 +39,50 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
       [key]: value
     });
   };
+
+  if (showUpgrade) {
+    return (
+      <motion.div 
+        className="space-y-4 sm:space-y-6"
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="text-center space-y-2 sm:space-y-3">
+          <div className="flex items-center justify-center gap-2">
+            <Camera className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
+            <h3 className="text-xl sm:text-2xl font-bold text-white">Camera Controls</h3>
+            <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+          </div>
+          <p className="text-gray-300 text-sm sm:text-base">Fine-tune your cinematic vision with professional camera settings</p>
+        </div>
+
+        <UpgradePrompt
+          feature="Camera Controls"
+          requiredTier="creator"
+          currentTier="starter"
+        />
+        
+        <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+          <Button
+            onClick={onPrevious}
+            variant="outline"
+            size="sm"
+            className="border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" /> Previous
+          </Button>
+          <Button
+            onClick={onNext}
+            size="sm"
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+          >
+            Next Step <ChevronRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div 

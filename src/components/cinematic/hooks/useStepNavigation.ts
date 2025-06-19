@@ -6,14 +6,8 @@ export const useStepNavigation = (
   setCurrentStep: (step: number) => void,
   canUseFeature: (feature: string) => boolean
 ) => {
-  const getTotalSteps = () => {
-    let steps = 5; // Scene, Platform, Dialog, Sound, Style (base steps)
-    if (canUseFeature('cameraControls')) steps++;
-    if (canUseFeature('lightingOptions')) steps++;
-    return steps;
-  };
-
-  const totalSteps = getTotalSteps();
+  // Always return 7 steps - all users can see all steps now
+  const totalSteps = 7;
 
   const scrollToForm = () => {
     // Small delay to allow step transition to complete
