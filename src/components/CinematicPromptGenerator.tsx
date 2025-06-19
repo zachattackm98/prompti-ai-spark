@@ -12,7 +12,6 @@ import { PromptHistory } from './cinematic/types';
 import CinematicHeader from './cinematic/CinematicHeader';
 import CinematicForm from './cinematic/CinematicForm';
 import CinematicUpgradeSection from './cinematic/CinematicUpgradeSection';
-import PromptHistoryComponent from './cinematic/PromptHistory';
 import BackgroundAnimation from './cinematic/BackgroundAnimation';
 
 const CinematicPromptGenerator = () => {
@@ -90,8 +89,6 @@ const CinematicPromptGenerator = () => {
             subscription={subscription}
             onUpgrade={handleUpgrade}
           />
-
-          <PromptHistoryComponent promptHistory={promptHistory} showHistory={showHistory} />
         </div>
       </motion.section>
 
