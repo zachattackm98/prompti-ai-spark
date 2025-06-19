@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
@@ -15,10 +16,13 @@ interface PromptHistoryProps {
 
 const PromptHistory: React.FC<PromptHistoryProps> = ({ 
   promptHistory, 
+  showHistory, 
   historyLoading = false,
   onStartProjectFromHistory
 }) => {
   const { copyToClipboard, downloadPrompt } = usePromptActions({});
+
+  if (!showHistory) return null;
 
   const handleCopyPrompt = (prompt: PromptHistoryType) => {
     try {
@@ -80,6 +84,7 @@ const PromptHistory: React.FC<PromptHistoryProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      className="mt-8"
     >
       <Card className="bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 border border-purple-500/20 p-6">
         <div className="flex items-center justify-between mb-4">

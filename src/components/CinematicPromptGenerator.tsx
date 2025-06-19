@@ -18,6 +18,7 @@ import BackgroundAnimation from './cinematic/BackgroundAnimation';
 const CinematicPromptGenerator = () => {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [promptHistory, setPromptHistory] = useState<PromptHistory[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const { toast } = useToast();
   const { user, signOut } = useAuth();
@@ -95,6 +96,11 @@ const CinematicPromptGenerator = () => {
           title: "History Loaded",
           description: `Found ${transformedHistory.length} generated prompts in your history.`,
         });
+      } else {
+        toast({
+          title: "No History Found",
+          description: "No saved prompts found. Generate your first prompt to start building your history!",
+        });
       }
     } catch (error) {
       console.error('[PROMPT-HISTORY] Unexpected error loading prompt history:', error);
@@ -112,6 +118,7 @@ const CinematicPromptGenerator = () => {
     try {
       await signOut();
       setPromptHistory([]);
+      setShowHistory(false);
       console.log('[AUTH] User signed out successfully');
     } catch (error) {
       console.error('[AUTH] Error signing out:', error);
@@ -136,13 +143,12 @@ const CinematicPromptGenerator = () => {
     }
   };
 
-  // Always load history when user is authenticated
   React.useEffect(() => {
-    if (user) {
-      console.log('[PROMPT-HISTORY] User authenticated, loading history...');
+    if (user && showHistory && canUseFeature('promptHistory')) {
+      console.log('[PROMPT-HISTORY] User authenticated and history requested, loading...');
       loadPromptHistory();
     }
-  }, [user]);
+  }, [user, showHistory, canUseFeature]);
 
   return (
     <>
@@ -160,8 +166,9 @@ const CinematicPromptGenerator = () => {
           <CinematicHeader
             user={user}
             subscription={subscription}
+            showHistory={showHistory}
+            setShowHistory={setShowHistory}
             onSignOut={handleSignOut}
-            onUpgrade={handleUpgrade}
           />
 
           <CinematicForm
@@ -172,6 +179,7 @@ const CinematicPromptGenerator = () => {
             setShowAuthDialog={setShowAuthDialog}
             loadPromptHistory={loadPromptHistory}
             promptHistory={promptHistory}
+            showHistory={showHistory}
             historyLoading={historyLoading}
           />
 

@@ -17,6 +17,7 @@ interface CinematicFormProps {
   setShowAuthDialog: (show: boolean) => void;
   loadPromptHistory: () => void;
   promptHistory?: PromptHistory[];
+  showHistory?: boolean;
   historyLoading?: boolean;
 }
 
@@ -28,9 +29,11 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
   setShowAuthDialog,
   loadPromptHistory,
   promptHistory = [],
+  showHistory = false,
   historyLoading = false
 }) => {
   const { canUseFeature: canUseSubscriptionFeature } = useSubscription();
+  const canAccessHistory = canUseSubscriptionFeature('promptHistory');
 
   const {
     currentStep,
@@ -134,8 +137,9 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
       />
 
       <CinematicFormHistory
-        promptHistory={promptHistory}
-        historyLoading={historyLoading}
+        showHistory={showHistory}
+        promptHistory={canAccessHistory ? promptHistory : []}
+        historyLoading={canAccessHistory ? historyLoading : false}
         onStartProjectFromHistory={handleStartProjectFromHistory}
       />
 
