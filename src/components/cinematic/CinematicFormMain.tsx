@@ -1,13 +1,9 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import FormStep1SceneIdea from './steps/FormStep1SceneIdea';
-import FormStep2Platform from './steps/FormStep2Platform';
-import FormStep3Emotion from './steps/FormStep3Emotion';
-import FormStep4Settings from './steps/FormStep4Settings';
-import FormStep5Generation from './steps/FormStep5Generation';
-import EnhancedUsageDisplay from './EnhancedUsageDisplay';
-import { useSubscription } from '@/hooks/useSubscription';
+import StepIndicator from './StepIndicator';
+import CinematicFormContent from './CinematicFormContent';
+import { usePromptGeneration } from './hooks/usePromptGeneration';
+import { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './hooks/types';
 
 interface CinematicFormMainProps {
   user: any;
@@ -21,131 +17,134 @@ interface CinematicFormMainProps {
   sceneIdea: string;
   selectedPlatform: string;
   selectedEmotion: string;
-  dialogSettings: any;
-  soundSettings: any;
-  cameraSettings: any;
-  lightingSettings: any;
+  dialogSettings: DialogSettings;
+  soundSettings: SoundSettings;
+  cameraSettings: CameraSettings;
+  lightingSettings: LightingSettings;
   styleReference: string;
-  generatedPrompt: any;
+  generatedPrompt: GeneratedPrompt | null;
   isLoading: boolean;
   isMultiScene: boolean;
   currentProject: any;
-  setSceneIdea: (idea: string) => void;
+  setSceneIdea: (value: string) => void;
   setSelectedPlatform: (platform: string) => void;
   setSelectedEmotion: (emotion: string) => void;
-  setDialogSettings: (settings: any) => void;
-  setSoundSettings: (settings: any) => void;
-  setCameraSettings: (settings: any) => void;
-  setLightingSettings: (settings: any) => void;
-  setStyleReference: (reference: string) => void;
-  setGeneratedPrompt: (prompt: any) => void;
+  setDialogSettings: (settings: DialogSettings) => void;
+  setSoundSettings: (settings: SoundSettings) => void;
+  setCameraSettings: (settings: CameraSettings) => void;
+  setLightingSettings: (settings: LightingSettings) => void;
+  setStyleReference: (value: string) => void;
+  setGeneratedPrompt: (prompt: GeneratedPrompt | null) => void;
   setIsLoading: (loading: boolean) => void;
   handleNext: () => void;
   handlePrevious: () => void;
   handleGenerateNew: () => void;
-  handleContinueScene: () => void;
-  updateScenePrompt: (sceneIndex: number, prompt: any) => Promise<any>;
+  handleContinueScene: (projectTitle: string, nextSceneIdea: string) => void;
+  updateScenePrompt: (sceneIndex: number, prompt: GeneratedPrompt) => Promise<any>;
 }
 
-const CinematicFormMain: React.FC<CinematicFormMainProps> = (props) => {
-  const { forceRefresh } = useSubscription();
-
-  const handleUpgrade = () => {
-    const pricingSection = document.getElementById('pricing');
-    if (pricingSection) {
-      pricingSection.scrollIntoView({ behavior: 'smooth' });
-    }
+const CinematicFormMain: React.FC<CinematicFormMainProps> = ({
+  user,
+  subscription,
+  features,
+  canUseFeature,
+  setShowAuthDialog,
+  loadPromptHistory,
+  currentStep,
+  totalSteps,
+  sceneIdea,
+  selectedPlatform,
+  selectedEmotion,
+  dialogSettings,
+  soundSettings,
+  cameraSettings,
+  lightingSettings,
+  styleReference,
+  generatedPrompt,
+  isLoading,
+  isMultiScene,
+  currentProject,
+  setSceneIdea,
+  setSelectedPlatform,
+  setSelectedEmotion,
+  setDialogSettings,
+  setSoundSettings,
+  setCameraSettings,
+  setLightingSettings,
+  setStyleReference,
+  setGeneratedPrompt,
+  setIsLoading,
+  handleNext,
+  handlePrevious,
+  handleGenerateNew,
+  handleContinueScene,
+  updateScenePrompt
+}) => {
+  // Create form state object for the prompt generation hook
+  const formState = {
+    sceneIdea,
+    selectedPlatform,
+    selectedEmotion,
+    dialogSettings,
+    soundSettings,
+    cameraSettings,
+    lightingSettings,
+    styleReference,
+    currentProject,
+    isMultiScene
   };
 
+  // Use the enhanced prompt generation hook with automatic saving
+  const { handleGenerate, manualSaveToHistory, savingToHistory } = usePromptGeneration(
+    user,
+    subscription,
+    canUseFeature,
+    setShowAuthDialog,
+    loadPromptHistory,
+    formState,
+    setGeneratedPrompt,
+    setIsLoading,
+    currentProject,
+    updateScenePrompt
+  );
+
   return (
-    <motion.div
-      id="cinematic-form"
-      className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-3xl border border-white/20 p-8 backdrop-blur-sm"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
-    >
-      {/* Enhanced Usage Display */}
-      <EnhancedUsageDisplay onUpgrade={handleUpgrade} />
+    <>
+      <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
-      {/* Step Content */}
-      {props.currentStep === 1 && (
-        <FormStep1SceneIdea
-          sceneIdea={props.sceneIdea}
-          setSceneIdea={props.setSceneIdea}
-          onNext={props.handleNext}
-          isMultiScene={props.isMultiScene}
-          currentProject={props.currentProject}
-        />
-      )}
-
-      {props.currentStep === 2 && (
-        <FormStep2Platform
-          selectedPlatform={props.selectedPlatform}
-          setSelectedPlatform={props.setSelectedPlatform}
-          subscription={props.subscription}
-          onNext={props.handleNext}
-          onPrevious={props.handlePrevious}
-        />
-      )}
-
-      {props.currentStep === 3 && (
-        <FormStep3Emotion
-          selectedEmotion={props.selectedEmotion}
-          setSelectedEmotion={props.setSelectedEmotion}
-          subscription={props.subscription}
-          onNext={props.handleNext}
-          onPrevious={props.handlePrevious}
-        />
-      )}
-
-      {props.currentStep === 4 && (
-        <FormStep4Settings
-          dialogSettings={props.dialogSettings}
-          setDialogSettings={props.setDialogSettings}
-          soundSettings={props.soundSettings}
-          setSoundSettings={props.setSoundSettings}
-          cameraSettings={props.cameraSettings}
-          setCameraSettings={props.setCameraSettings}
-          lightingSettings={props.lightingSettings}
-          setLightingSettings={props.setLightingSettings}
-          styleReference={props.styleReference}
-          setStyleReference={props.setStyleReference}
-          canUseFeature={props.canUseFeature}
-          subscription={props.subscription}
-          onNext={props.handleNext}
-          onPrevious={props.handlePrevious}
-        />
-      )}
-
-      {props.currentStep === 5 && (
-        <FormStep5Generation
-          user={props.user}
-          subscription={props.subscription}
-          canUseFeature={props.canUseFeature}
-          setShowAuthDialog={props.setShowAuthDialog}
-          loadPromptHistory={props.loadPromptHistory}
-          sceneIdea={props.sceneIdea}
-          selectedPlatform={props.selectedPlatform}
-          selectedEmotion={props.selectedEmotion}
-          dialogSettings={props.dialogSettings}
-          soundSettings={props.soundSettings}
-          cameraSettings={props.cameraSettings}
-          lightingSettings={props.lightingSettings}
-          styleReference={props.styleReference}
-          generatedPrompt={props.generatedPrompt}
-          isLoading={props.isLoading}
-          isMultiScene={props.isMultiScene}
-          currentProject={props.currentProject}
-          setGeneratedPrompt={props.setGeneratedPrompt}
-          setIsLoading={props.setIsLoading}
-          handleGenerateNew={props.handleGenerateNew}
-          handleContinueScene={props.handleContinueScene}
-          updateScenePrompt={props.updateScenePrompt}
-          onPrevious={props.handlePrevious}
-        />
-      )}
-    </motion.div>
+      <CinematicFormContent
+        subscription={subscription}
+        features={features}
+        canUseFeature={canUseFeature}
+        currentStep={currentStep}
+        sceneIdea={sceneIdea}
+        selectedPlatform={selectedPlatform}
+        selectedEmotion={selectedEmotion}
+        dialogSettings={dialogSettings}
+        soundSettings={soundSettings}
+        cameraSettings={cameraSettings}
+        lightingSettings={lightingSettings}
+        styleReference={styleReference}
+        generatedPrompt={generatedPrompt}
+        isLoading={isLoading}
+        isMultiScene={isMultiScene}
+        setSceneIdea={setSceneIdea}
+        setSelectedPlatform={setSelectedPlatform}
+        setSelectedEmotion={setSelectedEmotion}
+        setDialogSettings={setDialogSettings}
+        setSoundSettings={setSoundSettings}
+        setCameraSettings={setCameraSettings}
+        setLightingSettings={setLightingSettings}
+        setStyleReference={setStyleReference}
+        handleNext={handleNext}
+        handlePrevious={handlePrevious}
+        handleGenerate={handleGenerate}
+        handleGenerateNew={handleGenerateNew}
+        handleContinueScene={handleContinueScene}
+        onManualSave={manualSaveToHistory}
+        savingToHistory={savingToHistory}
+      />
+    </>
   );
 };
 

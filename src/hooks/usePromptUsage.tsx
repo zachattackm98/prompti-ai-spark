@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { TIER_FEATURES, SubscriptionTier } from '@/types/subscription';
+import { useSubscription } from './useSubscription';
+import { TIER_FEATURES } from '@/types/subscription';
 
 interface PromptUsage {
   id: string;
@@ -13,18 +14,12 @@ interface PromptUsage {
   updated_at: string;
 }
 
-interface UsePromptUsageProps {
-  subscriptionTier?: SubscriptionTier;
-}
-
-export const usePromptUsage = (props?: UsePromptUsageProps) => {
+export const usePromptUsage = () => {
   const { user } = useAuth();
+  const { subscription } = useSubscription();
   const [usage, setUsage] = useState<PromptUsage | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Use provided tier or default to starter
-  const tier = props?.subscriptionTier || 'starter';
 
   const fetchUsage = async () => {
     if (!user) return;
@@ -55,7 +50,7 @@ export const usePromptUsage = (props?: UsePromptUsageProps) => {
   }, [user]);
 
   const getPromptLimit = () => {
-    return TIER_FEATURES[tier].maxPrompts;
+    return TIER_FEATURES[subscription.tier].maxPrompts;
   };
 
   const getRemainingPrompts = () => {
@@ -85,6 +80,6 @@ export const usePromptUsage = (props?: UsePromptUsageProps) => {
     hasReachedLimit: hasReachedLimit(),
     usagePercentage: getUsagePercentage(),
     promptLimit: getPromptLimit(),
-    isStarterPlan: tier === 'starter'
+    isStarterPlan: subscription.tier === 'starter'
   };
 };

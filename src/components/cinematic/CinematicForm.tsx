@@ -61,28 +61,15 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     // Multi-scene functionality
     currentProject,
     isMultiScene,
-    handleContinueScene: originalHandleContinueScene,
+    handleContinueScene,
     handleSceneSelect,
     handleAddScene,
     handleLoadProject,
     canAddMoreScenes,
     updateScenePrompt,
     // History functionality
-    handleStartProjectFromHistory: originalHandleStartProjectFromHistory
+    handleStartProjectFromHistory
   } = useCinematicForm(user, subscription, canUseFeature, setShowAuthDialog, loadPromptHistory);
-
-  // Create wrapper functions to match expected signatures
-  const handleContinueScene = () => {
-    // For now, we'll use placeholder values - this should be enhanced to get actual values from UI
-    const projectTitle = `Project ${Date.now()}`;
-    const nextSceneIdea = "Next scene";
-    originalHandleContinueScene(projectTitle, nextSceneIdea);
-  };
-
-  const handleStartProjectFromHistory = () => {
-    // This is a placeholder - the actual implementation should handle the parameters
-    console.log('Starting project from history - needs implementation');
-  };
 
   const handleUpgrade = () => {
     // Navigate to pricing section
