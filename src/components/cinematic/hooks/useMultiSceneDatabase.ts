@@ -12,6 +12,13 @@ export const useMultiSceneDatabase = () => {
     setError(null);
     
     try {
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError('User not authenticated');
+        return null;
+      }
+
       // First, save or update the project
       const { data: projectData, error: projectError } = await supabase
         .from('cinematic_projects')
@@ -19,6 +26,7 @@ export const useMultiSceneDatabase = () => {
           id: project.id,
           title: project.title,
           current_scene_index: project.currentSceneIndex,
+          user_id: user.id, // Add the missing user_id field
           updated_at: new Date().toISOString()
         })
         .select()
@@ -30,7 +38,7 @@ export const useMultiSceneDatabase = () => {
         return null;
       }
 
-      // Then save all scenes
+      // Then save all scenes with proper type casting
       const scenesData = project.scenes.map(scene => ({
         id: scene.id || undefined,
         project_id: project.id,
@@ -38,12 +46,12 @@ export const useMultiSceneDatabase = () => {
         scene_idea: scene.sceneIdea,
         selected_platform: scene.selectedPlatform,
         selected_emotion: scene.selectedEmotion,
-        dialog_settings: scene.dialogSettings,
-        sound_settings: scene.soundSettings,
-        camera_settings: scene.cameraSettings,
-        lighting_settings: scene.lightingSettings,
+        dialog_settings: scene.dialogSettings as any, // Cast to Json type
+        sound_settings: scene.soundSettings as any, // Cast to Json type
+        camera_settings: scene.cameraSettings as any, // Cast to Json type
+        lighting_settings: scene.lightingSettings as any, // Cast to Json type
         style_reference: scene.styleReference,
-        generated_prompt: scene.generatedPrompt,
+        generated_prompt: scene.generatedPrompt as any, // Cast to Json type
         updated_at: new Date().toISOString()
       }));
 
@@ -98,19 +106,19 @@ export const useMultiSceneDatabase = () => {
         return null;
       }
 
-      // Transform database data to our types
+      // Transform database data to our types with proper type casting
       const scenes: SceneData[] = scenesData.map(scene => ({
         id: scene.id,
         sceneNumber: scene.scene_number,
         sceneIdea: scene.scene_idea,
         selectedPlatform: scene.selected_platform,
         selectedEmotion: scene.selected_emotion,
-        dialogSettings: scene.dialog_settings,
-        soundSettings: scene.sound_settings,
-        cameraSettings: scene.camera_settings,
-        lightingSettings: scene.lighting_settings,
+        dialogSettings: scene.dialog_settings as any, // Cast from Json type
+        soundSettings: scene.sound_settings as any, // Cast from Json type
+        cameraSettings: scene.camera_settings as any, // Cast from Json type
+        lightingSettings: scene.lighting_settings as any, // Cast from Json type
         styleReference: scene.style_reference,
-        generatedPrompt: scene.generated_prompt
+        generatedPrompt: scene.generated_prompt as any // Cast from Json type
       }));
 
       const project: MultiSceneProject = {
@@ -177,7 +185,7 @@ export const useMultiSceneDatabase = () => {
         return [];
       }
 
-      // Transform database data to our types
+      // Transform database data to our types with proper type casting
       const projects: MultiSceneProject[] = projectsData.map(project => ({
         id: project.id,
         title: project.title,
@@ -189,12 +197,12 @@ export const useMultiSceneDatabase = () => {
             sceneIdea: scene.scene_idea,
             selectedPlatform: scene.selected_platform,
             selectedEmotion: scene.selected_emotion,
-            dialogSettings: scene.dialog_settings,
-            soundSettings: scene.sound_settings,
-            cameraSettings: scene.camera_settings,
-            lightingSettings: scene.lighting_settings,
+            dialogSettings: scene.dialog_settings as any, // Cast from Json type
+            soundSettings: scene.sound_settings as any, // Cast from Json type
+            cameraSettings: scene.camera_settings as any, // Cast from Json type
+            lightingSettings: scene.lighting_settings as any, // Cast from Json type
             styleReference: scene.style_reference,
-            generatedPrompt: scene.generated_prompt
+            generatedPrompt: scene.generated_prompt as any // Cast from Json type
           })),
         currentSceneIndex: project.current_scene_index,
         createdAt: project.created_at,
