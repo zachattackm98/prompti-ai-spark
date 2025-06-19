@@ -3,8 +3,8 @@ import React, { createContext } from 'react';
 import { useAuth } from '../useAuth';
 import { SubscriptionContextType } from './subscriptionTypes';
 import { useSubscriptionState } from './subscriptionState';
-import { useSubscriptionEffects } from './subscriptionEffects';
-import { useSubscriptionOperations } from './subscriptionOperations';
+import { useSubscriptionEffects } from './useSubscriptionEffects';
+import { useSubscriptionOperations } from './useSubscriptionOperations';
 import { createSubscriptionHelpers } from './subscriptionHelpers';
 
 export const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -34,12 +34,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
     openCustomerPortal,
     fetchBillingData,
     downloadInvoice
-  } = useSubscriptionOperations(
-    user,
-    setLoading,
-    subscription,
-    setSubscription
-  );
+  } = useSubscriptionOperations(user, setLoading);
 
   const subscriptionHelpers = createSubscriptionHelpers(subscription);
 
