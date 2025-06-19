@@ -8,7 +8,7 @@ import StepIndicator from './StepIndicator';
 import StepRenderer from './StepRenderer';
 import GeneratedPromptDisplay from './GeneratedPromptDisplay';
 import UsageDisplay from './UsageDisplay';
-import ComingSoonFeatureCard from '../ComingSoonFeatureCard';
+import FeatureAnnouncement from './FeatureAnnouncement';
 
 interface CinematicFormProps {
   user: any;
@@ -64,32 +64,15 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     }
   };
 
-  // Determine coming soon features based on subscription tier
-  const getComingSoonFeatures = () => {
-    if (!user || !subscription) return [];
-    
-    const features = [];
-    
-    if (subscription.tier === 'creator' || subscription.tier === 'studio') {
-      features.push('💾 Prompt History Saving & Management');
-      features.push('🎬 Multi-Scene Project Creation');
-    }
-    
-    return features;
-  };
-
-  const comingSoonFeatures = getComingSoonFeatures();
-
   return (
     <>
       {user && (
         <UsageDisplay onUpgrade={handleUpgrade} />
       )}
 
-      {/* Coming Soon Features Announcement */}
-      {user && comingSoonFeatures.length > 0 && (
-        <ComingSoonFeatureCard 
-          features={comingSoonFeatures}
+      {/* Feature Announcement for Creator and Studio users */}
+      {user && subscription && (
+        <FeatureAnnouncement 
           userTier={subscription.tier}
           className="mb-6"
         />
