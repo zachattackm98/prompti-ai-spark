@@ -29,10 +29,27 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
   // Determine if this is the Studio plan for gold styling
   const isStudioPlan = plan.tier === 'studio';
 
+  // Get mobile-friendly button text
+  const getMobileButtonText = (plan: PricingPlan) => {
+    const fullText = getButtonText(plan);
+    if (plan.tier === 'starter') {
+      return {
+        mobile: 'Start Free',
+        desktop: fullText
+      };
+    }
+    return {
+      mobile: fullText,
+      desktop: fullText
+    };
+  };
+
+  const buttonText = getMobileButtonText(plan);
+
   return (
     <motion.div
       variants={cardVariants}
-      className={`relative bg-slate-900/40 border rounded-2xl p-8 will-change-transform hover:scale-[1.02] transition-all duration-300 ${
+      className={`relative bg-slate-900/40 border rounded-2xl p-8 will-change-transform hover:scale-[1.02] transition-all duration-300 flex flex-col ${
         isStudioPlan
           ? 'border-yellow-500/50 bg-gradient-to-b from-slate-900/60 to-yellow-900/20'
           : plan.popular 
@@ -106,7 +123,7 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
         </div>
       </div>
       
-      <ul className="space-y-4 mb-8">
+      <ul className="space-y-4 mb-8 flex-grow">
         {plan.features.map((feature, i) => (
           <li key={i} className="flex items-start text-gray-300">
             <div className="flex-shrink-0 mt-0.5">
@@ -130,7 +147,7 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
       <Button 
         onClick={() => onPlanClick(plan)}
         disabled={false}
-        className={`w-full transition-all duration-300 ${
+        className={`w-full transition-all duration-300 mt-auto ${
           isPending
             ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
             : isCurrentPlan || isOptimistic
@@ -139,7 +156,7 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
             ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-lg shadow-yellow-500/25'
             : plan.popular 
             ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' 
-            : 'bg-slate-800 border border-white/20 hover:bg-slate-700'
+            : 'bg-gradient-to-r from-slate-800 to-slate-700 border border-white/20 hover:from-slate-700 hover:to-slate-600'
         }`}
         size="lg"
       >
@@ -149,7 +166,10 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
             Processing...
           </>
         ) : (
-          getButtonText(plan)
+          <>
+            <span className="hidden sm:inline">{buttonText.desktop}</span>
+            <span className="sm:hidden">{buttonText.mobile}</span>
+          </>
         )}
       </Button>
     </motion.div>
