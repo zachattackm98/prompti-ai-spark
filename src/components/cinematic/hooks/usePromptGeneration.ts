@@ -32,6 +32,71 @@ export const usePromptGeneration = (
 ) => {
   const { toast } = useToast();
 
+  const createSingleSceneProject = useCallback(async (generatedPrompt: GeneratedPrompt) => {
+    if (!user) return null;
+
+    try {
+      console.log('[PROMPT-GENERATION] Creating single-scene project for automatic save');
+      
+      // Create a project for the single scene
+      const projectId = crypto.randomUUID();
+      const projectTitle = `Generated Scene - ${new Date().toLocaleDateString()}`;
+      
+      // First, save the project
+      const { data: projectData, error: projectError } = await supabase
+        .from('cinematic_projects')
+        .insert({
+          id: projectId,
+          user_id: user.id,
+          title: projectTitle,
+          current_scene_index: 0
+        })
+        .select()
+        .single();
+
+      if (projectError) {
+        console.error('[PROMPT-GENERATION] Error creating project:', projectError);
+        throw new Error(projectError.message);
+      }
+
+      console.log('[PROMPT-GENERATION] Project created:', projectData.id);
+
+      // Create scene data from current form state
+      const sceneData = {
+        id: crypto.randomUUID(),
+        project_id: projectId,
+        scene_number: 1,
+        scene_idea: formState.sceneIdea,
+        selected_platform: formState.selectedPlatform,
+        selected_emotion: formState.selectedEmotion,
+        dialog_settings: formState.dialogSettings,
+        sound_settings: formState.soundSettings,
+        camera_settings: formState.cameraSettings,
+        lighting_settings: formState.lightingSettings,
+        style_reference: formState.styleReference,
+        generated_prompt: generatedPrompt
+      };
+
+      // Save the scene with the generated prompt
+      const { data: sceneData_response, error: sceneError } = await supabase
+        .from('cinematic_scenes')
+        .insert(sceneData)
+        .select()
+        .single();
+
+      if (sceneError) {
+        console.error('[PROMPT-GENERATION] Error creating scene:', sceneError);
+        throw new Error(sceneError.message);
+      }
+
+      console.log('[PROMPT-GENERATION] Scene created and saved to history:', sceneData_response.id);
+      return { project: projectData, scene: sceneData_response };
+    } catch (error) {
+      console.error('[PROMPT-GENERATION] Error in createSingleSceneProject:', error);
+      throw error;
+    }
+  }, [user, formState]);
+
   const handleGenerate = useCallback(async () => {
     console.log('[PROMPT-GENERATION] Starting prompt generation');
     console.log('[PROMPT-GENERATION] Current subscription:', subscription);
@@ -79,7 +144,7 @@ export const usePromptGeneration = (
         cameraSettings: formState.cameraSettings,
         lightingSettings: formState.lightingSettings,
         styleReference: formState.styleReference,
-        tier: userTier, // Pass the actual subscription tier
+        tier: userTier,
         sceneNumber: currentProject ? 
           (currentProject.scenes[currentProject.currentSceneIndex]?.sceneNumber || 1) : 1,
         totalScenes: currentProject ? currentProject.scenes.length : 1,
@@ -119,10 +184,25 @@ export const usePromptGeneration = (
 
       setGeneratedPrompt(generatedPrompt);
 
-      // If we're in a multi-scene project, update the scene with the new prompt
+      // Handle saving based on whether we're in a multi-scene project or not
       if (currentProject && updateScenePrompt) {
         console.log('[PROMPT-GENERATION] Updating multi-scene project with new prompt');
         await updateScenePrompt(currentProject.currentSceneIndex, generatedPrompt);
+      } else {
+        // For single-scene prompts, automatically create a project and save to history
+        console.log('[PROMPT-GENERATION] Auto-saving single-scene prompt to history');
+        try {
+          await createSingleSceneProject(generatedPrompt);
+          console.log('[PROMPT-GENERATION] Single-scene prompt automatically saved to history');
+        } catch (saveError) {
+          console.error('[PROMPT-GENERATION] Error auto-saving to history:', saveError);
+          // Don't fail the entire generation if history save fails
+          toast({
+            title: "Prompt Generated",
+            description: "Your prompt was generated but couldn't be saved to history. You can manually save it using the save button.",
+            variant: "destructive"
+          });
+        }
       }
 
       // Reload prompt history to show the new prompt
@@ -158,7 +238,7 @@ export const usePromptGeneration = (
     }
   }, [
     user,
-    subscription, // Add subscription to dependencies
+    subscription,
     canUseFeature,
     setShowAuthDialog,
     formState,
@@ -167,6 +247,7 @@ export const usePromptGeneration = (
     currentProject,
     updateScenePrompt,
     loadPromptHistory,
+    createSingleSceneProject,
     toast
   ]);
 
@@ -261,6 +342,6 @@ export const usePromptGeneration = (
   return {
     handleGenerate,
     manualSaveToHistory,
-    savingToHistory: false // We can add a loading state later if needed
+    savingToHistory: false
   };
 };

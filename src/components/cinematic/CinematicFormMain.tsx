@@ -94,7 +94,7 @@ const CinematicFormMain: React.FC<CinematicFormMainProps> = ({
     isMultiScene
   };
 
-  // Use the enhanced prompt generation hook with improved error handling and logging
+  // Use the enhanced prompt generation hook with automatic saving
   const { handleGenerate, manualSaveToHistory, savingToHistory } = usePromptGeneration(
     user,
     subscription,
