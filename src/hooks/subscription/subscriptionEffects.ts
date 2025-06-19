@@ -7,7 +7,9 @@ export const useSubscriptionEffects = (
   user: any,
   setLoading: (loading: boolean) => void,
   setSubscription: (subscription: UserSubscription) => void,
-  setBillingDetails: (details: BillingDetails | null) => void
+  setBillingDetails: (details: BillingDetails | null) => void,
+  checkoutSuccessInProgress: boolean,
+  setCheckoutSuccessInProgress: (inProgress: boolean) => void
 ) => {
   const checkSubscription = async (retryCount = 0, maxRetries = 3) => {
     if (!user) {
@@ -136,11 +138,16 @@ export const useSubscriptionEffects = (
     await checkSubscription();
   };
 
-  // Check subscription when user changes
+  // Check subscription when user changes - BUT NOT during checkout success
   useEffect(() => {
+    if (checkoutSuccessInProgress) {
+      console.log('[SUBSCRIPTION] Skipping user effect check - checkout success in progress');
+      return;
+    }
+    
     console.log('[SUBSCRIPTION] User state changed:', user?.email || 'no user');
     checkSubscription();
-  }, [user]);
+  }, [user, checkoutSuccessInProgress]);
 
   // Enhanced checkout success/cancel handling
   useEffect(() => {
@@ -149,6 +156,9 @@ export const useSubscriptionEffects = (
     
     if (checkout === 'success') {
       console.log('[SUBSCRIPTION] Checkout success detected');
+      
+      // Set flag to prevent user effect from running
+      setCheckoutSuccessInProgress(true);
       
       showToast(
         "Payment Successful!",
@@ -172,6 +182,8 @@ export const useSubscriptionEffects = (
       // Additional verification after a longer delay to ensure everything is synced
       setTimeout(() => {
         verifySubscriptionStatus();
+        // Clear the flag after all checks are complete
+        setCheckoutSuccessInProgress(false);
       }, 10000);
       
     } else if (checkout === 'cancelled') {

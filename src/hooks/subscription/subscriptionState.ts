@@ -12,6 +12,7 @@ export const useSubscriptionState = () => {
     isActive: false,
     isCancelling: false,
   });
+  const [checkoutSuccessInProgress, setCheckoutSuccessInProgress] = useState(false);
 
   return {
     loading,
@@ -20,5 +21,7 @@ export const useSubscriptionState = () => {
     setBillingDetails,
     subscription,
     setSubscription,
+    checkoutSuccessInProgress,
+    setCheckoutSuccessInProgress,
   };
 };

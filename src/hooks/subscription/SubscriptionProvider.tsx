@@ -19,13 +19,17 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
     setBillingDetails,
     subscription,
     setSubscription,
+    checkoutSuccessInProgress,
+    setCheckoutSuccessInProgress,
   } = useSubscriptionState();
 
   const { checkSubscription, verifySubscriptionStatus } = useSubscriptionEffects(
     user,
     setLoading,
     setSubscription,
-    setBillingDetails
+    setBillingDetails,
+    checkoutSuccessInProgress,
+    setCheckoutSuccessInProgress
   );
 
   const { 
