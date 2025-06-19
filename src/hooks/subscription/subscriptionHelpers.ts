@@ -25,7 +25,7 @@ export const createSubscriptionHelpers = (subscription: UserSubscription) => {
     const tierOrder = { starter: 0, creator: 1, studio: 2 };
     const currentTierLevel = tierOrder[currentTier as SubscriptionTier] || 0;
     
-    const allFeatures = ['cameraControls', 'lightingOptions', 'visualStyles', 'enhancedPrompts', 'batchProcessing', 'teamCollaboration', 'apiAccess'];
+    const allFeatures = ['cameraControls', 'lightingOptions', 'visualStyles', 'enhancedPrompts', 'batchProcessing', 'teamCollaboration', 'apiAccess', 'promptHistory'];
     
     return allFeatures.filter(feature => {
       // Check which tiers have this feature

@@ -19,6 +19,7 @@ export interface TierFeatures {
   batchProcessing: boolean;
   teamCollaboration: boolean;
   apiAccess: boolean;
+  promptHistory: boolean;
 }
 
 // Ensure these limits match the edge function constants exactly
@@ -34,6 +35,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     batchProcessing: false,
     teamCollaboration: false,
     apiAccess: false,
+    promptHistory: false,
   },
   creator: {
     maxPrompts: 500, // Matches TIER_LIMITS.creator in edge function
@@ -46,6 +48,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     batchProcessing: true,
     teamCollaboration: false,
     apiAccess: false,
+    promptHistory: true,
   },
   studio: {
     maxPrompts: 1000, // Matches TIER_LIMITS.studio in edge function
@@ -58,5 +61,6 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     batchProcessing: true,
     teamCollaboration: true,
     apiAccess: true,
+    promptHistory: true,
   },
 };

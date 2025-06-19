@@ -30,6 +30,13 @@ const CinematicPromptGenerator = () => {
       return;
     }
 
+    // Check if user can access history
+    if (!canUseFeature('promptHistory')) {
+      console.log('[PROMPT-HISTORY] User cannot access prompt history - starter tier');
+      setPromptHistory([]);
+      return;
+    }
+
     console.log('[PROMPT-HISTORY] Starting to load prompt history for user:', user.id);
     setHistoryLoading(true);
     
@@ -137,11 +144,11 @@ const CinematicPromptGenerator = () => {
   };
 
   React.useEffect(() => {
-    if (user && showHistory) {
+    if (user && showHistory && canUseFeature('promptHistory')) {
       console.log('[PROMPT-HISTORY] User authenticated and history requested, loading...');
       loadPromptHistory();
     }
-  }, [user, showHistory]);
+  }, [user, showHistory, canUseFeature]);
 
   return (
     <>

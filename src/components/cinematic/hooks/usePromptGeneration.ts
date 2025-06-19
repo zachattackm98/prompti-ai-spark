@@ -74,7 +74,7 @@ export const usePromptGeneration = (
         camera_settings: formState.cameraSettings,
         lighting_settings: formState.lightingSettings,
         style_reference: formState.styleReference,
-        generated_prompt: generatedPrompt
+        generated_prompt: generatedPrompt as any // Cast to Json type for database
       };
 
       // Save the scene with the generated prompt
@@ -184,16 +184,32 @@ export const usePromptGeneration = (
 
       setGeneratedPrompt(generatedPrompt);
 
+      // Check if user can save to history
+      const canSaveToHistory = canUseFeature('promptHistory');
+      
       // Handle saving based on whether we're in a multi-scene project or not
       if (currentProject && updateScenePrompt) {
         console.log('[PROMPT-GENERATION] Updating multi-scene project with new prompt');
         await updateScenePrompt(currentProject.currentSceneIndex, generatedPrompt);
-      } else {
-        // For single-scene prompts, automatically create a project and save to history
+        
+        if (canSaveToHistory) {
+          // Reload prompt history to show the new prompt
+          loadPromptHistory();
+        }
+      } else if (canSaveToHistory) {
+        // For single-scene prompts, automatically create a project and save to history (only for creator/studio)
         console.log('[PROMPT-GENERATION] Auto-saving single-scene prompt to history');
         try {
           await createSingleSceneProject(generatedPrompt);
           console.log('[PROMPT-GENERATION] Single-scene prompt automatically saved to history');
+          
+          // Reload prompt history to show the new prompt
+          loadPromptHistory();
+          
+          toast({
+            title: "Prompt Generated!",
+            description: "Your cinematic prompt has been created and saved to your history.",
+          });
         } catch (saveError) {
           console.error('[PROMPT-GENERATION] Error auto-saving to history:', saveError);
           // Don't fail the entire generation if history save fails
@@ -203,15 +219,13 @@ export const usePromptGeneration = (
             variant: "destructive"
           });
         }
+      } else {
+        // For starter tier users, just show success without saving
+        toast({
+          title: "Prompt Generated!",
+          description: "Your cinematic prompt has been created. Upgrade to Creator or Studio to save prompts to your history.",
+        });
       }
-
-      // Reload prompt history to show the new prompt
-      loadPromptHistory();
-
-      toast({
-        title: "Prompt Generated!",
-        description: "Your cinematic prompt has been created and saved to your history.",
-      });
 
     } catch (error: any) {
       console.error('[PROMPT-GENERATION] Generation failed:', error);
@@ -257,6 +271,16 @@ export const usePromptGeneration = (
     if (!user) {
       console.log('[PROMPT-GENERATION] User not authenticated for manual save');
       setShowAuthDialog(true);
+      return false;
+    }
+
+    // Check if user can save to history
+    if (!canUseFeature('promptHistory')) {
+      toast({
+        title: "Upgrade Required",
+        description: "Upgrade to Creator or Studio to save prompts to your history.",
+        variant: "destructive"
+      });
       return false;
     }
 
@@ -337,7 +361,7 @@ export const usePromptGeneration = (
       });
       return false;
     }
-  }, [user, currentProject, formState, setShowAuthDialog, loadPromptHistory, toast]);
+  }, [user, currentProject, formState, setShowAuthDialog, loadPromptHistory, canUseFeature, toast]);
 
   return {
     handleGenerate,

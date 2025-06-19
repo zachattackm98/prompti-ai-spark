@@ -2,8 +2,10 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Copy, Download, RotateCcw, Save, Loader2 } from 'lucide-react';
+import { Copy, Download, RotateCcw, Save, Loader2, Crown } from 'lucide-react';
 import { GeneratedPrompt } from './hooks/types';
+import { useSubscription } from '@/hooks/useSubscription';
+import UpgradePrompt from './UpgradePrompt';
 
 interface GeneratedPromptDisplayProps {
   generatedPrompt: GeneratedPrompt;
@@ -22,6 +24,9 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
   onManualSave,
   savingToHistory = false
 }) => {
+  const { subscription, canUseFeature } = useSubscription();
+  const canSaveToHistory = canUseFeature('promptHistory');
+
   return (
     <div className="space-y-6">
       {/* Scene Info Header */}
@@ -94,6 +99,15 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
         </Card>
       )}
 
+      {/* Upgrade Prompt for History Feature */}
+      {!canSaveToHistory && onManualSave && (
+        <UpgradePrompt
+          feature="Prompt History"
+          requiredTier="creator"
+          currentTier={subscription.tier}
+        />
+      )}
+
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3 justify-center">
         <Button
@@ -114,7 +128,7 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
           Download
         </Button>
 
-        {onManualSave && (
+        {onManualSave && canSaveToHistory && (
           <Button
             onClick={() => onManualSave(generatedPrompt)}
             disabled={savingToHistory}

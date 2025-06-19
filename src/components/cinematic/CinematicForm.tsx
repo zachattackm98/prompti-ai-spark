@@ -7,6 +7,7 @@ import CinematicFormMain from './CinematicFormMain';
 import CinematicFormHistory from './CinematicFormHistory';
 import CinematicFormWelcome from './CinematicFormWelcome';
 import { PromptHistory } from './types';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface CinematicFormProps {
   user: any;
@@ -31,6 +32,9 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
   showHistory = false,
   historyLoading = false
 }) => {
+  const { canUseFeature: canUseSubscriptionFeature } = useSubscription();
+  const canAccessHistory = canUseSubscriptionFeature('promptHistory');
+
   const {
     currentStep,
     totalSteps,
@@ -134,8 +138,8 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
 
       <CinematicFormHistory
         showHistory={showHistory}
-        promptHistory={promptHistory}
-        historyLoading={historyLoading}
+        promptHistory={canAccessHistory ? promptHistory : []}
+        historyLoading={canAccessHistory ? historyLoading : false}
         onStartProjectFromHistory={handleStartProjectFromHistory}
       />
 
