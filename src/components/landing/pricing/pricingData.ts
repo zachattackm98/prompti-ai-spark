@@ -42,8 +42,7 @@ export const pricingPlans: PricingPlan[] = [
       "Priority support",
       "Batch processing",
       "Style reference enhancement",
-      "🚀 Coming Soon: Prompt history saving",
-      "🚀 Coming Soon: Multi-scene projects"
+      "🚀 Coming Soon: Prompt history saving"
     ],
     cta: "Start Creating",
     popular: true,
