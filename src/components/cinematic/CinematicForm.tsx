@@ -112,6 +112,7 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               handlePrevious={handlePrevious}
               handleGenerate={handleGenerate}
               isLoading={isLoading}
+              setShowAuthDialog={setShowAuthDialog}
             />
           ) : (
             <GeneratedPromptDisplay

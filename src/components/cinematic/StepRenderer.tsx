@@ -1,4 +1,3 @@
-
 import React from 'react';
 import SceneStep from './SceneStep';
 import PlatformStep from './PlatformStep';
@@ -37,6 +36,7 @@ interface StepRendererProps {
   handlePrevious: () => void;
   handleGenerate: () => void;
   isLoading: boolean;
+  setShowAuthDialog?: (show: boolean) => void;
 }
 
 const StepRenderer: React.FC<StepRendererProps> = ({
@@ -62,7 +62,8 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   handleNext,
   handlePrevious,
   handleGenerate,
-  isLoading
+  isLoading,
+  setShowAuthDialog
 }) => {
   // Step 1: Scene
   if (currentStep === 1) {
@@ -72,6 +73,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
           sceneIdea={sceneIdea}
           setSceneIdea={setSceneIdea}
           onNext={handleNext}
+          setShowAuthDialog={setShowAuthDialog}
         />
       </div>
     );

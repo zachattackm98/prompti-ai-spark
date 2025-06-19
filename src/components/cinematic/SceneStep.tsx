@@ -4,14 +4,31 @@ import { motion } from 'framer-motion';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SceneStepProps {
   sceneIdea: string;
   setSceneIdea: (value: string) => void;
   onNext: () => void;
+  setShowAuthDialog?: (show: boolean) => void;
 }
 
-const SceneStep: React.FC<SceneStepProps> = ({ sceneIdea, setSceneIdea, onNext }) => {
+const SceneStep: React.FC<SceneStepProps> = ({ 
+  sceneIdea, 
+  setSceneIdea, 
+  onNext, 
+  setShowAuthDialog 
+}) => {
+  const { user } = useAuth();
+
+  const handleNextClick = () => {
+    if (!user && setShowAuthDialog) {
+      setShowAuthDialog(true);
+    } else {
+      onNext();
+    }
+  };
+
   return (
     <motion.div 
       className="space-y-4 sm:space-y-6"
@@ -40,7 +57,7 @@ const SceneStep: React.FC<SceneStepProps> = ({ sceneIdea, setSceneIdea, onNext }
       
       <div className="flex justify-end">
         <Button
-          onClick={onNext}
+          onClick={handleNextClick}
           disabled={!sceneIdea.trim()}
           size="sm"
           className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white w-full sm:w-auto"
