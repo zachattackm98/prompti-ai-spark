@@ -35,11 +35,11 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     apiAccess: false,
   },
   creator: {
-    maxPrompts: 500, // Changed from -1 to 500
+    maxPrompts: 500,
     platforms: ['veo3', 'sora', 'runway', 'pika'],
     emotions: ['Dramatic', 'Mysterious', 'Uplifting', 'Melancholic', 'Intense', 'Serene', 'Suspenseful', 'Romantic', 'Epic', 'Intimate'],
     cameraControls: true,
-    lightingOptions: false,
+    lightingOptions: true,
     visualStyles: true,
     enhancedPrompts: true,
     batchProcessing: true,
@@ -47,7 +47,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     apiAccess: false,
   },
   studio: {
-    maxPrompts: 1000, // Changed from -1 to 1000
+    maxPrompts: 1000,
     platforms: ['veo3', 'sora', 'runway', 'pika'],
     emotions: ['Dramatic', 'Mysterious', 'Uplifting', 'Melancholic', 'Intense', 'Serene', 'Suspenseful', 'Romantic', 'Epic', 'Intimate'],
     cameraControls: true,

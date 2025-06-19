@@ -31,7 +31,7 @@ export const pricingPlans: PricingPlan[] = [
       "All 4 AI video platforms",
       "10 cinematic emotions/moods", 
       "Professional camera controls",
-      "Enhanced visual styles",
+      "Lighting & visual styles",
       "Sound design & music options",
       "Dialog & narration features",
       "Enhanced prompt quality",
