@@ -16,7 +16,7 @@ export const useSubscriptionEffects = (
       console.log('[SUBSCRIPTION] No user found, setting starter subscription');
       setSubscription({ tier: 'starter', isActive: false });
       setBillingDetails(null);
-      setLoading(false); // Important: set loading false even when no user
+      setLoading(false);
       return;
     }
 
@@ -70,7 +70,25 @@ export const useSubscriptionEffects = (
     } catch (error: any) {
       console.error('[SUBSCRIPTION] Error checking subscription:', error);
       
-      // Retry logic for failed attempts
+      // Improved error handling for authentication issues
+      if (error.message?.includes('Authentication') || 
+          error.message?.includes('Session') || 
+          error.message?.includes('JWT') ||
+          error.message?.includes('401')) {
+        console.log('[SUBSCRIPTION] Authentication error detected, setting default state');
+        setSubscription({ tier: 'starter', isActive: false });
+        setBillingDetails(null);
+        setLoading(false);
+        
+        showToast(
+          "Session Expired",
+          "Please sign in again to check your subscription status.",
+          "destructive"
+        );
+        return;
+      }
+      
+      // Retry logic for other errors
       if (retryCount < maxRetries) {
         console.log(`[SUBSCRIPTION] Retrying in ${(retryCount + 1) * 1000}ms...`);
         setTimeout(() => {
@@ -81,10 +99,10 @@ export const useSubscriptionEffects = (
       
       // Provide more specific error messages
       let errorMessage = "Failed to check subscription status";
-      if (error.message?.includes('Authentication')) {
-        errorMessage = "Authentication failed. Please sign in again.";
-      } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+      if (error.message?.includes('network') || error.message?.includes('fetch')) {
         errorMessage = "Network error. Please check your connection and try again.";
+      } else if (error.message?.includes('STRIPE_SECRET_KEY')) {
+        errorMessage = "Subscription service configuration error. Please contact support.";
       }
       
       showToast(
@@ -124,7 +142,7 @@ export const useSubscriptionEffects = (
       }
       setBillingDetails(null);
     } finally {
-      setLoading(false); // Always set loading to false when done
+      setLoading(false);
     }
   };
 

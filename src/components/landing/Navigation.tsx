@@ -1,51 +1,28 @@
 
 import React from 'react';
-import { scrollToTop } from '@/utils/scrollUtils';
+import { Link } from 'react-router-dom';
 
-const Navigation = () => {
-  const handleLinkClick = (href: string) => {
-    scrollToTop('smooth');
-    // Small delay to ensure smooth scroll completes before jumping to section
-    setTimeout(() => {
-      const element = document.querySelector(href);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-  };
+interface NavigationProps {
+  className?: string;
+}
 
+const Navigation = ({ className }: NavigationProps) => {
   return (
-    <nav className="hidden md:flex items-center space-x-8">
-      <a 
-        href="#features" 
-        className="text-gray-300 hover:text-white transition-colors duration-300"
-        onClick={(e) => {
-          e.preventDefault();
-          handleLinkClick('#features');
-        }}
-      >
-        Features
-      </a>
-      <a 
-        href="#pricing" 
-        className="text-gray-300 hover:text-white transition-colors duration-300"
-        onClick={(e) => {
-          e.preventDefault();
-          handleLinkClick('#pricing');
-        }}
-      >
-        Pricing
-      </a>
-      <a 
-        href="#faq" 
-        className="text-gray-300 hover:text-white transition-colors duration-300"
-        onClick={(e) => {
-          e.preventDefault();
-          handleLinkClick('#faq');
-        }}
-      >
-        FAQ
-      </a>
+    <nav className={className}>
+      <div className="flex items-center space-x-8">
+        <a href="#features" className="text-gray-300 hover:text-white transition-colors">
+          Features
+        </a>
+        <a href="#process" className="text-gray-300 hover:text-white transition-colors">
+          How it Works
+        </a>
+        <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">
+          Pricing
+        </a>
+        <Link to="/testing" className="text-gray-300 hover:text-white transition-colors">
+          Testing
+        </Link>
+      </div>
     </nav>
   );
 };

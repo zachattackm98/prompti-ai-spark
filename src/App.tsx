@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { SubscriptionProvider } from "@/hooks/useSubscription";
 import Index from "./pages/Index";
 import Account from "./pages/Account";
+import Testing from "./pages/Testing";
 import NotFound from "./pages/NotFound";
 import ResetPasswordPage from "./components/auth/ResetPasswordPage";
 
@@ -24,6 +25,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/account" element={<Account />} />
+              <Route path="/testing" element={<Testing />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
