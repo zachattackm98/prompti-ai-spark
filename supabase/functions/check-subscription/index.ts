@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -28,10 +27,6 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-    logStep("Stripe key verified");
-
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
     logStep("Authorization header found");
@@ -44,6 +39,97 @@ serve(async (req) => {
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
+
+    // CHECK FOR TEST MODE - Clean separation point
+    const testMode = Deno.env.get("TEST_MODE");
+    if (testMode === "true") {
+      logStep("🧪 TEST MODE ACTIVE - Reading from Supabase instead of Stripe");
+      
+      try {
+        // Read subscription data directly from subscribers table
+        const { data: subscriberData, error: subscriberError } = await supabaseClient
+          .from("subscribers")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+
+        if (subscriberError && subscriberError.code !== 'PGRST116') {
+          logStep("Test mode: Error fetching subscriber data", { error: subscriberError });
+          throw subscriberError;
+        }
+
+        if (!subscriberData) {
+          logStep("Test mode: No subscriber record found, creating default");
+          // Create default subscriber record
+          const { data: newSubscriber, error: insertError } = await supabaseClient
+            .from("subscribers")
+            .insert({
+              email: user.email,
+              user_id: user.id,
+              stripe_customer_id: null,
+              subscribed: false,
+              subscription_tier: "starter",
+              subscription_end: null,
+              updated_at: new Date().toISOString(),
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            logStep("Test mode: Error creating subscriber record", { error: insertError });
+            throw insertError;
+          }
+
+          logStep("Test mode: Created default subscriber record", newSubscriber);
+          return new Response(JSON.stringify({
+            subscribed: false,
+            subscription_tier: "starter",
+            subscription_end: null,
+            billing_details: null
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 200,
+          });
+        }
+
+        logStep("Test mode: Found subscriber data", {
+          subscribed: subscriberData.subscribed,
+          tier: subscriberData.subscription_tier,
+          end: subscriberData.subscription_end
+        });
+
+        // Return the same format as production mode
+        return new Response(JSON.stringify({
+          subscribed: subscriberData.subscribed || false,
+          subscription_tier: subscriberData.subscription_tier || "starter",
+          subscription_end: subscriberData.subscription_end,
+          billing_details: null // No billing details in test mode
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+
+      } catch (testError: any) {
+        logStep("Test mode: Error in test mode logic", { error: testError.message });
+        // Fallback to default in test mode
+        return new Response(JSON.stringify({
+          subscribed: false,
+          subscription_tier: "starter",
+          subscription_end: null,
+          billing_details: null
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+    }
+
+    // PRODUCTION MODE - All existing Stripe logic remains unchanged
+    logStep("🚀 PRODUCTION MODE - Using Stripe verification");
+
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    logStep("Stripe key verified");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
