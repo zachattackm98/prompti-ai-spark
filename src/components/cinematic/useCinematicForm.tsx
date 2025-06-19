@@ -2,11 +2,9 @@
 import { useFormState } from './hooks/useFormState';
 import { useStepNavigation } from './hooks/useStepNavigation';
 import { usePromptGeneration } from './hooks/usePromptGeneration';
-import { useFormActions } from './hooks/useFormActions';
-import { useSceneManagement } from './hooks/useSceneManagement';
+import { useCinematicFormActions } from './hooks/useCinematicFormActions';
 import { useProjectLoading } from './hooks/useProjectLoading';
 import { useSubscriptionLimits } from './hooks/useSubscriptionLimits';
-import { useHistoryActions } from './hooks/useHistoryActions';
 
 // Re-export types for backward compatibility
 export type { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './hooks/types';
@@ -44,6 +42,7 @@ export const useCinematicForm = (
     resetForm,
     createSceneDataFromCurrentState,
     loadSceneDataToCurrentState,
+    getFormState,
     // Multi-scene state
     currentProject,
     isMultiScene,
@@ -63,18 +62,8 @@ export const useCinematicForm = (
     canUseFeature
   );
 
-  const formState = {
-    currentStep,
-    sceneIdea,
-    selectedPlatform,
-    selectedEmotion,
-    dialogSettings,
-    soundSettings,
-    cameraSettings,
-    lightingSettings,
-    styleReference,
-    generatedPrompt,
-    isLoading,
+  const formStateForPromptGeneration = {
+    ...getFormState(),
     currentProject,
     isMultiScene
   };
@@ -85,31 +74,29 @@ export const useCinematicForm = (
     canUseFeature,
     setShowAuthDialog,
     loadPromptHistory,
-    formState,
+    formStateForPromptGeneration,
     setGeneratedPrompt,
     setIsLoading,
     currentProject,
     updateScenePrompt
   );
 
-  const { handleGenerateNew, handleContinueScene, handleStartProjectFromHistory } = useFormActions(
+  const {
+    handleGenerateNew,
+    handleContinueScene,
+    handleSceneSelect,
+    handleAddScene,
+    handleStartProjectFromHistory
+  } = useCinematicFormActions(
     resetForm,
     setCurrentStep,
     createSceneDataFromCurrentState,
+    loadSceneDataToCurrentState,
     startNewProject,
     addNewScene,
-    loadSceneDataToCurrentState,
-    totalSteps
-  );
-
-  const { handleSceneSelect, handleAddScene } = useSceneManagement(
-    currentProject,
-    createSceneDataFromCurrentState,
     updateCurrentScene,
     setCurrentSceneIndex,
-    loadSceneDataToCurrentState,
-    addNewScene,
-    setCurrentStep,
+    currentProject,
     totalSteps
   );
 
@@ -121,12 +108,6 @@ export const useCinematicForm = (
   );
 
   const { canAddMoreScenes } = useSubscriptionLimits(subscription, currentProject);
-
-  const { handleStartProjectFromHistory: handleHistoryProjectStart } = useHistoryActions(
-    startNewProject,
-    loadSceneDataToCurrentState,
-    setCurrentStep
-  );
 
   return {
     currentStep,
@@ -165,6 +146,6 @@ export const useCinematicForm = (
     canAddMoreScenes,
     updateScenePrompt,
     // History functionality
-    handleStartProjectFromHistory: handleHistoryProjectStart
+    handleStartProjectFromHistory
   };
 };
