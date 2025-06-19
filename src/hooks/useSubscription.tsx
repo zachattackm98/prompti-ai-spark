@@ -1,15 +1,11 @@
 
-import { useContext } from 'react';
-import { SubscriptionContext } from './subscription/SubscriptionProvider';
+import { useEnhancedSubscriptionContext } from './subscription/EnhancedSubscriptionProvider';
 
+// Main hook that components should use
 export const useSubscription = () => {
-  const context = useContext(SubscriptionContext);
-  if (!context) {
-    throw new Error('useSubscription must be used within SubscriptionProvider');
-  }
-  return context;
+  return useEnhancedSubscriptionContext();
 };
 
-// Re-export the provider and types for convenience
-export { SubscriptionProvider } from './subscription/SubscriptionProvider';
+// Re-export the enhanced provider
+export { EnhancedSubscriptionProvider as SubscriptionProvider } from './subscription/EnhancedSubscriptionProvider';
 export type { SubscriptionContextType } from './subscription/subscriptionTypes';

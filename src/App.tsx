@@ -1,53 +1,33 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
-import { SubscriptionProvider } from "@/hooks/useSubscription";
-import { useWindowFocus } from "@/hooks/useWindowFocus";
+import { EnhancedSubscriptionProvider } from "@/hooks/subscription/EnhancedSubscriptionProvider";
 import Index from "./pages/Index";
-import Account from "./pages/Account";
-import NotFound from "./pages/NotFound";
-import ResetPasswordPage from "./components/auth/ResetPasswordPage";
+import AccountPage from "./pages/AccountPage";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // Prevent automatic refetching on window focus to avoid unnecessary reloads
-      refetchOnWindowFocus: false,
-      // Keep data fresh for longer to reduce network requests
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-  },
-});
-
-const AppContent = () => {
-  useWindowFocus();
-  
-  return (
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/account" element={<Account />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-};
+const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
+    <TooltipProvider>
       <AuthProvider>
-        <SubscriptionProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <AppContent />
-          </TooltipProvider>
-        </SubscriptionProvider>
+        <EnhancedSubscriptionProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/account" element={<AccountPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </EnhancedSubscriptionProvider>
       </AuthProvider>
-    </BrowserRouter>
+    </TooltipProvider>
   </QueryClientProvider>
 );
 
