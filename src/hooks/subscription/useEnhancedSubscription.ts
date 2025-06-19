@@ -25,7 +25,10 @@ export const useEnhancedSubscription = () => {
   // Validate and normalize subscription state
   const subscription = SubscriptionService.validateSubscriptionState(rawSubscription);
 
-  const { usage, hasReachedLimit, refetchUsage } = usePromptUsage();
+  // Pass subscription tier to usePromptUsage to avoid circular dependency
+  const { usage, hasReachedLimit, refetchUsage } = usePromptUsage({ 
+    subscriptionTier: subscription.tier 
+  });
 
   const { checkSubscription, verifySubscriptionStatus } = useSubscriptionEffects(
     user,
