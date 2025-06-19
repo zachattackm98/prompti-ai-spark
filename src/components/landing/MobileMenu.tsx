@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import Navigation from './Navigation';
+import { Link } from 'react-router-dom';
 import AuthControls from './AuthControls';
 import { scrollToTop } from '@/utils/scrollUtils';
 
@@ -32,12 +32,13 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
-      className="md:hidden mt-4 pb-4 border-t border-white/10"
+      className="md:hidden mt-3 sm:mt-4 pb-4 border-t border-white/10"
     >
-      <div className="flex flex-col space-y-4 pt-4">
+      <div className="flex flex-col space-y-3 pt-4">
+        {/* Navigation Links */}
         <a 
           href="#features" 
-          className="text-gray-300 hover:text-white transition-colors duration-300 py-2"
+          className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
           onClick={(e) => {
             e.preventDefault();
             handleLinkClick('#features');
@@ -46,8 +47,18 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
           Features
         </a>
         <a 
+          href="#process" 
+          className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
+          onClick={(e) => {
+            e.preventDefault();
+            handleLinkClick('#process');
+          }}
+        >
+          How it Works
+        </a>
+        <a 
           href="#pricing" 
-          className="text-gray-300 hover:text-white transition-colors duration-300 py-2"
+          className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
           onClick={(e) => {
             e.preventDefault();
             handleLinkClick('#pricing');
@@ -55,18 +66,16 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
         >
           Pricing
         </a>
-        <a 
-          href="#faq" 
-          className="text-gray-300 hover:text-white transition-colors duration-300 py-2"
-          onClick={(e) => {
-            e.preventDefault();
-            handleLinkClick('#faq');
-          }}
+        <Link 
+          to="/testing" 
+          className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base no-underline"
+          onClick={onClose}
         >
-          FAQ
-        </a>
+          Testing
+        </Link>
         
-        <div className="border-t border-white/10 pt-4">
+        {/* Auth Controls */}
+        <div className="border-t border-white/10 pt-4 mt-2">
           <AuthControls 
             onAuthClick={onAuthClick}
             onSignOut={onSignOut}
