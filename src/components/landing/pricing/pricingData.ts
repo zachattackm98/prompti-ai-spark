@@ -33,7 +33,9 @@ export const pricingPlans: PricingPlan[] = [
       "Advanced lighting & visual styles",
       "Enhanced prompt quality",
       "Priority support",
-      "Batch processing"
+      "Batch processing",
+      "🚀 Coming Soon: Prompt history saving",
+      "🚀 Coming Soon: Multi-scene projects"
     ],
     cta: "Start Creating",
     popular: true,
@@ -53,7 +55,9 @@ export const pricingPlans: PricingPlan[] = [
       "Custom brand style guides",
       "API access",
       "White-label options",
-      "Dedicated support manager"
+      "Dedicated support manager",
+      "🚀 Coming Soon: Advanced project management",
+      "🚀 Coming Soon: Extended history archives"
     ],
     cta: "Contact Sales",
     popular: false,
