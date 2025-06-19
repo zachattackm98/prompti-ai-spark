@@ -1,3 +1,4 @@
+
 import { Sparkles, Crown, Rocket } from 'lucide-react';
 import { PricingPlan } from './types';
 
@@ -66,8 +67,8 @@ export const pricingPlans: PricingPlan[] = [
       "Batch processing",
       "Style reference enhancement",
       "🚀 Coming Soon: Prompt history saving",
-      "Team collaboration",
-      "API access",
+      "🚀 Coming Soon: Multi-scene projects",
+      "Priority access to new platforms",
       "Dedicated support manager"
     ],
     cta: "Contact Sales",
