@@ -5,6 +5,7 @@ import { fadeInVariants, viewportOptions } from '@/utils/animations';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
+import { usePromptUsage } from '@/hooks/usePromptUsage';
 import AuthDialog from './AuthDialog';
 
 // Import refactored components
@@ -21,12 +22,15 @@ const CinematicPromptGenerator = () => {
   const { toast } = useToast();
   const { user, signOut } = useAuth();
   const { subscription, features, canUseFeature } = useSubscription();
+  const { refetchUsage } = usePromptUsage();
 
   const loadPromptHistory = async () => {
     if (!user) return;
 
     try {
       setPromptHistory([]);
+      // Refetch usage data after loading prompt history
+      await refetchUsage();
     } catch (error) {
       console.error('Error loading history:', error);
     }

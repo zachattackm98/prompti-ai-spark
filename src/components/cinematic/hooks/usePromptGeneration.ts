@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { usePromptUsage } from '@/hooks/usePromptUsage';
 import { GeneratedPrompt, MultiSceneProject } from './types';
 
 interface FormState {
@@ -28,6 +29,8 @@ export const usePromptGeneration = (
   currentProject: MultiSceneProject | null,
   updateScenePrompt: (sceneIndex: number, prompt: GeneratedPrompt) => void
 ) => {
+  const { refetchUsage } = usePromptUsage();
+
   const handleGenerate = async () => {
     if (!user) {
       setShowAuthDialog(true);
@@ -116,6 +119,9 @@ export const usePromptGeneration = (
         if (currentProject) {
           updateScenePrompt(currentProject.currentSceneIndex, generatedPrompt);
         }
+        
+        // Refetch usage data after successful prompt generation
+        await refetchUsage();
         
         loadPromptHistory();
       }
