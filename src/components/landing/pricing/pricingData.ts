@@ -1,4 +1,3 @@
-
 import { Sparkles, Crown, Rocket } from 'lucide-react';
 import { PricingPlan } from './types';
 
@@ -56,17 +55,20 @@ export const pricingPlans: PricingPlan[] = [
     description: "For teams and agencies",
     features: [
       "1000 prompts per month",
-      "Everything in Creator",
-      "Advanced lighting controls",
-      "Advanced sound design tools",
+      "All 4 AI video platforms",
+      "10 cinematic emotions/moods", 
+      "Professional camera controls",
+      "Lighting & visual styles",
+      "Sound design & music options",
+      "Dialog & narration features",
+      "Enhanced prompt quality",
+      "Priority support",
+      "Batch processing",
+      "Style reference enhancement",
+      "🚀 Coming Soon: Prompt history saving",
       "Team collaboration",
-      "Priority access to new platforms",
-      "Custom brand style guides",
       "API access",
-      "White-label options",
-      "Dedicated support manager",
-      "🚀 Coming Soon: Advanced project management",
-      "🚀 Coming Soon: Extended history archives"
+      "Dedicated support manager"
     ],
     cta: "Contact Sales",
     popular: false,
