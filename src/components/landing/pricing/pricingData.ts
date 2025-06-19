@@ -10,10 +10,14 @@ export const pricingPlans: PricingPlan[] = [
     description: "Perfect for trying out Prompti.ai",
     features: [
       "5 prompts per month",
-      "2 AI video platforms (Veo3, Sora)",
+      "All 4 AI video platforms",
       "10 cinematic emotions/moods",
-      "Basic scene descriptions",
-      "Standard prompt quality",
+      "Professional camera controls",
+      "Lighting & visual styles",
+      "Sound design & music options",
+      "Dialog & narration features",
+      "Enhanced prompt quality",
+      "Batch processing",
       "Email support"
     ],
     cta: "Start Free",
@@ -37,6 +41,7 @@ export const pricingPlans: PricingPlan[] = [
       "Enhanced prompt quality",
       "Priority support",
       "Batch processing",
+      "Style reference enhancement",
       "🚀 Coming Soon: Prompt history saving",
       "🚀 Coming Soon: Multi-scene projects"
     ],

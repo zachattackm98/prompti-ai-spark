@@ -15,6 +15,7 @@ export interface TierFeatures {
   cameraControls: boolean;
   lightingOptions: boolean;
   visualStyles: boolean;
+  styleReference: boolean;
   enhancedPrompts: boolean;
   batchProcessing: boolean;
   teamCollaboration: boolean;
@@ -24,13 +25,14 @@ export interface TierFeatures {
 export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
   starter: {
     maxPrompts: 5,
-    platforms: ['veo3', 'sora'],
-    emotions: ['Dramatic', 'Uplifting', 'Mysterious', 'Serene'],
-    cameraControls: false,
-    lightingOptions: false,
-    visualStyles: false,
-    enhancedPrompts: false,
-    batchProcessing: false,
+    platforms: ['veo3', 'sora', 'runway', 'pika'],
+    emotions: ['Dramatic', 'Mysterious', 'Uplifting', 'Melancholic', 'Intense', 'Serene', 'Suspenseful', 'Romantic', 'Epic', 'Intimate'],
+    cameraControls: true,
+    lightingOptions: true,
+    visualStyles: true,
+    styleReference: false,
+    enhancedPrompts: true,
+    batchProcessing: true,
     teamCollaboration: false,
     apiAccess: false,
   },
@@ -41,6 +43,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     cameraControls: true,
     lightingOptions: true,
     visualStyles: true,
+    styleReference: true,
     enhancedPrompts: true,
     batchProcessing: true,
     teamCollaboration: false,
@@ -53,6 +56,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     cameraControls: true,
     lightingOptions: true,
     visualStyles: true,
+    styleReference: true,
     enhancedPrompts: true,
     batchProcessing: true,
     teamCollaboration: true,

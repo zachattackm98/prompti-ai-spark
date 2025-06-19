@@ -163,6 +163,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
           onPrevious={handlePrevious}
           onGenerate={handleGenerate}
           isLoading={isLoading}
+          showUpgrade={!canUseFeature('styleReference')}
         />
       </div>
     );
