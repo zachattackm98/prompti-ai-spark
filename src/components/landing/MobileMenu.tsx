@@ -3,6 +3,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import AuthControls from './AuthControls';
+import { useAuth } from '@/hooks/useAuth';
+import { isAdminUser } from '@/utils/adminUtils';
 import { scrollToTop } from '@/utils/scrollUtils';
 
 interface MobileMenuProps {
@@ -13,6 +15,9 @@ interface MobileMenuProps {
 }
 
 const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps) => {
+  const { user } = useAuth();
+  const showTestingLink = isAdminUser(user?.email);
+
   if (!isOpen) return null;
 
   const handleLinkClick = (href: string) => {
@@ -66,13 +71,15 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
         >
           Pricing
         </a>
-        <Link 
-          to="/testing" 
-          className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base no-underline"
-          onClick={onClose}
-        >
-          Testing
-        </Link>
+        {showTestingLink && (
+          <Link 
+            to="/testing" 
+            className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base no-underline"
+            onClick={onClose}
+          >
+            Testing
+          </Link>
+        )}
         
         {/* Auth Controls */}
         <div className="border-t border-white/10 pt-4 mt-2">
