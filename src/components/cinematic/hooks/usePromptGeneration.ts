@@ -29,7 +29,7 @@ export const usePromptGeneration = (
   currentProject: MultiSceneProject | null,
   updateScenePrompt: (sceneIndex: number, prompt: GeneratedPrompt) => void
 ) => {
-  const { refetchUsage } = usePromptUsage();
+  const { triggerUsageUpdate } = usePromptUsage();
 
   const handleGenerate = async () => {
     if (!user) {
@@ -120,8 +120,8 @@ export const usePromptGeneration = (
           updateScenePrompt(currentProject.currentSceneIndex, generatedPrompt);
         }
         
-        // Refetch usage data after successful prompt generation
-        await refetchUsage();
+        // Trigger automatic usage update - this will cause all components to re-render
+        triggerUsageUpdate();
         
         loadPromptHistory();
       }
