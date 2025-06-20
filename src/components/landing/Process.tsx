@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MessageSquare, Sliders, Copy } from 'lucide-react';
@@ -30,7 +29,7 @@ const Process = () => {
   ];
 
   return (
-    <section className="py-20 px-6 bg-black/20">
+    <section id="process" className="py-20 px-6 bg-black/20">
       <div className="container mx-auto">
         <motion.div
           variants={fadeInVariants}
