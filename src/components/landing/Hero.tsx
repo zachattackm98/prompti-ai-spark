@@ -1,12 +1,13 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Play, Sparkles, Video } from 'lucide-react';
 import { fadeInVariants, staggerContainer, scaleInVariants } from '@/utils/animations';
-import ComingSoonDialog from '@/components/ComingSoonDialog';
+import VideoDialog from '@/components/VideoDialog';
 
 const Hero = () => {
-  const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
+  const [showVideoDialog, setShowVideoDialog] = useState(false);
 
   const handleScrollToGenerator = () => {
     const generatorSection = document.getElementById('cinematic-generator');
@@ -19,7 +20,7 @@ const Hero = () => {
   };
 
   const handleWatchDemo = () => {
-    setShowComingSoonDialog(true);
+    setShowVideoDialog(true);
   };
 
   return (
@@ -100,9 +101,9 @@ const Hero = () => {
         </div>
       </section>
 
-      <ComingSoonDialog 
-        open={showComingSoonDialog} 
-        onOpenChange={setShowComingSoonDialog}
+      <VideoDialog 
+        open={showVideoDialog} 
+        onOpenChange={setShowVideoDialog}
       />
     </>
   );

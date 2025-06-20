@@ -5,18 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { fadeInVariants, scaleInVariants, viewportOptions } from '@/utils/animations';
 import AuthDialog from '@/components/AuthDialog';
-import ComingSoonDialog from '@/components/ComingSoonDialog';
+import VideoDialog from '@/components/VideoDialog';
 
 const FinalCTA = () => {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
+  const [showVideoDialog, setShowVideoDialog] = useState(false);
 
   const handleStartForFree = () => {
     setShowAuthDialog(true);
   };
 
   const handleWatchDemo = () => {
-    setShowComingSoonDialog(true);
+    setShowVideoDialog(true);
   };
 
   return (
@@ -93,9 +93,9 @@ const FinalCTA = () => {
         onOpenChange={setShowAuthDialog}
       />
 
-      <ComingSoonDialog 
-        open={showComingSoonDialog} 
-        onOpenChange={setShowComingSoonDialog}
+      <VideoDialog 
+        open={showVideoDialog} 
+        onOpenChange={setShowVideoDialog}
       />
     </>
   );
