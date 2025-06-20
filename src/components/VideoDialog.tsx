@@ -16,8 +16,8 @@ interface VideoDialogProps {
 }
 
 const VideoDialog = ({ open, onOpenChange }: VideoDialogProps) => {
-  // Extract video ID from YouTube URL: https://youtu.be/CpUmbPeu0lo
-  const YOUTUBE_VIDEO_ID = "CpUmbPeu0lo";
+  // Extract video ID from YouTube URL: https://youtu.be/WVwQXtAOLnk
+  const YOUTUBE_VIDEO_ID = "WVwQXtAOLnk";
   const YOUTUBE_EMBED_URL = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=0&rel=0&modestbranding=1&playsinline=1`;
 
   return (
