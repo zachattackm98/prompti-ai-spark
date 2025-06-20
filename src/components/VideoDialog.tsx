@@ -45,7 +45,6 @@ const VideoDialog = ({ open, onOpenChange }: VideoDialogProps) => {
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
-              title="AiPromptMachine Demo Video"
             />
           </div>
         </div>
