@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Camera, Crown } from 'lucide-react';
 import { CameraSettings } from './useCinematicForm';
 import UpgradePrompt from './UpgradePrompt';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CameraControlsStepProps {
   cameraSettings: CameraSettings;
@@ -33,6 +34,8 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
   onPrevious,
   showUpgrade = false
 }) => {
+  const isMobile = useIsMobile();
+
   const handleSettingChange = (key: keyof CameraSettings, value: string) => {
     setCameraSettings({
       ...cameraSettings,
@@ -63,21 +66,30 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
           currentTier="starter"
         />
         
-        <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+        <div className="flex flex-col sm:flex-row justify-between gap-3 px-2 sm:px-0">
+          <Button
+            onClick={onNext}
+            size={isMobile ? "lg" : "sm"}
+            className={`
+              bg-gradient-to-r from-purple-600 to-pink-600 
+              hover:from-purple-700 hover:to-pink-700 text-white
+              transition-all duration-200
+              ${isMobile ? 'h-12 order-1' : 'order-2'}
+            `}
+          >
+            Next Step <ChevronRight className="w-4 h-4 ml-2" />
+          </Button>
           <Button
             onClick={onPrevious}
             variant="outline"
-            size="sm"
-            className="border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
+            size={isMobile ? "lg" : "sm"}
+            className={`
+              border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40
+              transition-all duration-200
+              ${isMobile ? 'h-12 order-2' : 'order-1'}
+            `}
           >
             <ChevronLeft className="w-4 h-4 mr-2" /> Previous
-          </Button>
-          <Button
-            onClick={onNext}
-            size="sm"
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-          >
-            Next Step <ChevronRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
       </motion.div>
@@ -162,21 +174,30 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
         </div>
       </div>
       
-      <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+      <div className="flex flex-col sm:flex-row justify-between gap-3 px-2 sm:px-0">
+        <Button
+          onClick={onNext}
+          size={isMobile ? "lg" : "sm"}
+          className={`
+            bg-gradient-to-r from-purple-600 to-pink-600 
+            hover:from-purple-700 hover:to-pink-700 text-white
+            transition-all duration-200
+            ${isMobile ? 'h-12 order-1' : 'order-2'}
+          `}
+        >
+          Next Step <ChevronRight className="w-4 h-4 ml-2" />
+        </Button>
         <Button
           onClick={onPrevious}
           variant="outline"
-          size="sm"
-          className="border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40"
+          size={isMobile ? "lg" : "sm"}
+          className={`
+            border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40
+            transition-all duration-200
+            ${isMobile ? 'h-12 order-2' : 'order-1'}
+          `}
         >
           <ChevronLeft className="w-4 h-4 mr-2" /> Previous
-        </Button>
-        <Button
-          onClick={onNext}
-          size="sm"
-          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-        >
-          Next Step <ChevronRight className="w-4 h-4 ml-2" />
         </Button>
       </div>
     </motion.div>
