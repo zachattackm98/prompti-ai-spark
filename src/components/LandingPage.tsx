@@ -54,7 +54,7 @@ const LandingPage = () => {
         </motion.div>
       )}
       
-      <Hero />
+      <Hero user={user} subscription={subscription} />
       <SocialProof />
       <Benefits />
       <Process />

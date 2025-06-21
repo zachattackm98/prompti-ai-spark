@@ -7,14 +7,24 @@ import { fadeInVariants, staggerContainer, scaleInVariants } from '@/utils/anima
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import VideoDialog from '@/components/VideoDialog';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
-const Hero = () => {
+interface HeroProps {
+  user?: any;
+  subscription?: any;
+}
+
+const Hero: React.FC<HeroProps> = ({ user, subscription }) => {
   const [showVideoDialog, setShowVideoDialog] = useState(false);
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
   const navigate = useNavigate();
+  const { firstName } = useUserProfile(user || authUser);
+
+  // Use passed props or fall back to auth context
+  const currentUser = user || authUser;
 
   const handleScrollToGenerator = () => {
-    if (user) {
+    if (currentUser) {
       // Redirect authenticated users to the generate page
       navigate('/generate');
     } else {
@@ -55,17 +65,34 @@ const Hero = () => {
               variants={fadeInVariants}
               className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight"
             >
-              Turn Your
-              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> Vision </span>
-              Into Video Magic
+              {currentUser && firstName ? (
+                <>
+                  Welcome Back,
+                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> {firstName}!</span>
+                </>
+              ) : (
+                <>
+                  Turn Your
+                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> Vision </span>
+                  Into Video Magic
+                </>
+              )}
             </motion.h1>
             
             <motion.p 
               variants={fadeInVariants}
               className="text-base sm:text-xl text-gray-300 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-4 sm:px-0"
             >
-              Generate professional, cinematic prompts for Sora, Runway, Pika, and Veo. 
-              From simple ideas to structured masterpieces in seconds.
+              {currentUser && subscription ? (
+                <div className="space-y-2">
+                  <p>Ready to create amazing video prompts?</p>
+                  <p className="text-sm text-purple-300">
+                    You're on the <span className="capitalize font-medium">{subscription.tier}</span> plan
+                  </p>
+                </div>
+              ) : (
+                "Generate professional, cinematic prompts for Sora, Runway, Pika, and Veo. From simple ideas to structured masterpieces in seconds."
+              )}
             </motion.p>
             
             <motion.div 
@@ -78,7 +105,7 @@ const Hero = () => {
                 className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300"
               >
                 <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                {user ? 'Go to Generator' : 'Build My First Prompt'}
+                {currentUser ? 'Go to Generator' : 'Build My First Prompt'}
               </Button>
               <Button 
                 size="lg" 

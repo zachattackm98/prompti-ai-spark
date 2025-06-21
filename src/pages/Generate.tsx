@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import Header from '@/components/landing/Header';
-import SubscriberWelcome from '@/components/landing/SubscriberWelcome';
+import Hero from '@/components/landing/Hero';
 import CinematicPromptGenerator from '@/components/CinematicPromptGenerator';
 import Footer from '@/components/landing/Footer';
 
@@ -35,7 +35,7 @@ const Generate = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <SubscriberWelcome user={user} subscription={subscription} />
+        <Hero user={user} subscription={subscription} />
         <CinematicPromptGenerator />
       </motion.div>
       

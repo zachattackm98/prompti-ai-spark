@@ -59,7 +59,7 @@ const CinematicHeader: React.FC<CinematicHeaderProps> = ({
           </div>
         </motion.div>
 
-        {/* Personalized greeting or generic subtitle */}
+        {/* Simple welcome message */}
         <motion.div 
           className="text-gray-300 text-sm sm:text-base px-4"
           initial={{ y: 20, opacity: 0 }}
@@ -67,14 +67,9 @@ const CinematicHeader: React.FC<CinematicHeaderProps> = ({
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           {user && firstName ? (
-            <div className="space-y-1">
-              <p className="text-purple-300 font-medium">
-                Welcome back, {firstName}!
-              </p>
-              <p className="text-sm text-gray-400">
-                You're on the <span className="text-purple-300 capitalize font-medium">{subscription.tier}</span> plan
-              </p>
-            </div>
+            <p className="text-purple-300 font-medium">
+              Welcome back, {firstName}!
+            </p>
           ) : (
             <p>Transform your ideas into production-quality video prompts</p>
           )}
