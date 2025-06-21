@@ -1,16 +1,18 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { createSubscriptionHelpers } from '@/hooks/subscription/subscriptionHelpers';
 import { useCinematicForm } from './useCinematicForm';
+import { usePromptHistory } from '@/hooks/usePromptHistory';
 
 // Component imports
 import CinematicFormHeader from './CinematicFormHeader';
 import CinematicFormContent from './CinematicFormContent';
 import CinematicFormActions from './CinematicFormActions';
 import BackgroundAnimation from './BackgroundAnimation';
+import PromptHistory from './PromptHistory';
 
 interface CinematicFormProps {
   setShowAuthDialog: (show: boolean) => void;
@@ -21,6 +23,8 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
   const { user, signOut } = useAuth();
   const { subscription } = useSubscription();
   const subscriptionHelpers = createSubscriptionHelpers(subscription);
+  const { loadPromptHistory } = usePromptHistory();
+  const [showHistory, setShowHistory] = useState(false);
 
   const {
     currentStep,
@@ -58,7 +62,7 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
     subscription,
     subscriptionHelpers.canUseFeature,
     setShowAuthDialog,
-    () => {} // No history refresh needed
+    loadPromptHistory
   );
 
   const handleSignOut = async () => {
@@ -87,6 +91,8 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
               user={user}
               subscription={subscription}
               onSignOut={handleSignOut}
+              showHistory={showHistory}
+              setShowHistory={setShowHistory}
             />
 
             <CinematicFormContent
@@ -132,6 +138,9 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
               subscription={subscription}
               onUpgrade={onUpgrade}
             />
+
+            {/* History Component */}
+            <PromptHistory showHistory={showHistory} />
           </div>
         </div>
       </motion.section>

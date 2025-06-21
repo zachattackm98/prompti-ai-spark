@@ -2,18 +2,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, Film, Sparkles, LogOut, User } from 'lucide-react';
+import { Camera, Film, Sparkles, LogOut, User, History } from 'lucide-react';
 
 interface CinematicHeaderProps {
   user: any;
   subscription: any;
   onSignOut: () => void;
+  showHistory: boolean;
+  setShowHistory: (show: boolean) => void;
 }
 
 const CinematicHeader: React.FC<CinematicHeaderProps> = ({
   user,
   subscription,
-  onSignOut
+  onSignOut,
+  showHistory,
+  setShowHistory
 }) => {
   return (
     <div className="flex flex-col lg:flex-row justify-between items-center gap-4 lg:gap-0 mb-6 sm:mb-8">
@@ -63,6 +67,19 @@ const CinematicHeader: React.FC<CinematicHeaderProps> = ({
       <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 order-1 lg:order-2 w-full sm:w-auto">
         {user && (
           <>
+            {/* History Button */}
+            <Button
+              onClick={() => setShowHistory(!showHistory)}
+              variant={showHistory ? "default" : "outline"}
+              size="sm"
+              className={`border-white/20 hover:bg-white/10 bg-slate-800/40 w-full sm:w-auto text-xs sm:text-sm ${
+                showHistory ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'text-white'
+              }`}
+            >
+              <History className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {showHistory ? 'Hide History' : 'Show History'}
+            </Button>
+
             {/* User Info and Sign Out */}
             <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full sm:w-auto">
               {/* User Info - Responsive */}

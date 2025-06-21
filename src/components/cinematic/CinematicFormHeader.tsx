@@ -8,12 +8,16 @@ interface CinematicFormHeaderProps {
   user: any;
   subscription: any;
   onSignOut: () => void;
+  showHistory: boolean;
+  setShowHistory: (show: boolean) => void;
 }
 
 const CinematicFormHeader: React.FC<CinematicFormHeaderProps> = ({
   user,
   subscription,
-  onSignOut
+  onSignOut,
+  showHistory,
+  setShowHistory
 }) => {
   return (
     <>
@@ -21,6 +25,8 @@ const CinematicFormHeader: React.FC<CinematicFormHeaderProps> = ({
         user={user}
         subscription={subscription}
         onSignOut={onSignOut}
+        showHistory={showHistory}
+        setShowHistory={setShowHistory}
       />
       
       {user && (
