@@ -86,15 +86,27 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     <>
       <motion.section 
         id="cinematic-generator"
-        className={`py-8 sm:py-16 ${isMobile ? 'px-4' : 'px-6'} relative overflow-hidden`}
+        className={`relative overflow-hidden ${
+          isMobile 
+            ? 'py-4 px-0 min-h-screen' 
+            : 'py-8 sm:py-16 px-6'
+        }`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         <BackgroundAnimation />
 
-        <div className="container mx-auto max-w-4xl relative z-10">
-          <div className={`max-w-4xl mx-auto ${isMobile ? 'p-4' : 'p-6'} space-y-6 sm:space-y-8`}>
+        <div className={`relative z-10 ${
+          isMobile 
+            ? 'w-full max-w-full' 
+            : 'container mx-auto max-w-4xl'
+        }`}>
+          <div className={`mx-auto space-y-6 sm:space-y-8 ${
+            isMobile 
+              ? 'max-w-full px-0' 
+              : 'max-w-4xl p-6'
+          }`}>
             {/* Simplified header without user controls */}
             <CinematicFormHeader />
 
@@ -143,10 +155,12 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
             />
 
             {/* History Component with create scenes functionality */}
-            <PromptHistory 
-              showHistory={showHistory} 
-              onCreateScenesFromHistory={createScenesFromHistory}
-            />
+            <div className={isMobile ? 'px-2' : ''}>
+              <PromptHistory 
+                showHistory={showHistory} 
+                onCreateScenesFromHistory={createScenesFromHistory}
+              />
+            </div>
           </div>
         </div>
       </motion.section>

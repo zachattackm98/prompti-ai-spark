@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import StepIndicator from './StepIndicator';
 import StepRenderer from './StepRenderer';
 import SceneSelector from './SceneSelector';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { CameraSettings, LightingSettings, DialogSettings, SoundSettings } from './useCinematicForm';
 
 interface CinematicFormContentProps {
@@ -71,10 +72,16 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
   isLoading,
   setShowAuthDialog
 }) => {
+  const isMobile = useIsMobile();
+
   return (
-    <div id="cinematic-form">
-      <Card className="bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 border border-purple-500/20 backdrop-blur-sm">
-        <div className="p-6 space-y-6">
+    <div id="cinematic-form" className="w-full">
+      <Card className={`
+        bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 
+        border border-purple-500/20 backdrop-blur-sm overflow-hidden
+        ${isMobile ? 'mx-2' : ''}
+      `}>
+        <div className={`space-y-6 ${isMobile ? 'p-4' : 'p-6'}`}>
           {/* Multi-scene project controls */}
           {isMultiScene && currentProject && (
             <div className="space-y-4">
@@ -91,32 +98,34 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
           <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
           {/* Step Content */}
-          <StepRenderer
-            currentStep={currentStep}
-            canUseFeature={canUseFeature}
-            features={features}
-            sceneIdea={sceneIdea}
-            setSceneIdea={setSceneIdea}
-            selectedPlatform={selectedPlatform}
-            setSelectedPlatform={setSelectedPlatform}
-            selectedEmotion={selectedEmotion}
-            setSelectedEmotion={setSelectedEmotion}
-            dialogSettings={dialogSettings}
-            setDialogSettings={setDialogSettings}
-            soundSettings={soundSettings}
-            setSoundSettings={setSoundSettings}
-            cameraSettings={cameraSettings}
-            setCameraSettings={setCameraSettings}
-            lightingSettings={lightingSettings}
-            setLightingSettings={setLightingSettings}
-            styleReference={styleReference}
-            setStyleReference={setStyleReference}
-            handleNext={handleNext}
-            handlePrevious={handlePrevious}
-            handleGenerate={handleGenerate}
-            isLoading={isLoading}
-            setShowAuthDialog={setShowAuthDialog}
-          />
+          <div className="min-h-[400px] flex flex-col justify-center">
+            <StepRenderer
+              currentStep={currentStep}
+              canUseFeature={canUseFeature}
+              features={features}
+              sceneIdea={sceneIdea}
+              setSceneIdea={setSceneIdea}
+              selectedPlatform={selectedPlatform}
+              setSelectedPlatform={setSelectedPlatform}
+              selectedEmotion={selectedEmotion}
+              setSelectedEmotion={setSelectedEmotion}
+              dialogSettings={dialogSettings}
+              setDialogSettings={setDialogSettings}
+              soundSettings={soundSettings}
+              setSoundSettings={setSoundSettings}
+              cameraSettings={cameraSettings}
+              setCameraSettings={setCameraSettings}
+              lightingSettings={lightingSettings}
+              setLightingSettings={setLightingSettings}
+              styleReference={styleReference}
+              setStyleReference={setStyleReference}
+              handleNext={handleNext}
+              handlePrevious={handlePrevious}
+              handleGenerate={handleGenerate}
+              isLoading={isLoading}
+              setShowAuthDialog={setShowAuthDialog}
+            />
+          </div>
         </div>
       </Card>
     </div>
