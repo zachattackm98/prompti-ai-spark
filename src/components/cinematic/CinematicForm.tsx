@@ -7,6 +7,7 @@ import { createSubscriptionHelpers } from '@/hooks/subscription/subscriptionHelp
 import { useCinematicForm } from './useCinematicForm';
 
 // Component imports
+import CinematicFormHeader from './CinematicFormHeader';
 import CinematicFormContent from './CinematicFormContent';
 import CinematicFormActions from './CinematicFormActions';
 import BackgroundAnimation from './BackgroundAnimation';
@@ -17,7 +18,7 @@ interface CinematicFormProps {
 }
 
 const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgrade }) => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { subscription } = useSubscription();
   const subscriptionHelpers = createSubscriptionHelpers(subscription);
 
@@ -60,6 +61,14 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
     () => {} // No history refresh needed
   );
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
+
   return (
     <>
       <motion.section 
@@ -73,6 +82,13 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
 
         <div className="container mx-auto max-w-4xl relative z-10">
           <div className="max-w-4xl mx-auto p-6 space-y-8">
+            {/* Header with title and user controls */}
+            <CinematicFormHeader
+              user={user}
+              subscription={subscription}
+              onSignOut={handleSignOut}
+            />
+
             <CinematicFormContent
               isMultiScene={isMultiScene}
               currentProject={currentProject}
