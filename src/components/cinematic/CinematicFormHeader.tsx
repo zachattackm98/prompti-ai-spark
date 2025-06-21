@@ -3,6 +3,7 @@ import React from 'react';
 import CinematicHeader from './CinematicHeader';
 import FeatureAnnouncement from './FeatureAnnouncement';
 import UsageDisplay from './UsageDisplay';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CinematicFormHeaderProps {
   user: any;
@@ -19,8 +20,10 @@ const CinematicFormHeader: React.FC<CinematicFormHeaderProps> = ({
   showHistory,
   setShowHistory
 }) => {
+  const isMobile = useIsMobile();
+
   return (
-    <>
+    <div className="space-y-4">
       <CinematicHeader 
         user={user}
         subscription={subscription}
@@ -30,17 +33,17 @@ const CinematicFormHeader: React.FC<CinematicFormHeaderProps> = ({
       />
       
       {user && (
-        <div className="flex flex-col sm:flex-row gap-4 items-start">
+        <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-col sm:flex-row'}`}>
           <FeatureAnnouncement 
             userTier={subscription.tier} 
-            className="flex-1"
+            className={isMobile ? 'w-full' : 'flex-1'}
           />
-          <div className="flex gap-2">
+          <div className={isMobile ? 'w-full' : 'w-full sm:w-80'}>
             <UsageDisplay />
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

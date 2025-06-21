@@ -6,6 +6,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { createSubscriptionHelpers } from '@/hooks/subscription/subscriptionHelpers';
 import { useCinematicForm } from './useCinematicForm';
 import { usePromptHistory } from '@/hooks/usePromptHistory';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Component imports
 import CinematicFormHeader from './CinematicFormHeader';
@@ -25,6 +26,7 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
   const subscriptionHelpers = createSubscriptionHelpers(subscription);
   const { loadPromptHistory } = usePromptHistory();
   const [showHistory, setShowHistory] = useState(false);
+  const isMobile = useIsMobile();
 
   const {
     currentStep,
@@ -77,7 +79,7 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
     <>
       <motion.section 
         id="cinematic-generator"
-        className="py-16 px-6 relative overflow-hidden"
+        className={`py-8 sm:py-16 ${isMobile ? 'px-4' : 'px-6'} relative overflow-hidden`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -85,7 +87,7 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
         <BackgroundAnimation />
 
         <div className="container mx-auto max-w-4xl relative z-10">
-          <div className="max-w-4xl mx-auto p-6 space-y-8">
+          <div className={`max-w-4xl mx-auto ${isMobile ? 'p-4' : 'p-6'} space-y-6 sm:space-y-8`}>
             {/* Header with title and user controls */}
             <CinematicFormHeader
               user={user}

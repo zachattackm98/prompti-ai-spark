@@ -8,6 +8,7 @@ import { usePromptHistoryActions } from './history/usePromptHistoryActions';
 import PromptHistoryHeader from './history/PromptHistoryHeader';
 import PromptHistoryEmpty from './history/PromptHistoryEmpty';
 import PromptHistoryItem from './history/PromptHistoryItem';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PromptHistoryProps {
   showHistory: boolean;
@@ -18,6 +19,7 @@ const PromptHistory: React.FC<PromptHistoryProps> = ({ showHistory }) => {
   const { toast } = useToast();
   const { copyToClipboard, downloadPrompt } = usePromptHistoryActions();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const isMobile = useIsMobile();
 
   if (!showHistory) return null;
 
@@ -70,13 +72,13 @@ const PromptHistory: React.FC<PromptHistoryProps> = ({ showHistory }) => {
       transition={{ duration: 0.5 }}
       className="mt-8"
     >
-      <Card className="bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 border border-purple-500/20 p-6">
+      <Card className="bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 border border-purple-500/20 p-4 sm:p-6">
         <PromptHistoryHeader 
           hasPrompts={promptHistory.length > 0}
           onClearAll={handleClearAll}
         />
         
-        <div className="space-y-3 max-h-96 overflow-y-auto">
+        <div className={`space-y-3 ${isMobile ? 'max-h-80' : 'max-h-96'} overflow-y-auto`}>
           {isLoading || promptHistory.length === 0 ? (
             <PromptHistoryEmpty isLoading={isLoading} />
           ) : (
