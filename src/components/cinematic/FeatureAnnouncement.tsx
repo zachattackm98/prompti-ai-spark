@@ -17,29 +17,29 @@ const FeatureAnnouncement = ({ userTier, className = '' }: FeatureAnnouncementPr
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-400/30 rounded-lg p-4 backdrop-blur-sm w-full ${className}`}
+      className={`bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-400/30 rounded-lg p-3 backdrop-blur-sm w-full ${className}`}
     >
-      <div className="space-y-3">
+      <div className="space-y-2">
         {/* Header - Mobile optimized */}
         <div className="flex items-center justify-center gap-2 text-green-300">
-          <CheckCircle className="w-4 h-4" />
-          <span className="text-sm font-medium">All Features Unlocked</span>
+          <CheckCircle className="w-3 h-3" />
+          <span className="text-xs font-medium">All Features Unlocked</span>
         </div>
         
         {/* Features - Mobile stacked layout */}
-        <div className={`flex text-sm text-gray-300 ${
-          isMobile ? 'flex-col space-y-2' : 'flex-wrap justify-center gap-4'
+        <div className={`flex text-xs text-gray-300 ${
+          isMobile ? 'flex-col space-y-1' : 'flex-wrap justify-center gap-3'
         }`}>
           <div className="flex items-center justify-center gap-1">
-            <Sparkles className="w-3 h-3 text-purple-400 flex-shrink-0" />
+            <Sparkles className="w-2.5 h-2.5 text-purple-400 flex-shrink-0" />
             <span>Full Creative Control</span>
           </div>
           <div className="flex items-center justify-center gap-1">
-            <History className="w-3 h-3 text-blue-400 flex-shrink-0" />
+            <History className="w-2.5 h-2.5 text-blue-400 flex-shrink-0" />
             <span>Coming: History</span>
           </div>
           <div className="flex items-center justify-center gap-1">
-            <Film className="w-3 h-3 text-purple-400 flex-shrink-0" />
+            <Film className="w-2.5 h-2.5 text-purple-400 flex-shrink-0" />
             <span>Coming: Multi-Scene</span>
           </div>
         </div>
