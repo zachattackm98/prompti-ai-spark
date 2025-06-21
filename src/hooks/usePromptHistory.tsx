@@ -32,6 +32,7 @@ export const usePromptHistory = () => {
       const { data, error: fetchError } = await supabase
         .from('prompt_history')
         .select('*')
+        .eq('user_id', user.id) // Filter by current user's ID
         .order('created_at', { ascending: false })
         .limit(10); // Limit to most recent 10 prompts
 
@@ -57,7 +58,8 @@ export const usePromptHistory = () => {
       const { error: deleteError } = await supabase
         .from('prompt_history')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id); // Ensure user can only delete their own records
 
       if (deleteError) {
         console.error('Error deleting prompt history item:', deleteError);
@@ -80,7 +82,7 @@ export const usePromptHistory = () => {
       const { error: deleteError } = await supabase
         .from('prompt_history')
         .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all user's records
+        .eq('user_id', user.id); // Only delete current user's records
 
       if (deleteError) {
         console.error('Error clearing prompt history:', deleteError);

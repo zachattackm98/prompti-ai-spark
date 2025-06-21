@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Copy, Download, Star, RotateCcw, Film } from 'lucide-react';
 import { GeneratedPrompt } from './types';
 import { platforms } from './constants';
+import { useToast } from '@/hooks/use-toast';
 
 interface GeneratedPromptDisplayProps {
   generatedPrompt: GeneratedPrompt;
@@ -19,7 +20,17 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
   onDownloadPrompt,
   onGenerateNew
 }) => {
+  const { toast } = useToast();
   const isMultiScene = generatedPrompt.sceneNumber && generatedPrompt.totalScenes && generatedPrompt.totalScenes > 1;
+
+  const handleCopyAll = () => {
+    const fullPrompt = `${generatedPrompt.mainPrompt}\n\n${generatedPrompt.technicalSpecs}\n\n${generatedPrompt.styleNotes}`;
+    onCopyToClipboard(fullPrompt);
+    toast({
+      title: "Success!",
+      description: "Complete prompt copied to clipboard.",
+    });
+  };
 
   return (
     <motion.div
@@ -75,7 +86,7 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
 
       <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 pt-2 sm:pt-4">
         <Button
-          onClick={() => onCopyToClipboard(`${generatedPrompt.mainPrompt}\n\n${generatedPrompt.technicalSpecs}\n\n${generatedPrompt.styleNotes}`)}
+          onClick={handleCopyAll}
           className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xs sm:text-sm w-full sm:w-auto order-1"
         >
           <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
