@@ -36,8 +36,6 @@ const CinematicPromptGenerator = ({ showHistory }: CinematicPromptGeneratorProps
       <ComingSoonDialog 
         open={showUpgradeDialog} 
         onOpenChange={setShowUpgradeDialog}
-        title="Upgrade Your Plan"
-        description="Upgrade to unlock more prompts and advanced features."
       />
     </>
   );

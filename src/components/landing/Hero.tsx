@@ -69,11 +69,12 @@ const Hero: React.FC<HeroProps> = ({
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className="max-w-4xl mx-auto space-y-6"
+            className="max-w-4xl mx-auto"
           >
+            {/* Welcome Message */}
             <motion.h1 
               variants={fadeInVariants}
-              className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 leading-tight"
+              className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6 leading-tight"
             >
               {currentUser && firstName ? (
                 <>
@@ -92,7 +93,7 @@ const Hero: React.FC<HeroProps> = ({
             {currentUser && setShowHistory && onSignOut && (
               <motion.div 
                 variants={fadeInVariants}
-                className="flex gap-2 px-4 max-w-md mx-auto"
+                className="flex gap-2 px-4 max-w-md mx-auto mb-6"
               >
                 <Button
                   onClick={() => setShowHistory(!showHistory)}
@@ -118,19 +119,26 @@ const Hero: React.FC<HeroProps> = ({
               </motion.div>
             )}
 
-            {/* Feature Cards - Only show when user is logged in */}
+            {/* Feature Announcement - Slim rectangle */}
             {currentUser && subscription && (
               <motion.div 
                 variants={fadeInVariants}
-                className={`flex gap-4 px-4 max-w-4xl mx-auto ${isMobile ? 'flex-col' : 'flex-col sm:flex-row'}`}
+                className="px-4 max-w-4xl mx-auto mb-4"
               >
                 <FeatureAnnouncement 
                   userTier={subscription.tier} 
-                  className={isMobile ? 'w-full' : 'flex-1'}
+                  className="w-full"
                 />
-                <div className={isMobile ? 'w-full' : 'w-full sm:w-80'}>
-                  <UsageDisplay onUpgrade={onUpgrade} />
-                </div>
+              </motion.div>
+            )}
+
+            {/* Usage Display - Slim rectangle */}
+            {currentUser && subscription && (
+              <motion.div 
+                variants={fadeInVariants}
+                className="px-4 max-w-4xl mx-auto"
+              >
+                <UsageDisplay onUpgrade={onUpgrade} />
               </motion.div>
             )}
           </motion.div>
