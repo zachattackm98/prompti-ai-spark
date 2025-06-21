@@ -124,10 +124,10 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
               {isMultiScene && currentProject && (
                 <div className="space-y-4">
                   <SceneSelector
-                    project={currentProject}
+                    currentProject={currentProject}
                     onSceneSelect={handleSceneSelect}
                     onAddScene={handleAddScene}
-                    canAddScene={canAddMoreScenes}
+                    canAddMoreScenes={canAddMoreScenes}
                   />
                 </div>
               )}
