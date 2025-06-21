@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Zap, ArrowDown } from 'lucide-react';
+import { Sparkles, Zap } from 'lucide-react';
 import { User } from '@supabase/supabase-js';
 import { fadeInVariants, scaleInVariants } from '@/utils/animations';
 
@@ -70,16 +70,6 @@ const SubscriberWelcome: React.FC<SubscriberWelcomeProps> = ({ user, subscriptio
             <div className="flex items-center gap-2 text-purple-400">
               <Zap className="w-5 h-5" />
               <span className="font-medium">Priority Support</span>
-            </div>
-          </motion.div>
-
-          <motion.div
-            variants={fadeInVariants}
-            className="flex items-center justify-center"
-          >
-            <div className="flex items-center gap-2 text-gray-400">
-              <ArrowDown className="w-5 h-5 animate-bounce" />
-              <span>Start creating below</span>
             </div>
           </motion.div>
         </motion.div>
