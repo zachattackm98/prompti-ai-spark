@@ -13,7 +13,7 @@ const Navigation = ({ className }: NavigationProps) => {
   const location = useLocation();
   const showTestingLink = isAdminUser(user?.email);
   
-  // Hide landing page links when on the Generate page
+  // Check if we're on the Generate page to determine link behavior
   const isGeneratePage = location.pathname === '/generate';
 
   return (
@@ -24,19 +24,40 @@ const Navigation = ({ className }: NavigationProps) => {
             Generate
           </Link>
         )}
-        {!isGeneratePage && (
-          <>
-            <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-              Features
-            </a>
-            <a href="#process" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-              How it Works
-            </a>
-            <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-              Pricing
-            </a>
-          </>
+        
+        {/* Features Link */}
+        {isGeneratePage ? (
+          <Link to="/#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+            Features
+          </Link>
+        ) : (
+          <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+            Features
+          </a>
         )}
+        
+        {/* How it Works Link */}
+        {isGeneratePage ? (
+          <Link to="/#process" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+            How it Works
+          </Link>
+        ) : (
+          <a href="#process" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+            How it Works
+          </a>
+        )}
+        
+        {/* Pricing Link */}
+        {isGeneratePage ? (
+          <Link to="/#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+            Pricing
+          </Link>
+        ) : (
+          <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+            Pricing
+          </a>
+        )}
+        
         {showTestingLink && (
           <Link to="/testing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
             Testing

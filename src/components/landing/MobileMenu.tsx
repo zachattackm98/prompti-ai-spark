@@ -19,7 +19,7 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
   const location = useLocation();
   const showTestingLink = isAdminUser(user?.email);
   
-  // Hide landing page links when on the Generate page
+  // Check if we're on the Generate page to determine link behavior
   const isGeneratePage = location.pathname === '/generate';
 
   if (!isOpen) return null;
@@ -34,6 +34,11 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
         element.scrollIntoView({ behavior: 'smooth' });
       }
     }, 100);
+  };
+
+  const handleCrossPageNavigation = (href: string) => {
+    onClose();
+    // Let React Router handle the navigation to landing page with hash
   };
 
   return (
@@ -54,40 +59,73 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
             Generate
           </Link>
         )}
-        {!isGeneratePage && (
-          <>
-            <a 
-              href="#features" 
-              className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
-              onClick={(e) => {
-                e.preventDefault();
-                handleLinkClick('#features');
-              }}
-            >
-              Features
-            </a>
-            <a 
-              href="#process" 
-              className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
-              onClick={(e) => {
-                e.preventDefault();
-                handleLinkClick('#process');
-              }}
-            >
-              How it Works
-            </a>
-            <a 
-              href="#pricing" 
-              className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
-              onClick={(e) => {
-                e.preventDefault();
-                handleLinkClick('#pricing');
-              }}
-            >
-              Pricing
-            </a>
-          </>
+        
+        {/* Features Link */}
+        {isGeneratePage ? (
+          <Link 
+            to="/#features" 
+            className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base no-underline"
+            onClick={() => handleCrossPageNavigation('#features')}
+          >
+            Features
+          </Link>
+        ) : (
+          <a 
+            href="#features" 
+            className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
+            onClick={(e) => {
+              e.preventDefault();
+              handleLinkClick('#features');
+            }}
+          >
+            Features
+          </a>
         )}
+        
+        {/* How it Works Link */}
+        {isGeneratePage ? (
+          <Link 
+            to="/#process" 
+            className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base no-underline"
+            onClick={() => handleCrossPageNavigation('#process')}
+          >
+            How it Works
+          </Link>
+        ) : (
+          <a 
+            href="#process" 
+            className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
+            onClick={(e) => {
+              e.preventDefault();
+              handleLinkClick('#process');
+            }}
+          >
+            How it Works
+          </a>
+        )}
+        
+        {/* Pricing Link */}
+        {isGeneratePage ? (
+          <Link 
+            to="/#pricing" 
+            className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base no-underline"
+            onClick={() => handleCrossPageNavigation('#pricing')}
+          >
+            Pricing
+          </Link>
+        ) : (
+          <a 
+            href="#pricing" 
+            className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
+            onClick={(e) => {
+              e.preventDefault();
+              handleLinkClick('#pricing');
+            }}
+          >
+            Pricing
+          </a>
+        )}
+        
         {showTestingLink && (
           <Link 
             to="/testing" 
