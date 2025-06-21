@@ -7,8 +7,8 @@ export const useCinematicActions = (
   totalSteps: number
 ) => {
   const handleGenerateNew = () => {
-    // Only reset form state to step 1, but preserve any generated prompts
-    setCurrentStep(1);
+    // Reset the entire form state including generated prompt
+    resetForm();
     // Scroll to the first step after reset with a delay to allow state update
     setTimeout(() => {
       console.log('useCinematicForm: Scrolling to step 1 after reset');
