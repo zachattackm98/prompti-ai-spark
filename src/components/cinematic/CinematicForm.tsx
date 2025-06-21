@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -7,10 +7,9 @@ import { createSubscriptionHelpers } from '@/hooks/subscription/subscriptionHelp
 import { useCinematicForm } from './useCinematicForm';
 
 // Component imports
-import CinematicFormHeader from './CinematicFormHeader';
 import CinematicFormContent from './CinematicFormContent';
 import CinematicFormActions from './CinematicFormActions';
-import PromptHistory from './PromptHistory';
+import BackgroundAnimation from './BackgroundAnimation';
 
 interface CinematicFormProps {
   setShowAuthDialog: (show: boolean) => void;
@@ -21,7 +20,6 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
   const { user } = useAuth();
   const { subscription } = useSubscription();
   const subscriptionHelpers = createSubscriptionHelpers(subscription);
-  const [showHistory, setShowHistory] = useState(false);
 
   const {
     currentStep,
@@ -59,71 +57,68 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
     subscription,
     subscriptionHelpers.canUseFeature,
     setShowAuthDialog,
-    () => {} // We'll handle history refresh in the component itself
+    () => {} // No history refresh needed
   );
-
-  const handleSignOut = async () => {
-    // This would be handled by the parent component
-    // For now, just a placeholder
-  };
 
   return (
     <>
-      <div className="max-w-4xl mx-auto p-6 space-y-8">
-        <CinematicFormHeader
-          user={user}
-          subscription={subscription}
-          showHistory={showHistory}
-          setShowHistory={setShowHistory}
-          onSignOut={handleSignOut}
-        />
+      <motion.section 
+        id="cinematic-generator"
+        className="py-16 px-6 relative overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <BackgroundAnimation />
 
-        {showHistory && <PromptHistory showHistory={showHistory} />}
+        <div className="container mx-auto max-w-4xl relative z-10">
+          <div className="max-w-4xl mx-auto p-6 space-y-8">
+            <CinematicFormContent
+              isMultiScene={isMultiScene}
+              currentProject={currentProject}
+              handleSceneSelect={handleSceneSelect}
+              handleAddScene={handleAddScene}
+              canAddMoreScenes={canAddMoreScenes}
+              currentStep={currentStep}
+              totalSteps={totalSteps}
+              canUseFeature={subscriptionHelpers.canUseFeature}
+              features={subscriptionHelpers.features}
+              sceneIdea={sceneIdea}
+              setSceneIdea={setSceneIdea}
+              selectedPlatform={selectedPlatform}
+              setSelectedPlatform={setSelectedPlatform}
+              selectedEmotion={selectedEmotion}
+              setSelectedEmotion={setSelectedEmotion}
+              dialogSettings={dialogSettings}
+              setDialogSettings={setDialogSettings}
+              soundSettings={soundSettings}
+              setSoundSettings={setSoundSettings}
+              cameraSettings={cameraSettings}
+              setCameraSettings={setCameraSettings}
+              lightingSettings={lightingSettings}
+              setLightingSettings={setLightingSettings}
+              styleReference={styleReference}
+              setStyleReference={setStyleReference}
+              handleNext={handleNext}
+              handlePrevious={handlePrevious}
+              handleGenerate={handleGenerate}
+              isLoading={isLoading}
+              setShowAuthDialog={setShowAuthDialog}
+            />
 
-        <CinematicFormContent
-          isMultiScene={isMultiScene}
-          currentProject={currentProject}
-          handleSceneSelect={handleSceneSelect}
-          handleAddScene={handleAddScene}
-          canAddMoreScenes={canAddMoreScenes}
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-          canUseFeature={subscriptionHelpers.canUseFeature}
-          features={subscriptionHelpers.features}
-          sceneIdea={sceneIdea}
-          setSceneIdea={setSceneIdea}
-          selectedPlatform={selectedPlatform}
-          setSelectedPlatform={setSelectedPlatform}
-          selectedEmotion={selectedEmotion}
-          setSelectedEmotion={setSelectedEmotion}
-          dialogSettings={dialogSettings}
-          setDialogSettings={setDialogSettings}
-          soundSettings={soundSettings}
-          setSoundSettings={setSoundSettings}
-          cameraSettings={cameraSettings}
-          setCameraSettings={setCameraSettings}
-          lightingSettings={lightingSettings}
-          setLightingSettings={setLightingSettings}
-          styleReference={styleReference}
-          setStyleReference={setStyleReference}
-          handleNext={handleNext}
-          handlePrevious={handlePrevious}
-          handleGenerate={handleGenerate}
-          isLoading={isLoading}
-          setShowAuthDialog={setShowAuthDialog}
-        />
-
-        <CinematicFormActions
-          generatedPrompt={generatedPrompt}
-          isMultiScene={isMultiScene}
-          handleGenerateNew={handleGenerateNew}
-          handleContinueScene={handleContinueScene}
-          user={user}
-          canUseFeature={subscriptionHelpers.canUseFeature}
-          subscription={subscription}
-          onUpgrade={onUpgrade}
-        />
-      </div>
+            <CinematicFormActions
+              generatedPrompt={generatedPrompt}
+              isMultiScene={isMultiScene}
+              handleGenerateNew={handleGenerateNew}
+              handleContinueScene={handleContinueScene}
+              user={user}
+              canUseFeature={subscriptionHelpers.canUseFeature}
+              subscription={subscription}
+              onUpgrade={onUpgrade}
+            />
+          </div>
+        </div>
+      </motion.section>
     </>
   );
 };

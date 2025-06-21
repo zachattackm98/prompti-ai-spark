@@ -4,15 +4,23 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { fadeInVariants, scaleInVariants, viewportOptions } from '@/utils/animations';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import AuthDialog from '@/components/AuthDialog';
 import VideoDialog from '@/components/VideoDialog';
 
 const FinalCTA = () => {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showVideoDialog, setShowVideoDialog] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleStartForFree = () => {
-    setShowAuthDialog(true);
+    if (user) {
+      navigate('/generate');
+    } else {
+      setShowAuthDialog(true);
+    }
   };
 
   const handleWatchDemo = () => {
@@ -64,7 +72,7 @@ const FinalCTA = () => {
                   onClick={handleStartForFree}
                   className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300"
                 >
-                  Start For Free
+                  {user ? 'Go to Generator' : 'Start For Free'}
                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                 </Button>
                 <Button 

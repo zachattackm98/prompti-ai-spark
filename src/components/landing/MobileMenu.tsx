@@ -41,6 +41,15 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
     >
       <div className="flex flex-col space-y-3 pt-4">
         {/* Navigation Links */}
+        {user && (
+          <Link 
+            to="/generate" 
+            className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base no-underline"
+            onClick={onClose}
+          >
+            Generate
+          </Link>
+        )}
         <a 
           href="#features" 
           className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"

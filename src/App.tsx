@@ -10,6 +10,7 @@ import { PromptUsageProvider } from "@/hooks/PromptUsageContext";
 import Index from "./pages/Index";
 import Account from "./pages/Account";
 import Testing from "./pages/Testing";
+import Generate from "./pages/Generate";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./components/auth/AuthPage";
 import ResetPasswordPage from "./components/auth/ResetPasswordPage";
@@ -30,6 +31,11 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/generate" element={
+                  <ProtectedRoute>
+                    <Generate />
+                  </ProtectedRoute>
+                } />
                 <Route path="/account" element={
                   <ProtectedRoute>
                     <Account />

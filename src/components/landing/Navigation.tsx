@@ -15,6 +15,11 @@ const Navigation = ({ className }: NavigationProps) => {
   return (
     <nav className={`hidden md:flex ${className || ''}`}>
       <div className="flex items-center space-x-6 lg:space-x-8">
+        {user && (
+          <Link to="/generate" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+            Generate
+          </Link>
+        )}
         <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
           Features
         </a>

@@ -9,38 +9,15 @@ import { usePromptUsage } from '@/hooks/usePromptUsage';
 import AuthDialog from './AuthDialog';
 
 // Import refactored components
-import { PromptHistory } from './cinematic/types';
-import CinematicHeader from './cinematic/CinematicHeader';
 import CinematicForm from './cinematic/CinematicForm';
-import CinematicUpgradeSection from './cinematic/CinematicUpgradeSection';
 import BackgroundAnimation from './cinematic/BackgroundAnimation';
 
 const CinematicPromptGenerator = () => {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [promptHistory, setPromptHistory] = useState<PromptHistory[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
   const { toast } = useToast();
-  const { user, signOut } = useAuth();
-  const { subscription, features, canUseFeature } = useSubscription();
+  const { user } = useAuth();
+  const { subscription } = useSubscription();
   const { refetchUsage } = usePromptUsage();
-
-  const loadPromptHistory = async () => {
-    if (!user) return;
-
-    try {
-      setPromptHistory([]);
-      // Refetch usage data after loading prompt history
-      await refetchUsage();
-    } catch (error) {
-      console.error('Error loading history:', error);
-    }
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-    setPromptHistory([]);
-    setShowHistory(false);
-  };
 
   const handleUpgrade = () => {
     // This would typically redirect to a payment/upgrade page
@@ -52,9 +29,9 @@ const CinematicPromptGenerator = () => {
 
   React.useEffect(() => {
     if (user) {
-      loadPromptHistory();
+      refetchUsage();
     }
-  }, [user]);
+  }, [user, refetchUsage]);
 
   return (
     <>

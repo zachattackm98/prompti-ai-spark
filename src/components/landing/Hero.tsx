@@ -4,18 +4,28 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Play, Sparkles, Video } from 'lucide-react';
 import { fadeInVariants, staggerContainer, scaleInVariants } from '@/utils/animations';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import VideoDialog from '@/components/VideoDialog';
 
 const Hero = () => {
   const [showVideoDialog, setShowVideoDialog] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleScrollToGenerator = () => {
-    const generatorSection = document.getElementById('cinematic-generator');
-    if (generatorSection) {
-      generatorSection.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
+    if (user) {
+      // Redirect authenticated users to the generate page
+      navigate('/generate');
+    } else {
+      // For non-authenticated users, scroll to the generator on this page
+      const generatorSection = document.getElementById('cinematic-generator');
+      if (generatorSection) {
+        generatorSection.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
     }
   };
 
@@ -68,7 +78,7 @@ const Hero = () => {
                 className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300"
               >
                 <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                Build My First Prompt
+                {user ? 'Go to Generator' : 'Build My First Prompt'}
               </Button>
               <Button 
                 size="lg" 
