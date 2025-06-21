@@ -69,28 +69,8 @@ const CinematicPromptGenerator = () => {
         <BackgroundAnimation />
 
         <div className="container mx-auto max-w-4xl relative z-10">
-          <CinematicHeader
-            user={user}
-            subscription={subscription}
-            showHistory={showHistory}
-            setShowHistory={setShowHistory}
-            onSignOut={handleSignOut}
-          />
-
           <CinematicForm
-            user={user}
-            subscription={subscription}
-            features={features}
-            canUseFeature={canUseFeature}
             setShowAuthDialog={setShowAuthDialog}
-            loadPromptHistory={loadPromptHistory}
-          />
-
-          <CinematicUpgradeSection
-            user={user}
-            generatedPrompt={null}
-            canUseFeature={canUseFeature}
-            subscription={subscription}
             onUpgrade={handleUpgrade}
           />
         </div>

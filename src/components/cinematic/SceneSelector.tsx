@@ -7,17 +7,17 @@ import { Plus, Film, ChevronLeft, ChevronRight } from 'lucide-react';
 import { MultiSceneProject } from './hooks/types';
 
 interface SceneSelectorProps {
-  project: MultiSceneProject;
+  currentProject: MultiSceneProject;
   onSceneSelect: (sceneIndex: number) => void;
   onAddScene: () => void;
-  canAddScene: boolean;
+  canAddMoreScenes: boolean;
 }
 
 const SceneSelector: React.FC<SceneSelectorProps> = ({
-  project,
+  currentProject,
   onSceneSelect,
   onAddScene,
-  canAddScene
+  canAddMoreScenes
 }) => {
   return (
     <motion.div
@@ -29,12 +29,12 @@ const SceneSelector: React.FC<SceneSelectorProps> = ({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Film className="w-5 h-5 text-purple-400" />
-            <h3 className="text-lg font-semibold text-white">{project.title}</h3>
+            <h3 className="text-lg font-semibold text-white">{currentProject.title}</h3>
             <span className="text-sm text-purple-300">
-              ({project.scenes.length} scene{project.scenes.length !== 1 ? 's' : ''})
+              ({currentProject.scenes.length} scene{currentProject.scenes.length !== 1 ? 's' : ''})
             </span>
           </div>
-          {canAddScene && (
+          {canAddMoreScenes && (
             <Button
               onClick={onAddScene}
               size="sm"
@@ -47,14 +47,14 @@ const SceneSelector: React.FC<SceneSelectorProps> = ({
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-2">
-          {project.scenes.map((scene, index) => (
+          {currentProject.scenes.map((scene, index) => (
             <Button
               key={scene.sceneNumber}
               onClick={() => onSceneSelect(index)}
-              variant={index === project.currentSceneIndex ? "default" : "outline"}
+              variant={index === currentProject.currentSceneIndex ? "default" : "outline"}
               size="sm"
               className={`min-w-fit ${
-                index === project.currentSceneIndex
+                index === currentProject.currentSceneIndex
                   ? "bg-purple-600 text-white"
                   : "border-purple-400/30 text-purple-300 hover:bg-purple-900/30"
               }`}
@@ -69,7 +69,7 @@ const SceneSelector: React.FC<SceneSelectorProps> = ({
           ))}
         </div>
 
-        {project.scenes.length > 1 && (
+        {currentProject.scenes.length > 1 && (
           <div className="mt-3 text-xs text-purple-300 bg-purple-900/20 rounded p-2">
             💡 Tip: Switch between scenes to maintain story continuity across your cinematic sequence
           </div>

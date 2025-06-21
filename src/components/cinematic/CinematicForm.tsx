@@ -78,10 +78,21 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
     });
   };
 
+  const handleSignOut = async () => {
+    // This would be handled by the parent component
+    // For now, just a placeholder
+  };
+
   return (
     <>
       <div className="max-w-4xl mx-auto p-6 space-y-8">
-        <CinematicHeader />
+        <CinematicHeader 
+          user={user}
+          subscription={subscription}
+          showHistory={showHistory}
+          setShowHistory={setShowHistory}
+          onSignOut={handleSignOut}
+        />
         
         {user && (
           <div className="flex flex-col sm:flex-row gap-4 items-start">
@@ -113,10 +124,10 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
               {isMultiScene && currentProject && (
                 <div className="space-y-4">
                   <SceneSelector
-                    currentProject={currentProject}
+                    project={currentProject}
                     onSceneSelect={handleSceneSelect}
                     onAddScene={handleAddScene}
-                    canAddMoreScenes={canAddMoreScenes}
+                    canAddScene={canAddMoreScenes}
                   />
                 </div>
               )}
@@ -159,17 +170,28 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
         {generatedPrompt && (
           <GeneratedPromptDisplay
             generatedPrompt={generatedPrompt}
-            subscription={subscription}
+            onCopyToClipboard={(text) => {
+              navigator.clipboard.writeText(text);
+            }}
+            onDownloadPrompt={() => {
+              const blob = new Blob([`${generatedPrompt.mainPrompt}\n\n${generatedPrompt.technicalSpecs}\n\n${generatedPrompt.styleNotes}`], { type: 'text/plain' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'cinematic-prompt.txt';
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
             onGenerateNew={handleGenerateNew}
-            scrollToForm={scrollToForm}
           />
         )}
 
         {/* Continue Scene Prompt for Multi-Scene */}
         {generatedPrompt && !isMultiScene && (
           <ContinueScenePrompt
+            generatedPrompt={generatedPrompt}
             onContinueScene={handleContinueScene}
-            subscription={subscription}
+            onStartOver={handleGenerateNew}
           />
         )}
 
