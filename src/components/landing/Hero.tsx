@@ -12,9 +12,10 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 interface HeroProps {
   user?: any;
   subscription?: any;
+  isGeneratePage?: boolean;
 }
 
-const Hero: React.FC<HeroProps> = ({ user, subscription }) => {
+const Hero: React.FC<HeroProps> = ({ user, subscription, isGeneratePage = false }) => {
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const { user: authUser } = useAuth();
   const navigate = useNavigate();
@@ -43,6 +44,40 @@ const Hero: React.FC<HeroProps> = ({ user, subscription }) => {
     setShowVideoDialog(true);
   };
 
+  // Simplified version for generate page
+  if (isGeneratePage) {
+    return (
+      <section className="pt-24 sm:pt-32 pb-8 px-4 sm:px-6">
+        <div className="container mx-auto text-center">
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+            className="max-w-4xl mx-auto"
+          >
+            <motion.h1 
+              variants={fadeInVariants}
+              className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 leading-tight"
+            >
+              {currentUser && firstName ? (
+                <>
+                  Welcome Back,
+                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> {firstName}!</span>
+                </>
+              ) : (
+                <>
+                  Welcome to
+                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> AiPromptMachine</span>
+                </>
+              )}
+            </motion.h1>
+          </motion.div>
+        </div>
+      </section>
+    );
+  }
+
+  // Full version for landing page
   return (
     <>
       <section className="pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6">
