@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -9,11 +9,25 @@ import CinematicPromptGenerator from '@/components/CinematicPromptGenerator';
 import Footer from '@/components/landing/Footer';
 
 const Generate = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const { subscription, loading: subscriptionLoading } = useSubscription();
+  const [showHistory, setShowHistory] = useState(false);
 
   // Show loading state during initial load
   const isInitialLoading = authLoading || (user && subscriptionLoading);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
+
+  const handleUpgrade = () => {
+    // This would open upgrade dialog - placeholder for now
+    console.log('Upgrade clicked');
+  };
 
   if (isInitialLoading) {
     return (
@@ -35,8 +49,16 @@ const Generate = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <Hero user={user} subscription={subscription} isGeneratePage={true} />
-        <CinematicPromptGenerator />
+        <Hero 
+          user={user} 
+          subscription={subscription} 
+          isGeneratePage={true}
+          showHistory={showHistory}
+          setShowHistory={setShowHistory}
+          onSignOut={handleSignOut}
+          onUpgrade={handleUpgrade}
+        />
+        <CinematicPromptGenerator showHistory={showHistory} />
       </motion.div>
       
       <Footer />

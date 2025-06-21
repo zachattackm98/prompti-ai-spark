@@ -2,24 +2,40 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Play, Sparkles, Video } from 'lucide-react';
+import { Play, Sparkles, Video, History, LogOut } from 'lucide-react';
 import { fadeInVariants, staggerContainer, scaleInVariants } from '@/utils/animations';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import VideoDialog from '@/components/VideoDialog';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useIsMobile } from '@/hooks/use-mobile';
+import FeatureAnnouncement from '@/components/cinematic/FeatureAnnouncement';
+import UsageDisplay from '@/components/cinematic/UsageDisplay';
 
 interface HeroProps {
   user?: any;
   subscription?: any;
   isGeneratePage?: boolean;
+  showHistory?: boolean;
+  setShowHistory?: (show: boolean) => void;
+  onSignOut?: () => void;
+  onUpgrade?: () => void;
 }
 
-const Hero: React.FC<HeroProps> = ({ user, subscription, isGeneratePage = false }) => {
+const Hero: React.FC<HeroProps> = ({ 
+  user, 
+  subscription, 
+  isGeneratePage = false,
+  showHistory = false,
+  setShowHistory,
+  onSignOut,
+  onUpgrade
+}) => {
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const { user: authUser } = useAuth();
   const navigate = useNavigate();
   const { firstName } = useUserProfile(user || authUser);
+  const isMobile = useIsMobile();
 
   // Use passed props or fall back to auth context
   const currentUser = user || authUser;
@@ -53,7 +69,7 @@ const Hero: React.FC<HeroProps> = ({ user, subscription, isGeneratePage = false 
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className="max-w-4xl mx-auto"
+            className="max-w-4xl mx-auto space-y-6"
           >
             <motion.h1 
               variants={fadeInVariants}
@@ -71,6 +87,52 @@ const Hero: React.FC<HeroProps> = ({ user, subscription, isGeneratePage = false 
                 </>
               )}
             </motion.h1>
+
+            {/* Action Buttons - Only show when user is logged in */}
+            {currentUser && setShowHistory && onSignOut && (
+              <motion.div 
+                variants={fadeInVariants}
+                className="flex gap-2 px-4 max-w-md mx-auto"
+              >
+                <Button
+                  onClick={() => setShowHistory(!showHistory)}
+                  variant={showHistory ? "default" : "outline"}
+                  size={isMobile ? "default" : "sm"}
+                  className={`flex-1 border-white/20 hover:bg-white/10 bg-slate-800/40 text-sm min-h-[44px] ${
+                    showHistory ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'text-white'
+                  }`}
+                >
+                  <History className="w-4 h-4 mr-2" />
+                  {showHistory ? 'Hide History' : 'Show History'}
+                </Button>
+
+                <Button
+                  onClick={onSignOut}
+                  variant="outline"
+                  size={isMobile ? "default" : "sm"}
+                  className="flex-1 border-white/20 text-white hover:bg-white/10 bg-slate-800/40 text-sm min-h-[44px]"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </motion.div>
+            )}
+
+            {/* Feature Cards - Only show when user is logged in */}
+            {currentUser && subscription && (
+              <motion.div 
+                variants={fadeInVariants}
+                className={`flex gap-4 px-4 max-w-4xl mx-auto ${isMobile ? 'flex-col' : 'flex-col sm:flex-row'}`}
+              >
+                <FeatureAnnouncement 
+                  userTier={subscription.tier} 
+                  className={isMobile ? 'w-full' : 'flex-1'}
+                />
+                <div className={isMobile ? 'w-full' : 'w-full sm:w-80'}>
+                  <UsageDisplay onUpgrade={onUpgrade} />
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </section>

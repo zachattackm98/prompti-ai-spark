@@ -1,9 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Camera, Film, Sparkles, LogOut, History } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { Camera, Film, Sparkles } from 'lucide-react';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
 interface CinematicHeaderProps {
@@ -21,7 +19,6 @@ const CinematicHeader: React.FC<CinematicHeaderProps> = ({
   showHistory,
   setShowHistory
 }) => {
-  const isMobile = useIsMobile();
   const { firstName } = useUserProfile(user);
 
   return (
@@ -75,33 +72,6 @@ const CinematicHeader: React.FC<CinematicHeaderProps> = ({
           )}
         </motion.div>
       </div>
-      
-      {/* Action Buttons - Only show when user is logged in */}
-      {user && (
-        <div className="flex gap-2 px-4">
-          <Button
-            onClick={() => setShowHistory(!showHistory)}
-            variant={showHistory ? "default" : "outline"}
-            size={isMobile ? "default" : "sm"}
-            className={`flex-1 border-white/20 hover:bg-white/10 bg-slate-800/40 text-sm min-h-[44px] ${
-              showHistory ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'text-white'
-            }`}
-          >
-            <History className="w-4 h-4 mr-2" />
-            {showHistory ? 'Hide History' : 'Show History'}
-          </Button>
-
-          <Button
-            onClick={onSignOut}
-            variant="outline"
-            size={isMobile ? "default" : "sm"}
-            className="flex-1 border-white/20 text-white hover:bg-white/10 bg-slate-800/40 text-sm min-h-[44px]"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

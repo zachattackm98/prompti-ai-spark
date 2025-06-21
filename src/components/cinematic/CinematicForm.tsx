@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -18,14 +18,18 @@ import PromptHistory from './PromptHistory';
 interface CinematicFormProps {
   setShowAuthDialog: (show: boolean) => void;
   onUpgrade: () => void;
+  showHistory?: boolean;
 }
 
-const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgrade }) => {
-  const { user, signOut } = useAuth();
+const CinematicForm: React.FC<CinematicFormProps> = ({ 
+  setShowAuthDialog, 
+  onUpgrade,
+  showHistory = false
+}) => {
+  const { user } = useAuth();
   const { subscription } = useSubscription();
   const subscriptionHelpers = createSubscriptionHelpers(subscription);
   const { loadPromptHistory } = usePromptHistory();
-  const [showHistory, setShowHistory] = useState(false);
   const isMobile = useIsMobile();
 
   const {
@@ -67,14 +71,6 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
     loadPromptHistory
   );
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
-  };
-
   return (
     <>
       <motion.section 
@@ -88,14 +84,8 @@ const CinematicForm: React.FC<CinematicFormProps> = ({ setShowAuthDialog, onUpgr
 
         <div className="container mx-auto max-w-4xl relative z-10">
           <div className={`max-w-4xl mx-auto ${isMobile ? 'p-4' : 'p-6'} space-y-6 sm:space-y-8`}>
-            {/* Header with title and user controls */}
-            <CinematicFormHeader
-              user={user}
-              subscription={subscription}
-              onSignOut={handleSignOut}
-              showHistory={showHistory}
-              setShowHistory={setShowHistory}
-            />
+            {/* Simplified header without user controls */}
+            <CinematicFormHeader />
 
             <CinematicFormContent
               isMultiScene={isMultiScene}
