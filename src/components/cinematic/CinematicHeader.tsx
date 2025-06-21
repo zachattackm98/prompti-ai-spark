@@ -7,16 +7,12 @@ import { Camera, Film, Sparkles, LogOut, User } from 'lucide-react';
 interface CinematicHeaderProps {
   user: any;
   subscription: any;
-  showHistory: boolean;
-  setShowHistory: (show: boolean) => void;
   onSignOut: () => void;
 }
 
 const CinematicHeader: React.FC<CinematicHeaderProps> = ({
   user,
   subscription,
-  showHistory,
-  setShowHistory,
   onSignOut
 }) => {
   return (
