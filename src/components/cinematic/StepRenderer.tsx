@@ -1,3 +1,4 @@
+
 import React from 'react';
 import SceneStep from './SceneStep';
 import PlatformStep from './PlatformStep';
@@ -125,7 +126,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
     );
   }
 
-  // Step 5: Camera Controls (always show, but with upgrade prompt for Starter users)
+  // Step 5: Camera Controls (now fully available to all users)
   if (currentStep === 5) {
     return (
       <div id="step-content-5">
@@ -134,13 +135,13 @@ const StepRenderer: React.FC<StepRendererProps> = ({
           setCameraSettings={setCameraSettings}
           onNext={handleNext}
           onPrevious={handlePrevious}
-          showUpgrade={!canUseFeature('cameraControls')}
+          showUpgrade={false}
         />
       </div>
     );
   }
 
-  // Step 6: Lighting (always show, but with upgrade prompt for Starter users)
+  // Step 6: Lighting (now fully available to all users)
   if (currentStep === 6) {
     return (
       <div id="step-content-6">
@@ -149,13 +150,13 @@ const StepRenderer: React.FC<StepRendererProps> = ({
           setLightingSettings={setLightingSettings}
           onNext={handleNext}
           onPrevious={handlePrevious}
-          showUpgrade={!canUseFeature('lightingOptions')}
+          showUpgrade={false}
         />
       </div>
     );
   }
 
-  // Step 7: Style (final step)
+  // Step 7: Style (now fully available to all users)
   if (currentStep === 7) {
     return (
       <div id="step-content-7">
@@ -165,7 +166,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
           onPrevious={handlePrevious}
           onGenerate={handleGenerate}
           isLoading={isLoading}
-          showUpgrade={!canUseFeature('styleReference')}
+          showUpgrade={false}
         />
       </div>
     );

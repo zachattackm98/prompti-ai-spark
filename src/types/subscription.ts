@@ -30,7 +30,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     cameraControls: true,
     lightingOptions: true,
     visualStyles: true,
-    styleReference: false,
+    styleReference: true,
     enhancedPrompts: true,
     batchProcessing: true,
     teamCollaboration: false,

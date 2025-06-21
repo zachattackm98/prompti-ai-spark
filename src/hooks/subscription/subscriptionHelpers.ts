@@ -22,21 +22,14 @@ export const createSubscriptionHelpers = (subscription: UserSubscription) => {
   const isSubscribed = subscription.isActive && subscription.tier !== 'starter';
 
   const getRemainingFeatures = (currentTier: string): string[] => {
-    const tierOrder = { starter: 0, creator: 1, studio: 2 };
-    const currentTierLevel = tierOrder[currentTier as SubscriptionTier] || 0;
-    
-    const allFeatures = ['cameraControls', 'lightingOptions', 'visualStyles', 'enhancedPrompts', 'batchProcessing', 'teamCollaboration', 'apiAccess'];
-    
-    return allFeatures.filter(feature => {
-      // Check which tiers have this feature
-      const creatorHas = TIER_FEATURES.creator[feature as keyof typeof TIER_FEATURES.creator];
-      const studioHas = TIER_FEATURES.studio[feature as keyof typeof TIER_FEATURES.studio];
-      
-      // Return features that are available in higher tiers but not current tier
-      if (currentTierLevel < 1 && creatorHas) return true;
-      if (currentTierLevel < 2 && studioHas && !creatorHas) return true;
-      return false;
-    });
+    // Since all features are now available to starter users,
+    // the only remaining features are the advanced ones for team collaboration
+    if (currentTier === 'starter') {
+      return ['teamCollaboration', 'apiAccess'];
+    } else if (currentTier === 'creator') {
+      return ['teamCollaboration', 'apiAccess'];
+    }
+    return [];
   };
 
   const getUpgradeMessage = (feature: string, requiredTier: string): string => {
@@ -46,7 +39,15 @@ export const createSubscriptionHelpers = (subscription: UserSubscription) => {
     };
     
     const tierName = tierNames[requiredTier as keyof typeof tierNames] || requiredTier;
-    return `Upgrade to ${tierName} to unlock ${feature}`;
+    
+    // Updated messaging to focus on limits rather than feature access
+    if (requiredTier === 'creator') {
+      return `Upgrade to ${tierName} for 500 prompts/month and priority support`;
+    } else if (requiredTier === 'studio') {
+      return `Upgrade to ${tierName} for 1000 prompts/month, team collaboration, and API access`;
+    }
+    
+    return `Upgrade to ${tierName} for enhanced limits and features`;
   };
 
   return {

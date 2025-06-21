@@ -8,7 +8,8 @@ import {
   Video, 
   Palette, 
   Camera,
-  Lightbulb
+  Lightbulb,
+  CheckCircle
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePromptUsage } from '@/hooks/usePromptUsage';
@@ -20,10 +21,10 @@ const UsageOverview = () => {
   // Mock usage data - in a real app, this would come from your API
   const usageData = {
     promptsGenerated: usage?.prompt_count || 0,
-    platformsUsed: ['Veo3', 'Sora', subscription.tier !== 'starter' ? 'Runway' : null].filter(Boolean),
-    cameraControlsUsed: subscription.tier !== 'starter' ? 12 : 0,
-    lightingEffectsUsed: subscription.tier !== 'starter' ? 8 : 0,
-    stylesApplied: subscription.tier !== 'starter' ? 15 : 0,
+    platformsUsed: ['Veo3', 'Sora', 'Runway', 'Pika'],
+    cameraControlsUsed: 15,
+    lightingEffectsUsed: 12,
+    stylesApplied: 18,
   };
 
   const usageItems = [
@@ -38,7 +39,7 @@ const UsageOverview = () => {
       icon: Video,
       label: 'AI Platforms',
       value: usageData.platformsUsed.length,
-      limit: features.platforms.length,
+      limit: 4,
       color: 'text-purple-400',
       showList: true,
       list: usageData.platformsUsed
@@ -49,7 +50,7 @@ const UsageOverview = () => {
       value: usageData.cameraControlsUsed,
       limit: null,
       color: 'text-green-400',
-      disabled: !features.cameraControls
+      disabled: false
     },
     {
       icon: Lightbulb,
@@ -57,7 +58,7 @@ const UsageOverview = () => {
       value: usageData.lightingEffectsUsed,
       limit: null,
       color: 'text-yellow-400',
-      disabled: !features.lightingOptions
+      disabled: false
     },
     {
       icon: Palette,
@@ -65,13 +66,21 @@ const UsageOverview = () => {
       value: usageData.stylesApplied,
       limit: null,
       color: 'text-pink-400',
-      disabled: !features.visualStyles
+      disabled: false
     }
   ];
 
   return (
     <Card className="bg-slate-900/50 border border-white/10 p-4 sm:p-6 backdrop-blur-sm">
-      <h3 className="text-lg font-semibold text-white mb-4 sm:mb-6">Usage Overview</h3>
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <h3 className="text-lg font-semibold text-white">Usage Overview</h3>
+        {subscription.tier === 'starter' && (
+          <Badge className="bg-green-500/20 text-green-400 border-green-400/30">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            All Features Unlocked
+          </Badge>
+        )}
+      </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {usageItems.map((item, index) => {
@@ -79,30 +88,27 @@ const UsageOverview = () => {
           const progressValue = item.limit && item.limit > 0 ? (item.value / item.limit) * 100 : 0;
           
           return (
-            <div key={index} className={`space-y-3 ${item.disabled ? 'opacity-50' : ''}`}>
+            <div key={index} className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <Icon className={`w-4 h-4 ${item.color} flex-shrink-0`} />
                   <span className="text-sm text-gray-300 truncate">{item.label}</span>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  {item.disabled ? (
-                    <Badge variant="outline" className="border-gray-600 text-gray-400 text-xs">
-                      Locked
-                    </Badge>
-                  ) : (
-                    <span className="text-sm font-medium text-white">
-                      {item.value}{item.limit ? `/${item.limit}` : ''}
-                    </span>
+                  <span className="text-sm font-medium text-white">
+                    {item.value}{item.limit ? `/${item.limit}` : ''}
+                  </span>
+                  {!item.limit && (
+                    <CheckCircle className="w-3 h-3 text-green-400" />
                   )}
                 </div>
               </div>
               
-              {item.limit && item.limit > 0 && !item.disabled && (
+              {item.limit && item.limit > 0 && (
                 <Progress value={progressValue} className="h-2" />
               )}
               
-              {item.showList && item.list && !item.disabled && (
+              {item.showList && item.list && (
                 <div className="flex flex-wrap gap-1">
                   {item.list.map((platform, i) => (
                     <Badge key={i} variant="secondary" className="text-xs bg-slate-700 hover:bg-slate-600">
@@ -115,6 +121,14 @@ const UsageOverview = () => {
           );
         })}
       </div>
+
+      {subscription.tier === 'starter' && (
+        <div className="mt-6 p-4 bg-gradient-to-r from-purple-900/20 to-pink-900/20 border border-purple-400/30 rounded-lg">
+          <p className="text-sm text-purple-300 text-center">
+            ✨ You have access to all features! Upgrade to get more prompts per month and priority support.
+          </p>
+        </div>
+      )}
     </Card>
   );
 };

@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Crown, Sparkles, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { Crown, Zap, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { SubscriptionTier } from '@/types/subscription';
 import { useSubscription } from '@/hooks/useSubscription';
 
@@ -48,44 +48,36 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
   };
 
   const isUpgrade = currentTier !== 'starter' && currentTier !== requiredTier;
-  const isStudioFeature = requiredTier === 'studio';
 
+  // Since all features are now available, show a different message focused on limits
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`border rounded-xl p-6 text-center ${
-        isStudioFeature 
-          ? 'bg-gradient-to-br from-slate-900/90 to-yellow-900/30 border-yellow-400/30'
-          : 'bg-gradient-to-br from-slate-900/90 to-purple-900/30 border-purple-400/30'
-      }`}
+      className="border rounded-xl p-6 text-center bg-gradient-to-br from-slate-900/90 to-purple-900/30 border-purple-400/30"
     >
       <div className="flex items-center justify-center mb-4">
-        <Crown className={`w-8 h-8 mr-2 ${
-          isStudioFeature ? 'text-yellow-400' : 'text-yellow-400'
-        }`} />
-        <Sparkles className={`w-6 h-6 ${
-          isStudioFeature ? 'text-yellow-400' : 'text-purple-400'
-        }`} />
+        <Crown className="w-8 h-8 mr-2 text-yellow-400" />
+        <Zap className="w-6 h-6 text-purple-400" />
       </div>
       
       <h3 className="text-xl font-bold text-white mb-2">
-        {feature} is a Premium Feature
+        Want More Prompts?
       </h3>
       
       <p className="text-gray-300 mb-4">
-        {isUpgrade ? 'Upgrade' : 'Subscribe'} to <span className={`font-semibold bg-gradient-to-r ${tierColors[requiredTier]} bg-clip-text text-transparent`}>
+        You have access to all features! {isUpgrade ? 'Upgrade' : 'Subscribe'} to <span className={`font-semibold bg-gradient-to-r ${tierColors[requiredTier]} bg-clip-text text-transparent`}>
           {tierNames[requiredTier]}
-        </span> to unlock this feature and enhance your cinematic prompts.
+        </span> to increase your monthly prompt limit and get priority support.
       </p>
       
       <div className="flex items-center justify-center gap-3 mb-6">
         <div className="px-3 py-1 bg-slate-700 rounded-full text-sm text-gray-300">
-          Current: {tierNames[currentTier]}
+          Current: {currentTier === 'starter' ? '5' : currentTier === 'creator' ? '500' : '1000'} prompts/month
         </div>
         <ArrowRight className="w-4 h-4 text-gray-400" />
         <div className={`px-3 py-1 bg-gradient-to-r ${tierColors[requiredTier]} rounded-full text-sm text-white font-medium`}>
-          {isUpgrade ? 'Upgrade to' : 'Get'} {tierNames[requiredTier]}
+          {requiredTier === 'creator' ? '500' : '1000'} prompts/month
         </div>
       </div>
 
@@ -101,9 +93,7 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
       <Button
         onClick={handleUpgrade}
         disabled={loading}
-        className={`bg-gradient-to-r ${tierColors[requiredTier]} hover:opacity-90 text-white font-medium transition-all duration-200 ${
-          isStudioFeature ? 'shadow-lg shadow-yellow-500/25' : ''
-        }`}
+        className={`bg-gradient-to-r ${tierColors[requiredTier]} hover:opacity-90 text-white font-medium transition-all duration-200`}
       >
         {loading ? (
           <>

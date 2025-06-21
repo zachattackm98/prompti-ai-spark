@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, History, Film } from 'lucide-react';
+import { Sparkles, History, Film, CheckCircle } from 'lucide-react';
 
 interface FeatureAnnouncementProps {
   userTier: string;
@@ -9,8 +9,6 @@ interface FeatureAnnouncementProps {
 }
 
 const FeatureAnnouncement = ({ userTier, className = '' }: FeatureAnnouncementProps) => {
-  if (userTier !== 'creator' && userTier !== 'studio') return null;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
@@ -19,18 +17,22 @@ const FeatureAnnouncement = ({ userTier, className = '' }: FeatureAnnouncementPr
       className={`bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-400/30 rounded-lg p-4 backdrop-blur-sm ${className}`}
     >
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 text-purple-300">
-          <Sparkles className="w-4 h-4" />
-          <span className="text-sm font-medium">Coming Soon</span>
+        <div className="flex items-center gap-2 text-green-300">
+          <CheckCircle className="w-4 h-4" />
+          <span className="text-sm font-medium">All Features Unlocked</span>
         </div>
         <div className="flex items-center gap-4 text-sm text-gray-300">
           <div className="flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-purple-400" />
+            <span>Full Creative Control</span>
+          </div>
+          <div className="flex items-center gap-1">
             <History className="w-3 h-3 text-blue-400" />
-            <span>Prompt History</span>
+            <span>Coming: History</span>
           </div>
           <div className="flex items-center gap-1">
             <Film className="w-3 h-3 text-purple-400" />
-            <span>Multi-Scene Projects</span>
+            <span>Coming: Multi-Scene</span>
           </div>
         </div>
       </div>
