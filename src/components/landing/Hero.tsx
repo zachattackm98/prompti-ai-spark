@@ -12,10 +12,9 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 interface HeroProps {
   user?: any;
   subscription?: any;
-  showPersonalized?: boolean;
 }
 
-const Hero: React.FC<HeroProps> = ({ user, subscription, showPersonalized = true }) => {
+const Hero: React.FC<HeroProps> = ({ user, subscription }) => {
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const { user: authUser } = useAuth();
   const navigate = useNavigate();
@@ -44,9 +43,6 @@ const Hero: React.FC<HeroProps> = ({ user, subscription, showPersonalized = true
     setShowVideoDialog(true);
   };
 
-  // Determine what content to show based on showPersonalized prop
-  const shouldShowPersonalized = showPersonalized && currentUser && firstName;
-
   return (
     <>
       <section className="pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6">
@@ -69,7 +65,7 @@ const Hero: React.FC<HeroProps> = ({ user, subscription, showPersonalized = true
               variants={fadeInVariants}
               className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight"
             >
-              {shouldShowPersonalized ? (
+              {currentUser && firstName ? (
                 <>
                   Welcome Back,
                   <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> {firstName}!</span>
@@ -87,7 +83,7 @@ const Hero: React.FC<HeroProps> = ({ user, subscription, showPersonalized = true
               variants={fadeInVariants}
               className="text-base sm:text-xl text-gray-300 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-4 sm:px-0"
             >
-              {shouldShowPersonalized && subscription ? (
+              {currentUser && subscription ? (
                 <div className="space-y-2">
                   <p>Ready to create amazing video prompts?</p>
                   <p className="text-sm text-purple-300">

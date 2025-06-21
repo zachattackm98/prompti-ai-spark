@@ -35,7 +35,7 @@ const Generate = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <Hero user={user} subscription={subscription} showPersonalized={false} />
+        <Hero user={user} subscription={subscription} />
         <CinematicPromptGenerator />
       </motion.div>
       
