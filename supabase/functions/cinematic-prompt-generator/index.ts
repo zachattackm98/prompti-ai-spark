@@ -1,7 +1,7 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { getUserFromAuth } from './auth.ts';
+import { getUserFromAuth, supabase } from './auth.ts';
 import { checkUsageLimit, incrementPromptCount } from './usage.ts';
 import { generatePromptWithOpenAI } from './openai.ts';
 import { CORS_HEADERS } from './constants.ts';
@@ -65,21 +65,20 @@ serve(async (req) => {
     // Increment prompt count for all tiers after successful generation
     await incrementPromptCount(user.id, tier);
 
-    // For now, we'll skip saving to database since the prompt_history table doesn't exist yet
-    // This prevents database errors while maintaining functionality
+    // Save to prompt history
     try {
-      // await supabase
-      //   .from('prompt_history')
-      //   .insert({
-      //     user_id: user.id,
-      //     scene_idea: sceneIdea,
-      //     platform: platform,
-      //     style: styleReference || '',
-      //     emotion: emotion,
-      //     generated_prompt: JSON.stringify(prompt)
-      //   });
+      await supabase
+        .from('prompt_history')
+        .insert({
+          user_id: user.id,
+          scene_idea: sceneIdea,
+          platform: platform,
+          style: styleReference || '',
+          emotion: emotion,
+          generated_prompt: JSON.stringify(prompt)
+        });
     } catch (dbError) {
-      console.error('Error saving to database:', dbError);
+      console.error('Error saving to prompt history:', dbError);
       // Continue anyway - don't fail the request if saving fails
     }
 

@@ -122,6 +122,39 @@ export type Database = {
         }
         Relationships: []
       }
+      prompt_history: {
+        Row: {
+          created_at: string | null
+          emotion: string
+          generated_prompt: string
+          id: string
+          platform: string
+          scene_idea: string
+          style: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          emotion: string
+          generated_prompt: string
+          id?: string
+          platform: string
+          scene_idea: string
+          style?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          emotion?: string
+          generated_prompt?: string
+          id?: string
+          platform?: string
+          scene_idea?: string
+          style?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       prompt_usage: {
         Row: {
           created_at: string | null
