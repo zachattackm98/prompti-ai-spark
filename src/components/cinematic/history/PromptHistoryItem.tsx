@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Download, Copy, Eye, EyeOff } from 'lucide-react';
+import { Trash2, Download, Copy, Eye, EyeOff, Film } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { PromptHistoryItem as PromptHistoryItemType } from '@/hooks/usePromptHistory';
 
@@ -13,6 +13,7 @@ interface PromptHistoryItemProps {
   onCopyToClipboard: (text: string) => void;
   onDownloadPrompt: (item: PromptHistoryItemType) => void;
   onDeleteItem: (id: string) => void;
+  onCreateScenes?: (item: PromptHistoryItemType) => void;
 }
 
 const PromptHistoryItem: React.FC<PromptHistoryItemProps> = ({
@@ -21,7 +22,8 @@ const PromptHistoryItem: React.FC<PromptHistoryItemProps> = ({
   onToggleExpanded,
   onCopyToClipboard,
   onDownloadPrompt,
-  onDeleteItem
+  onDeleteItem,
+  onCreateScenes
 }) => {
   let promptData;
   try {
@@ -123,6 +125,17 @@ const PromptHistoryItem: React.FC<PromptHistoryItemProps> = ({
         </Button>
         
         <div className="flex gap-1">
+          {onCreateScenes && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onCreateScenes(item)}
+              className="text-purple-400 hover:text-purple-300"
+              title="Create 2 scenes from this prompt"
+            >
+              <Film className="w-4 h-4" />
+            </Button>
+          )}
           {promptData && (
             <>
               <Button

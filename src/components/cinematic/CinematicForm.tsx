@@ -7,6 +7,7 @@ import { createSubscriptionHelpers } from '@/hooks/subscription/subscriptionHelp
 import { useCinematicForm } from './useCinematicForm';
 import { usePromptHistory } from '@/hooks/usePromptHistory';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useHistoryScenes } from './hooks/useHistoryScenes';
 
 // Component imports
 import CinematicFormHeader from './CinematicFormHeader';
@@ -62,13 +63,23 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     handleContinueScene,
     handleSceneSelect,
     handleAddScene,
-    canAddMoreScenes
+    canAddMoreScenes,
+    // Multi-scene state functions
+    startNewProject,
+    loadSceneDataToCurrentState,
+    setCurrentStep
   } = useCinematicForm(
     user,
     subscription,
     subscriptionHelpers.canUseFeature,
     setShowAuthDialog,
     loadPromptHistory
+  );
+
+  const { createScenesFromHistory } = useHistoryScenes(
+    startNewProject,
+    loadSceneDataToCurrentState,
+    setCurrentStep
   );
 
   return (
@@ -131,8 +142,11 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               onUpgrade={onUpgrade}
             />
 
-            {/* History Component */}
-            <PromptHistory showHistory={showHistory} />
+            {/* History Component with create scenes functionality */}
+            <PromptHistory 
+              showHistory={showHistory} 
+              onCreateScenesFromHistory={createScenesFromHistory}
+            />
           </div>
         </div>
       </motion.section>

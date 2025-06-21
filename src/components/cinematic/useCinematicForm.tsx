@@ -148,6 +148,10 @@ export const useCinematicForm = (
     handleContinueScene,
     handleSceneSelect,
     handleAddScene,
-    canAddMoreScenes
+    canAddMoreScenes,
+    // Expose multi-scene state functions for history integration
+    startNewProject,
+    loadSceneDataToCurrentState,
+    setCurrentStep
   };
 };

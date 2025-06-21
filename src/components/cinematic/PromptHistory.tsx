@@ -12,9 +12,13 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PromptHistoryProps {
   showHistory: boolean;
+  onCreateScenesFromHistory?: (historyItem: any) => void;
 }
 
-const PromptHistory: React.FC<PromptHistoryProps> = ({ showHistory }) => {
+const PromptHistory: React.FC<PromptHistoryProps> = ({ 
+  showHistory,
+  onCreateScenesFromHistory 
+}) => {
   const { promptHistory, isLoading, deletePromptHistoryItem, clearAllHistory } = usePromptHistory();
   const { toast } = useToast();
   const { copyToClipboard, downloadPrompt } = usePromptHistoryActions();
@@ -65,6 +69,16 @@ const PromptHistory: React.FC<PromptHistoryProps> = ({ showHistory }) => {
     }
   };
 
+  const handleCreateScenes = (item: any) => {
+    if (onCreateScenesFromHistory) {
+      onCreateScenesFromHistory(item);
+      toast({
+        title: "Creating Multi-Scene Project",
+        description: "Setting up 2 scenes from your selected prompt...",
+      });
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -91,6 +105,7 @@ const PromptHistory: React.FC<PromptHistoryProps> = ({ showHistory }) => {
                 onCopyToClipboard={copyToClipboard}
                 onDownloadPrompt={downloadPrompt}
                 onDeleteItem={handleDeleteItem}
+                onCreateScenes={handleCreateScenes}
               />
             ))
           )}
