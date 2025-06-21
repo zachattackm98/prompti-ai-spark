@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import AuthControls from './AuthControls';
 import { useAuth } from '@/hooks/useAuth';
 import { isAdminUser } from '@/utils/adminUtils';
@@ -16,7 +16,11 @@ interface MobileMenuProps {
 
 const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps) => {
   const { user } = useAuth();
+  const location = useLocation();
   const showTestingLink = isAdminUser(user?.email);
+  
+  // Hide landing page links when on the Generate page
+  const isGeneratePage = location.pathname === '/generate';
 
   if (!isOpen) return null;
 
@@ -50,36 +54,40 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
             Generate
           </Link>
         )}
-        <a 
-          href="#features" 
-          className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
-          onClick={(e) => {
-            e.preventDefault();
-            handleLinkClick('#features');
-          }}
-        >
-          Features
-        </a>
-        <a 
-          href="#process" 
-          className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
-          onClick={(e) => {
-            e.preventDefault();
-            handleLinkClick('#process');
-          }}
-        >
-          How it Works
-        </a>
-        <a 
-          href="#pricing" 
-          className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
-          onClick={(e) => {
-            e.preventDefault();
-            handleLinkClick('#pricing');
-          }}
-        >
-          Pricing
-        </a>
+        {!isGeneratePage && (
+          <>
+            <a 
+              href="#features" 
+              className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('#features');
+              }}
+            >
+              Features
+            </a>
+            <a 
+              href="#process" 
+              className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('#process');
+              }}
+            >
+              How it Works
+            </a>
+            <a 
+              href="#pricing" 
+              className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('#pricing');
+              }}
+            >
+              Pricing
+            </a>
+          </>
+        )}
         {showTestingLink && (
           <Link 
             to="/testing" 
