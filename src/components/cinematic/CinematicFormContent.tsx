@@ -1,15 +1,9 @@
 
 import React, { useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import StepIndicator from './StepIndicator';
-import StepRenderer from './StepRenderer';
-import SceneSelector from './SceneSelector';
 import ModeSelector from './ModeSelector';
-import InstantModeRenderer from './modes/InstantModeRenderer';
-import AnimalVlogModeRenderer from './modes/AnimalVlogModeRenderer';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { CameraSettings, LightingSettings, DialogSettings, SoundSettings } from './useCinematicForm';
+import ModeContentRenderer from './ModeContentRenderer';
 import { CinematicMode, INSTANT_MODE_PLATFORM_MAPPING } from './constants/modes';
+import { CameraSettings, LightingSettings, DialogSettings, SoundSettings } from './useCinematicForm';
 
 interface CinematicFormContentProps {
   // Mode state
@@ -72,49 +66,12 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
   selectedMode,
   setSelectedMode,
   resetModeSpecificState,
-  animalType,
-  setAnimalType,
-  selectedVibe,
-  setSelectedVibe,
-  hasDialogue,
-  setHasDialogue,
-  dialogueContent,
-  setDialogueContent,
-  detectedPlatform,
-  setDetectedPlatform,
-  isMultiScene,
-  currentProject,
-  handleSceneSelect,
-  handleAddScene,
-  canAddMoreScenes,
-  currentStep,
-  totalSteps,
-  canUseFeature,
-  features,
   sceneIdea,
   setSceneIdea,
-  selectedPlatform,
+  setDetectedPlatform,
   setSelectedPlatform,
-  selectedEmotion,
-  setSelectedEmotion,
-  dialogSettings,
-  setDialogSettings,
-  soundSettings,
-  setSoundSettings,
-  cameraSettings,
-  setCameraSettings,
-  lightingSettings,
-  setLightingSettings,
-  styleReference,
-  setStyleReference,
-  handleNext,
-  handlePrevious,
-  handleGenerate,
-  isLoading,
-  setShowAuthDialog
+  ...otherProps
 }) => {
-  const isMobile = useIsMobile();
-
   // Handle mode change and reset state
   const handleModeChange = (mode: CinematicMode) => {
     if (mode !== selectedMode) {
@@ -143,101 +100,6 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
     }
   }, [selectedMode, sceneIdea, setDetectedPlatform, setSelectedPlatform]);
 
-  // Render mode-specific content
-  const renderModeContent = () => {
-    switch (selectedMode) {
-      case 'instant':
-        return (
-          <InstantModeRenderer
-            sceneIdea={sceneIdea}
-            setSceneIdea={setSceneIdea}
-            handleGenerate={handleGenerate}
-            isLoading={isLoading}
-            detectedPlatform={detectedPlatform}
-          />
-        );
-        
-      case 'animal-vlog':
-        return (
-          <AnimalVlogModeRenderer
-            animalType={animalType}
-            setAnimalType={setAnimalType}
-            sceneIdea={sceneIdea}
-            setSceneIdea={setSceneIdea}
-            selectedVibe={selectedVibe}
-            setSelectedVibe={setSelectedVibe}
-            hasDialogue={hasDialogue}
-            setHasDialogue={setHasDialogue}
-            dialogueContent={dialogueContent}
-            setDialogueContent={setDialogueContent}
-            currentStep={currentStep}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-            handleGenerate={handleGenerate}
-            isLoading={isLoading}
-          />
-        );
-        
-      case 'creative':
-        return (
-          <Card className={`
-            bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 
-            border border-purple-500/20 backdrop-blur-sm overflow-hidden
-          `}>
-            <div className={`space-y-6 ${isMobile ? 'p-4' : 'p-6'}`}>
-              {/* Multi-scene project controls - only for creative mode */}
-              {isMultiScene && currentProject && (
-                <div className="space-y-4">
-                  <SceneSelector
-                    currentProject={currentProject}
-                    onSceneSelect={handleSceneSelect}
-                    onAddScene={handleAddScene}
-                    canAddMoreScenes={canAddMoreScenes}
-                  />
-                </div>
-              )}
-
-              {/* Step Indicator */}
-              <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
-
-              {/* Step Content */}
-              <div className="min-h-[400px] flex flex-col justify-center">
-                <StepRenderer
-                  currentStep={currentStep}
-                  canUseFeature={canUseFeature}
-                  features={features}
-                  sceneIdea={sceneIdea}
-                  setSceneIdea={setSceneIdea}
-                  selectedPlatform={selectedPlatform}
-                  setSelectedPlatform={setSelectedPlatform}
-                  selectedEmotion={selectedEmotion}
-                  setSelectedEmotion={setSelectedEmotion}
-                  dialogSettings={dialogSettings}
-                  setDialogSettings={setDialogSettings}
-                  soundSettings={soundSettings}
-                  setSoundSettings={setSoundSettings}
-                  cameraSettings={cameraSettings}
-                  setCameraSettings={setCameraSettings}
-                  lightingSettings={lightingSettings}
-                  setLightingSettings={setLightingSettings}
-                  styleReference={styleReference}
-                  setStyleReference={setStyleReference}
-                  handleNext={handleNext}
-                  handlePrevious={handlePrevious}
-                  handleGenerate={handleGenerate}
-                  isLoading={isLoading}
-                  setShowAuthDialog={setShowAuthDialog}
-                />
-              </div>
-            </div>
-          </Card>
-        );
-        
-      default:
-        return null;
-    }
-  };
-
   return (
     <div id="cinematic-form" className="w-full">
       {/* Mode Selector */}
@@ -248,7 +110,13 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
       
       {/* Mode-specific Content */}
       <div className="min-h-[500px]">
-        {renderModeContent()}
+        <ModeContentRenderer
+          selectedMode={selectedMode}
+          sceneIdea={sceneIdea}
+          setSceneIdea={setSceneIdea}
+          setSelectedPlatform={setSelectedPlatform}
+          {...otherProps}
+        />
       </div>
     </div>
   );
