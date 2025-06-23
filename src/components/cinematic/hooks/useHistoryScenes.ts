@@ -12,6 +12,8 @@ export const useHistoryScenes = (
 
   const createScenesFromHistory = async (historyItem: PromptHistoryItem) => {
     try {
+      console.log('useHistoryScenes: Creating multi-scene project from history item');
+      
       // Parse the generated prompt data
       const promptData = JSON.parse(historyItem.generated_prompt);
       
@@ -64,23 +66,26 @@ export const useHistoryScenes = (
       const project = await startNewProject(projectTitle, sceneData);
       
       if (project) {
+        console.log('useHistoryScenes: Project created, loading first scene data');
+        
         // Load the first scene data to current state
         loadSceneDataToCurrentState({
           ...sceneData,
           sceneNumber: 1
         });
 
-        // Set current step to the results view (step 8 for generated prompt display)
-        setCurrentStep(8);
+        // Set current step to 1 to start fresh workflow for scene 2
+        setCurrentStep(1);
 
         // Scroll to form
         setTimeout(() => {
-          scrollToStepContent(8);
+          console.log('useHistoryScenes: Scrolling to step 1 for scene 2 workflow');
+          scrollToStepContent(1);
         }, 200);
 
         toast({
           title: "Multi-Scene Project Created!",
-          description: "Scene 1 is ready. You can now continue to Scene 2.",
+          description: "Scene 1 is ready. Continue with Scene 2 setup.",
         });
       }
     } catch (error) {

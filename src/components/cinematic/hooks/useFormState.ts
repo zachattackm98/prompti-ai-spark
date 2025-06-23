@@ -39,6 +39,9 @@ export const useFormState = () => {
   const multiSceneState = useMultiSceneState();
 
   const resetForm = () => {
+    console.log('useFormState: Performing complete form reset including multi-scene project');
+    
+    // Reset all form state
     setGeneratedPrompt(null);
     setCurrentStep(1);
     setSceneIdea('');
@@ -49,6 +52,8 @@ export const useFormState = () => {
     setCameraSettings({ angle: '', movement: '', shot: '' });
     setLightingSettings({ mood: '', style: '', timeOfDay: '' });
     setStyleReference('');
+    
+    // Reset multi-scene project completely
     multiSceneState.resetProject();
   };
 
@@ -65,6 +70,7 @@ export const useFormState = () => {
   });
 
   const loadSceneDataToCurrentState = (sceneData: SceneData) => {
+    console.log('useFormState: Loading scene data to current state:', sceneData.sceneNumber);
     setSceneIdea(sceneData.sceneIdea);
     setSelectedPlatform(sceneData.selectedPlatform);
     setSelectedEmotion(sceneData.selectedEmotion);

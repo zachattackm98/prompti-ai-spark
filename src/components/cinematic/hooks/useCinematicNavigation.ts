@@ -15,6 +15,8 @@ export const useCinematicNavigation = (
   const handleSceneSelect = (sceneIndex: number) => {
     if (!currentProject) return;
     
+    console.log(`useCinematicNavigation: Switching to scene ${sceneIndex + 1}`);
+    
     // Save current scene data
     const currentSceneData = createSceneDataFromCurrentState();
     updateCurrentScene(currentSceneData);
@@ -24,24 +26,34 @@ export const useCinematicNavigation = (
     const selectedScene = currentProject.scenes[sceneIndex];
     loadSceneDataToCurrentState(selectedScene);
     
-    // Reset to step 1 if no prompt exists, otherwise go to final step
-    setCurrentStep(selectedScene.generatedPrompt ? totalSteps : 1);
+    // Set appropriate step based on scene state
+    if (selectedScene.generatedPrompt) {
+      // Scene has a generated prompt - show it by going to step 1 but user can navigate through steps
+      console.log(`useCinematicNavigation: Scene ${sceneIndex + 1} has generated prompt, showing step 1`);
+      setCurrentStep(1);
+    } else {
+      // Scene needs to be developed - start at step 1
+      console.log(`useCinematicNavigation: Scene ${sceneIndex + 1} needs development, starting at step 1`);
+      setCurrentStep(1);
+    }
     
-    // Scroll to the cinematic form container instead of step content
+    // Scroll to the cinematic form
     setTimeout(() => {
-      console.log('useCinematicForm: Scrolling to cinematic form container after scene select');
-      scrollToElementById('cinematic-form-container', 'smooth', 100);
+      console.log('useCinematicNavigation: Scrolling to step 1 after scene select');
+      scrollToStepContent(1);
     }, 200);
   };
 
   const handleAddScene = () => {
     if (!currentProject) return;
     
+    console.log('useCinematicNavigation: Adding new scene to project');
+    
     // Save current scene data
     const currentSceneData = createSceneDataFromCurrentState();
     updateCurrentScene(currentSceneData);
     
-    // Create new scene with inherited settings but reset prompt
+    // Create new scene with inherited settings but reset scene idea and prompt
     const newSceneData = {
       ...currentSceneData,
       sceneIdea: '',
@@ -57,6 +69,7 @@ export const useCinematicNavigation = (
     setCurrentStep(1);
     
     setTimeout(() => {
+      console.log('useCinematicNavigation: Scrolling to step 1 for new scene');
       scrollToStepContent(1);
     }, 200);
   };

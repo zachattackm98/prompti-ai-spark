@@ -9,6 +9,8 @@ export const useMultiSceneState = () => {
   const { saveProject, loadProject, deleteProject, loadUserProjects } = useMultiSceneDatabase();
 
   const startNewProject = useCallback(async (title: string, initialSceneData: Omit<SceneData, 'sceneNumber'>) => {
+    console.log('useMultiSceneState: Starting new project:', title);
+    
     const projectId = crypto.randomUUID();
     const project: MultiSceneProject = {
       id: projectId,
@@ -28,9 +30,9 @@ export const useMultiSceneState = () => {
     if (savedProjectId) {
       setCurrentProject(project);
       setIsMultiScene(true);
-      console.log('Project saved to database:', savedProjectId);
+      console.log('useMultiSceneState: Project created and saved to database:', savedProjectId);
     } else {
-      console.error('Failed to save project to database');
+      console.error('useMultiSceneState: Failed to save project to database');
     }
     
     return project;
@@ -38,6 +40,8 @@ export const useMultiSceneState = () => {
 
   const addNewScene = useCallback(async (sceneData: Omit<SceneData, 'sceneNumber'>) => {
     if (!currentProject) return null;
+
+    console.log('useMultiSceneState: Adding new scene to project');
 
     const newScene: SceneData = {
       ...sceneData,
@@ -56,9 +60,9 @@ export const useMultiSceneState = () => {
     const savedProjectId = await saveProject(updatedProject);
     if (savedProjectId) {
       setCurrentProject(updatedProject);
-      console.log('Scene added and project updated in database');
+      console.log('useMultiSceneState: Scene added and project updated in database');
     } else {
-      console.error('Failed to save updated project to database');
+      console.error('useMultiSceneState: Failed to save updated project to database');
     }
 
     return updatedProject;
@@ -66,6 +70,8 @@ export const useMultiSceneState = () => {
 
   const updateCurrentScene = useCallback(async (updates: Partial<SceneData>) => {
     if (!currentProject) return null;
+
+    console.log('useMultiSceneState: Updating current scene:', currentProject.currentSceneIndex + 1);
 
     const updatedScenes = [...currentProject.scenes];
     updatedScenes[currentProject.currentSceneIndex] = {
@@ -83,9 +89,9 @@ export const useMultiSceneState = () => {
     const savedProjectId = await saveProject(updatedProject);
     if (savedProjectId) {
       setCurrentProject(updatedProject);
-      console.log('Scene updated in database');
+      console.log('useMultiSceneState: Scene updated in database');
     } else {
-      console.error('Failed to save scene update to database');
+      console.error('useMultiSceneState: Failed to save scene update to database');
     }
 
     return updatedProject;
@@ -93,6 +99,8 @@ export const useMultiSceneState = () => {
 
   const setCurrentSceneIndex = useCallback(async (index: number) => {
     if (!currentProject || index < 0 || index >= currentProject.scenes.length) return;
+
+    console.log('useMultiSceneState: Setting current scene index to:', index + 1);
 
     const updatedProject = {
       ...currentProject,
@@ -104,14 +112,16 @@ export const useMultiSceneState = () => {
     const savedProjectId = await saveProject(updatedProject);
     if (savedProjectId) {
       setCurrentProject(updatedProject);
-      console.log('Current scene index updated in database');
+      console.log('useMultiSceneState: Current scene index updated in database');
     } else {
-      console.error('Failed to save scene index update to database');
+      console.error('useMultiSceneState: Failed to save scene index update to database');
     }
   }, [currentProject, saveProject]);
 
   const updateScenePrompt = useCallback(async (sceneIndex: number, prompt: GeneratedPrompt) => {
     if (!currentProject) return null;
+
+    console.log('useMultiSceneState: Updating prompt for scene:', sceneIndex + 1);
 
     const updatedScenes = [...currentProject.scenes];
     updatedScenes[sceneIndex] = {
@@ -129,15 +139,16 @@ export const useMultiSceneState = () => {
     const savedProjectId = await saveProject(updatedProject);
     if (savedProjectId) {
       setCurrentProject(updatedProject);
-      console.log('Scene prompt updated in database');
+      console.log('useMultiSceneState: Scene prompt updated in database');
     } else {
-      console.error('Failed to save prompt update to database');
+      console.error('useMultiSceneState: Failed to save prompt update to database');
     }
 
     return updatedProject;
   }, [currentProject, saveProject]);
 
   const resetProject = useCallback(() => {
+    console.log('useMultiSceneState: Resetting project state completely');
     setCurrentProject(null);
     setIsMultiScene(false);
   }, []);
@@ -148,13 +159,14 @@ export const useMultiSceneState = () => {
   }, [currentProject]);
 
   const loadProjectById = useCallback(async (projectId: string) => {
+    console.log('useMultiSceneState: Loading project by ID:', projectId);
     const project = await loadProject(projectId);
     if (project) {
       setCurrentProject(project);
       setIsMultiScene(true);
-      console.log('Project loaded from database');
+      console.log('useMultiSceneState: Project loaded from database');
     } else {
-      console.error('Failed to load project from database');
+      console.error('useMultiSceneState: Failed to load project from database');
     }
     return project;
   }, [loadProject]);
@@ -162,13 +174,14 @@ export const useMultiSceneState = () => {
   const deleteCurrentProject = useCallback(async () => {
     if (!currentProject) return false;
     
+    console.log('useMultiSceneState: Deleting current project:', currentProject.id);
     const success = await deleteProject(currentProject.id);
     if (success) {
       setCurrentProject(null);
       setIsMultiScene(false);
-      console.log('Project deleted from database');
+      console.log('useMultiSceneState: Project deleted from database');
     } else {
-      console.error('Failed to delete project from database');
+      console.error('useMultiSceneState: Failed to delete project from database');
     }
     return success;
   }, [currentProject, deleteProject]);
