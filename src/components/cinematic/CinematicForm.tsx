@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
@@ -34,6 +33,24 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
   const isMobile = useIsMobile();
 
   const {
+    // Mode state
+    selectedMode,
+    setSelectedMode,
+    resetModeSpecificState,
+    
+    // Mode-specific state
+    animalType,
+    setAnimalType,
+    selectedVibe,
+    setSelectedVibe,
+    hasDialogue,
+    setHasDialogue,
+    dialogueContent,
+    setDialogueContent,
+    detectedPlatform,
+    setDetectedPlatform,
+    
+    // Existing state
     currentStep,
     totalSteps,
     sceneIdea,
@@ -111,15 +128,37 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
             <CinematicFormHeader />
 
             <CinematicFormContent
+              // Mode props
+              selectedMode={selectedMode}
+              setSelectedMode={setSelectedMode}
+              resetModeSpecificState={resetModeSpecificState}
+              
+              // Mode-specific props
+              animalType={animalType}
+              setAnimalType={setAnimalType}
+              selectedVibe={selectedVibe}
+              setSelectedVibe={setSelectedVibe}
+              hasDialogue={hasDialogue}
+              setHasDialogue={setHasDialogue}
+              dialogueContent={dialogueContent}
+              setDialogueContent={setDialogueContent}
+              detectedPlatform={detectedPlatform}
+              setDetectedPlatform={setDetectedPlatform}
+              
+              // Multi-scene props
               isMultiScene={isMultiScene}
               currentProject={currentProject}
               handleSceneSelect={handleSceneSelect}
               handleAddScene={handleAddScene}
               canAddMoreScenes={canAddMoreScenes}
+              
+              // Step props
               currentStep={currentStep}
               totalSteps={totalSteps}
               canUseFeature={subscriptionHelpers.canUseFeature}
               features={subscriptionHelpers.features}
+              
+              // Form state props
               sceneIdea={sceneIdea}
               setSceneIdea={setSceneIdea}
               selectedPlatform={selectedPlatform}
@@ -136,6 +175,8 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               setLightingSettings={setLightingSettings}
               styleReference={styleReference}
               setStyleReference={setStyleReference}
+              
+              // Action props
               handleNext={handleNext}
               handlePrevious={handlePrevious}
               handleGenerate={handleGenerate}
