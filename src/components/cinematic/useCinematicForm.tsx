@@ -1,7 +1,7 @@
 import { useFormState } from './hooks/useFormState';
-import { useStepNavigation } from './hooks/useStepNavigation';
-import { usePromptGeneration } from './hooks/usePromptGeneration';
-import { useCinematicActions } from './hooks/useCinematicActions';
+import { useCinematicModes } from './hooks/useCinematicModes';
+import { useCinematicSteps } from './hooks/useCinematicSteps';
+import { useCinematicPrompt } from './hooks/useCinematicPrompt';
 import { useCinematicNavigation } from './hooks/useCinematicNavigation';
 import { useCinematicScenes } from './hooks/useCinematicScenes';
 
@@ -16,23 +16,6 @@ export const useCinematicForm = (
   loadPromptHistory: () => void
 ) => {
   const {
-    // Mode state
-    selectedMode,
-    setSelectedMode,
-    resetModeSpecificState,
-    
-    // Mode-specific state
-    animalType,
-    setAnimalType,
-    selectedVibe,
-    setSelectedVibe,
-    hasDialogue,
-    setHasDialogue,
-    dialogueContent,
-    setDialogueContent,
-    detectedPlatform,
-    setDetectedPlatform,
-    
     // Existing state
     currentStep,
     setCurrentStep,
@@ -71,33 +54,39 @@ export const useCinematicForm = (
     resetProject
   } = useFormState();
 
-  // Determine totalSteps based on mode
-  const getTotalSteps = () => {
-    switch (selectedMode) {
-      case 'instant':
-        return 1;
-      case 'animal-vlog':
-        return 3;
-      case 'creative':
-        return 7;
-      default:
-        return 7;
-    }
-  };
+  const {
+    // Mode state
+    selectedMode,
+    setSelectedMode,
+    resetModeSpecificState,
+    getTotalSteps,
+    
+    // Mode-specific state
+    animalType,
+    setAnimalType,
+    selectedVibe,
+    setSelectedVibe,
+    hasDialogue,
+    setHasDialogue,
+    dialogueContent,
+    setDialogueContent,
+    detectedPlatform,
+    setDetectedPlatform
+  } = useCinematicModes();
 
   const totalSteps = getTotalSteps();
 
-  const { handleNext, handlePrevious, scrollToForm } = useStepNavigation(
+  const {
+    handleNext,
+    handlePrevious,
+    scrollToForm,
+    handleGenerateNew
+  } = useCinematicSteps(
     currentStep,
     setCurrentStep,
     canUseFeature,
-    totalSteps // Pass the dynamic totalSteps
-  );
-
-  const { handleGenerateNew } = useCinematicActions(
-    setCurrentStep,
-    resetForm,
-    totalSteps
+    totalSteps,
+    resetForm
   );
 
   const { handleSceneSelect, handleAddScene } = useCinematicNavigation(
@@ -139,7 +128,7 @@ export const useCinematicForm = (
     selectedMode
   };
 
-  const { handleGenerate } = usePromptGeneration(
+  const { handleGenerate } = useCinematicPrompt(
     user,
     subscription,
     canUseFeature,

@@ -1,12 +1,8 @@
 import { useState } from 'react';
 import { FormState, CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt, SceneData } from './types';
 import { useMultiSceneState } from './useMultiSceneState';
-import { CinematicMode } from '../constants/modes';
 
 export const useFormState = () => {
-  // Mode state
-  const [selectedMode, setSelectedMode] = useState<CinematicMode>('creative');
-  
   // Existing state
   const [currentStep, setCurrentStep] = useState(1);
   const [sceneIdea, setSceneIdea] = useState('');
@@ -40,16 +36,6 @@ export const useFormState = () => {
   const [generatedPrompt, setGeneratedPrompt] = useState<GeneratedPrompt | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mode-specific state
-  // Animal Vlog Mode
-  const [animalType, setAnimalType] = useState('');
-  const [selectedVibe, setSelectedVibe] = useState('');
-  const [hasDialogue, setHasDialogue] = useState(false);
-  const [dialogueContent, setDialogueContent] = useState('');
-  
-  // Instant Mode
-  const [detectedPlatform, setDetectedPlatform] = useState('');
-
   const multiSceneState = useMultiSceneState();
 
   const resetForm = () => {
@@ -67,28 +53,8 @@ export const useFormState = () => {
     setLightingSettings({ mood: '', style: '', timeOfDay: '' });
     setStyleReference('');
     
-    // Reset mode-specific state
-    setAnimalType('');
-    setSelectedVibe('');
-    setHasDialogue(false);
-    setDialogueContent('');
-    setDetectedPlatform('');
-    
     // Reset multi-scene project completely
     multiSceneState.resetProject();
-  };
-
-  const resetModeSpecificState = () => {
-    console.log('useFormState: Resetting mode-specific state');
-    
-    // Reset mode-specific fields but keep core form fields
-    setAnimalType('');
-    setSelectedVibe('');
-    setHasDialogue(false);
-    setDialogueContent('');
-    setDetectedPlatform('');
-    setCurrentStep(1);
-    setGeneratedPrompt(null);
   };
 
   const createSceneDataFromCurrentState = (): Omit<SceneData, 'sceneNumber'> => ({
@@ -117,23 +83,6 @@ export const useFormState = () => {
   };
 
   return {
-    // Mode state
-    selectedMode,
-    setSelectedMode,
-    resetModeSpecificState,
-    
-    // Mode-specific state
-    animalType,
-    setAnimalType,
-    selectedVibe,
-    setSelectedVibe,
-    hasDialogue,
-    setHasDialogue,
-    dialogueContent,
-    setDialogueContent,
-    detectedPlatform,
-    setDetectedPlatform,
-    
     // Existing state
     currentStep,
     setCurrentStep,
