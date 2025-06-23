@@ -1,12 +1,12 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Camera, ChevronRight } from 'lucide-react';
-import { ANIMAL_TYPES, ANIMAL_VLOG_VIBES } from '../constants/modes';
+import { ANIMAL_VLOG_VIBES } from '../constants/modes';
 
 interface AnimalVlogModeRendererProps {
   animalType: string;
@@ -58,23 +58,17 @@ const AnimalVlogModeRenderer: React.FC<AnimalVlogModeRendererProps> = ({
 
           <div className="space-y-3">
             <label className="block text-sm font-medium text-white">Animal Type</label>
-            <Select value={animalType} onValueChange={setAnimalType}>
-              <SelectTrigger className="bg-slate-800/50 border-slate-600 text-white">
-                <SelectValue placeholder="Select an animal type" />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-600">
-                {ANIMAL_TYPES.map((animal) => (
-                  <SelectItem key={animal} value={animal.toLowerCase()} className="text-white hover:bg-slate-700">
-                    {animal}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Input
+              value={animalType}
+              onChange={(e) => setAnimalType(e.target.value)}
+              placeholder="Enter animal type (e.g., cat, dog, bird, hamster...)"
+              className="bg-slate-800/50 border-slate-600 text-white placeholder-slate-400"
+            />
           </div>
 
           <Button
             onClick={onNext}
-            disabled={!animalType}
+            disabled={!animalType.trim()}
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
           >
             <div className="flex items-center gap-2">

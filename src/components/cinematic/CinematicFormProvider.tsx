@@ -1,11 +1,11 @@
-
 import React, { createContext, useContext } from 'react';
 import { CameraSettings, LightingSettings, DialogSettings, SoundSettings } from './useCinematicForm';
+import { CinematicMode } from './constants/modes';
 
 interface CinematicFormContextType {
   // Mode state
-  selectedMode: string;
-  setSelectedMode: (mode: string) => void;
+  selectedMode: CinematicMode;
+  setSelectedMode: (mode: CinematicMode) => void;
   resetModeSpecificState: () => void;
   
   // Mode-specific state
