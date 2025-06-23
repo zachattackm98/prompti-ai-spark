@@ -82,59 +82,57 @@ const CreativeModeContent: React.FC<CreativeModeContentProps> = ({
   const isMobile = useIsMobile();
 
   return (
-    <div className="w-full max-w-none overflow-hidden">
-      <Card className={`
-        bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 
-        border border-purple-500/20 backdrop-blur-sm overflow-hidden
-      `}>
-        <div className={`space-y-6 w-full ${isMobile ? 'p-4' : 'p-6'}`}>
-          {/* Multi-scene project controls - only for creative mode */}
-          {isMultiScene && currentProject && (
-            <div className="space-y-4 w-full">
-              <SceneSelector
-                currentProject={currentProject}
-                onSceneSelect={handleSceneSelect}
-                onAddScene={handleAddScene}
-                canAddMoreScenes={canAddMoreScenes}
-              />
-            </div>
-          )}
-
-          {/* Step Indicator */}
-          <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
-
-          {/* Step Content */}
-          <div className="min-h-[400px] flex flex-col justify-center w-full overflow-hidden">
-            <StepRenderer
-              currentStep={currentStep}
-              canUseFeature={canUseFeature}
-              features={features}
-              sceneIdea={sceneIdea}
-              setSceneIdea={setSceneIdea}
-              selectedPlatform={selectedPlatform}
-              setSelectedPlatform={setSelectedPlatform}
-              selectedEmotion={selectedEmotion}
-              setSelectedEmotion={setSelectedEmotion}
-              dialogSettings={dialogSettings}
-              setDialogSettings={setDialogSettings}
-              soundSettings={soundSettings}
-              setSoundSettings={setSoundSettings}
-              cameraSettings={cameraSettings}
-              setCameraSettings={setCameraSettings}
-              lightingSettings={lightingSettings}
-              setLightingSettings={setLightingSettings}
-              styleReference={styleReference}
-              setStyleReference={setStyleReference}
-              handleNext={handleNext}
-              handlePrevious={handlePrevious}
-              handleGenerate={handleGenerate}
-              isLoading={isLoading}
-              setShowAuthDialog={setShowAuthDialog}
+    <Card className={`
+      bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 
+      border border-purple-500/20 backdrop-blur-sm overflow-hidden
+    `}>
+      <div className={`space-y-6 ${isMobile ? 'p-4' : 'p-6'}`}>
+        {/* Multi-scene project controls - only for creative mode */}
+        {isMultiScene && currentProject && (
+          <div className="space-y-4">
+            <SceneSelector
+              currentProject={currentProject}
+              onSceneSelect={handleSceneSelect}
+              onAddScene={handleAddScene}
+              canAddMoreScenes={canAddMoreScenes}
             />
           </div>
+        )}
+
+        {/* Step Indicator */}
+        <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
+
+        {/* Step Content */}
+        <div className="min-h-[400px] flex flex-col justify-center">
+          <StepRenderer
+            currentStep={currentStep}
+            canUseFeature={canUseFeature}
+            features={features}
+            sceneIdea={sceneIdea}
+            setSceneIdea={setSceneIdea}
+            selectedPlatform={selectedPlatform}
+            setSelectedPlatform={setSelectedPlatform}
+            selectedEmotion={selectedEmotion}
+            setSelectedEmotion={setSelectedEmotion}
+            dialogSettings={dialogSettings}
+            setDialogSettings={setDialogSettings}
+            soundSettings={soundSettings}
+            setSoundSettings={setSoundSettings}
+            cameraSettings={cameraSettings}
+            setCameraSettings={setCameraSettings}
+            lightingSettings={lightingSettings}
+            setLightingSettings={setLightingSettings}
+            styleReference={styleReference}
+            setStyleReference={setStyleReference}
+            handleNext={handleNext}
+            handlePrevious={handlePrevious}
+            handleGenerate={handleGenerate}
+            isLoading={isLoading}
+            setShowAuthDialog={setShowAuthDialog}
+          />
         </div>
-      </Card>
-    </div>
+      </div>
+    </Card>
   );
 };
 
