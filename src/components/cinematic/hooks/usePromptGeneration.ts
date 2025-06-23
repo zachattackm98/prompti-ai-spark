@@ -15,6 +15,7 @@ interface FormState {
   styleReference: string;
   currentProject: MultiSceneProject | null;
   isMultiScene: boolean;
+  selectedMode: 'instant' | 'animal-vlog' | 'creative';
 }
 
 export const usePromptGeneration = (
@@ -27,7 +28,12 @@ export const usePromptGeneration = (
   setGeneratedPrompt: (prompt: GeneratedPrompt | null) => void,
   setIsLoading: (loading: boolean) => void,
   currentProject: MultiSceneProject | null,
-  updateScenePrompt: (sceneIndex: number, prompt: GeneratedPrompt) => void
+  updateScenePrompt: (sceneIndex: number, prompt: GeneratedPrompt) => void,
+  // Mode-specific state
+  animalType?: string,
+  selectedVibe?: string,
+  hasDialogue?: boolean,
+  dialogueContent?: string
 ) => {
   const { triggerUsageUpdate } = usePromptUsage();
 
@@ -83,14 +89,23 @@ export const usePromptGeneration = (
         sceneContext,
         sceneNumber,
         totalScenes,
-        isMultiScene
+        isMultiScene,
+        // Mode-specific data
+        mode: formState.selectedMode,
+        animalType: formState.selectedMode === 'animal-vlog' ? animalType : undefined,
+        selectedVibe: formState.selectedMode === 'animal-vlog' ? selectedVibe : undefined,
+        hasDialogue: formState.selectedMode === 'animal-vlog' ? hasDialogue : undefined,
+        dialogueContent: formState.selectedMode === 'animal-vlog' && hasDialogue ? dialogueContent : undefined
       };
 
-      console.log('Generating prompt with multi-scene context:', {
+      console.log('Generating prompt with mode-specific context:', {
+        mode: formState.selectedMode,
         isMultiScene,
         sceneNumber,
         totalScenes,
-        hasContext: !!sceneContext
+        hasContext: !!sceneContext,
+        animalType: formState.selectedMode === 'animal-vlog' ? animalType : 'N/A',
+        selectedVibe: formState.selectedMode === 'animal-vlog' ? selectedVibe : 'N/A'
       });
 
       const { data, error } = await supabase.functions.invoke('cinematic-prompt-generator', {

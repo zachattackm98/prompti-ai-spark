@@ -149,7 +149,12 @@ export const useCinematicForm = (
     setGeneratedPrompt,
     setIsLoading,
     currentProject,
-    updateScenePrompt
+    updateScenePrompt,
+    // Pass mode-specific state
+    animalType,
+    selectedVibe,
+    hasDialogue,
+    dialogueContent
   );
 
   return {
