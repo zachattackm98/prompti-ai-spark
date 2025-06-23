@@ -33,12 +33,12 @@ const SceneStep: React.FC<SceneStepProps> = ({
 
   return (
     <motion.div 
-      className="space-y-4 sm:space-y-6"
+      className="w-full max-w-full overflow-hidden space-y-4 sm:space-y-6"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="text-center space-y-2 sm:space-y-3 px-2">
+      <div className="text-center space-y-2 sm:space-y-3 px-2 w-full max-w-full">
         <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white leading-tight">
           Describe Your Scene
         </h3>
@@ -64,7 +64,9 @@ const SceneStep: React.FC<SceneStepProps> = ({
           style={{ 
             fontSize: isMobile ? '16px' : undefined,
             WebkitAppearance: 'none',
-            WebkitBorderRadius: isMobile ? '8px' : undefined
+            WebkitBorderRadius: isMobile ? '8px' : undefined,
+            maxWidth: '100%',
+            boxSizing: 'border-box'
           }}
         />
         <div className="mt-2 text-xs text-gray-400 px-1">
@@ -72,7 +74,7 @@ const SceneStep: React.FC<SceneStepProps> = ({
         </div>
       </div>
       
-      <div className="flex justify-center px-2 sm:px-0 pt-2">
+      <div className="flex justify-center px-2 sm:px-0 pt-2 w-full max-w-full">
         <Button
           onClick={handleNextClick}
           disabled={!sceneIdea.trim()}
@@ -82,7 +84,7 @@ const SceneStep: React.FC<SceneStepProps> = ({
             hover:from-purple-700 hover:to-pink-700 
             text-white transition-all duration-200
             ${isMobile 
-              ? 'w-full h-12 text-base font-medium' 
+              ? 'w-full h-12 text-base font-medium max-w-full' 
               : 'w-full sm:w-auto'
             }
           `}

@@ -82,57 +82,76 @@ const CreativeModeContent: React.FC<CreativeModeContentProps> = ({
   const isMobile = useIsMobile();
 
   return (
-    <Card className={`
-      bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 
-      border border-purple-500/20 backdrop-blur-sm overflow-hidden
-    `}>
-      <div className={`space-y-6 ${isMobile ? 'p-4' : 'p-6'}`}>
-        {/* Multi-scene project controls - only for creative mode */}
-        {isMultiScene && currentProject && (
-          <div className="space-y-4">
-            <SceneSelector
-              currentProject={currentProject}
-              onSceneSelect={handleSceneSelect}
-              onAddScene={handleAddScene}
-              canAddMoreScenes={canAddMoreScenes}
-            />
+    <div className="w-full max-w-full overflow-hidden">
+      <Card className={`
+        bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 
+        border border-purple-500/20 backdrop-blur-sm overflow-hidden
+        w-full max-w-full
+      `}>
+        <div className={`
+          w-full max-w-full overflow-hidden
+          ${isMobile ? 'p-3 space-y-4' : 'p-6 space-y-6'}
+        `}>
+          {/* Multi-scene project controls - only for creative mode */}
+          {isMultiScene && currentProject && (
+            <div className="w-full max-w-full overflow-hidden">
+              <div className="space-y-4">
+                <SceneSelector
+                  currentProject={currentProject}
+                  onSceneSelect={handleSceneSelect}
+                  onAddScene={handleAddScene}
+                  canAddMoreScenes={canAddMoreScenes}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Step Indicator */}
+          <div className="w-full max-w-full overflow-hidden">
+            <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
           </div>
-        )}
 
-        {/* Step Indicator */}
-        <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
-
-        {/* Step Content */}
-        <div className="min-h-[400px] flex flex-col justify-center">
-          <StepRenderer
-            currentStep={currentStep}
-            canUseFeature={canUseFeature}
-            features={features}
-            sceneIdea={sceneIdea}
-            setSceneIdea={setSceneIdea}
-            selectedPlatform={selectedPlatform}
-            setSelectedPlatform={setSelectedPlatform}
-            selectedEmotion={selectedEmotion}
-            setSelectedEmotion={setSelectedEmotion}
-            dialogSettings={dialogSettings}
-            setDialogSettings={setDialogSettings}
-            soundSettings={soundSettings}
-            setSoundSettings={setSoundSettings}
-            cameraSettings={cameraSettings}
-            setCameraSettings={setCameraSettings}
-            lightingSettings={lightingSettings}
-            setLightingSettings={setLightingSettings}
-            styleReference={styleReference}
-            setStyleReference={setStyleReference}
-            handleNext={handleNext}
-            handlePrevious={handlePrevious}
-            handleGenerate={handleGenerate}
-            isLoading={isLoading}
-            setShowAuthDialog={setShowAuthDialog}
-          />
+          {/* Step Content - Properly contained */}
+          <div className={`
+            w-full max-w-full overflow-hidden
+            ${isMobile 
+              ? 'min-h-[400px] max-h-[70vh]' 
+              : 'min-h-[400px] max-h-[80vh]'
+            }
+            flex flex-col justify-start
+          `}>
+            <div className="w-full max-w-full overflow-hidden">
+              <StepRenderer
+                currentStep={currentStep}
+                canUseFeature={canUseFeature}
+                features={features}
+                sceneIdea={sceneIdea}
+                setSceneIdea={setSceneIdea}
+                selectedPlatform={selectedPlatform}
+                setSelectedPlatform={setSelectedPlatform}
+                selectedEmotion={selectedEmotion}
+                setSelectedEmotion={setSelectedEmotion}
+                dialogSettings={dialogSettings}
+                setDialogSettings={setDialogSettings}
+                soundSettings={soundSettings}
+                setSoundSettings={setSoundSettings}
+                cameraSettings={cameraSettings}
+                setCameraSettings={setCameraSettings}
+                lightingSettings={lightingSettings}
+                setLightingSettings={setLightingSettings}
+                styleReference={styleReference}
+                setStyleReference={setStyleReference}
+                handleNext={handleNext}
+                handlePrevious={handlePrevious}
+                handleGenerate={handleGenerate}
+                isLoading={isLoading}
+                setShowAuthDialog={setShowAuthDialog}
+              />
+            </div>
+          </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 };
 

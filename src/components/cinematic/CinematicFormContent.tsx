@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import ModeSelector from './ModeSelector';
 import ModeContentRenderer from './ModeContentRenderer';
@@ -101,22 +100,26 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
   }, [selectedMode, sceneIdea, setDetectedPlatform, setSelectedPlatform]);
 
   return (
-    <div id="cinematic-form" className="w-full">
+    <div id="cinematic-form" className="w-full max-w-full overflow-hidden">
       {/* Mode Selector */}
-      <ModeSelector
-        selectedMode={selectedMode}
-        onModeChange={handleModeChange}
-      />
+      <div className="w-full max-w-full overflow-hidden mb-4 sm:mb-6">
+        <ModeSelector
+          selectedMode={selectedMode}
+          onModeChange={handleModeChange}
+        />
+      </div>
       
       {/* Mode-specific Content */}
-      <div className="min-h-[500px]">
-        <ModeContentRenderer
-          selectedMode={selectedMode}
-          sceneIdea={sceneIdea}
-          setSceneIdea={setSceneIdea}
-          setSelectedPlatform={setSelectedPlatform}
-          {...otherProps}
-        />
+      <div className="w-full max-w-full overflow-hidden">
+        <div className="min-h-[400px] max-h-none w-full max-w-full overflow-hidden">
+          <ModeContentRenderer
+            selectedMode={selectedMode}
+            sceneIdea={sceneIdea}
+            setSceneIdea={setSceneIdea}
+            setSelectedPlatform={setSelectedPlatform}
+            {...otherProps}
+          />
+        </div>
       </div>
     </div>
   );

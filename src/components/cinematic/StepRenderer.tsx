@@ -69,7 +69,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   // Step 1: Scene
   if (currentStep === 1) {
     return (
-      <div id="step-content-1">
+      <div id="step-content-1" className="w-full max-w-full overflow-hidden">
         <SceneStep
           sceneIdea={sceneIdea}
           setSceneIdea={setSceneIdea}
@@ -83,7 +83,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   // Step 2: Platform
   if (currentStep === 2) {
     return (
-      <div id="step-content-2">
+      <div id="step-content-2" className="w-full max-w-full overflow-hidden">
         <PlatformStep
           selectedPlatform={selectedPlatform}
           setSelectedPlatform={setSelectedPlatform}
@@ -101,7 +101,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   // Step 3: Dialog
   if (currentStep === 3) {
     return (
-      <div id="step-content-3">
+      <div id="step-content-3" className="w-full max-w-full overflow-hidden">
         <DialogStep
           dialogSettings={dialogSettings}
           setDialogSettings={setDialogSettings}
@@ -115,7 +115,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   // Step 4: Sound
   if (currentStep === 4) {
     return (
-      <div id="step-content-4">
+      <div id="step-content-4" className="w-full max-w-full overflow-hidden">
         <SoundStep
           soundSettings={soundSettings}
           setSoundSettings={setSoundSettings}
@@ -126,10 +126,10 @@ const StepRenderer: React.FC<StepRendererProps> = ({
     );
   }
 
-  // Step 5: Camera Controls (now fully available to all users)
+  // Step 5: Camera Controls
   if (currentStep === 5) {
     return (
-      <div id="step-content-5">
+      <div id="step-content-5" className="w-full max-w-full overflow-hidden">
         <CameraControlsStep
           cameraSettings={cameraSettings}
           setCameraSettings={setCameraSettings}
@@ -141,10 +141,10 @@ const StepRenderer: React.FC<StepRendererProps> = ({
     );
   }
 
-  // Step 6: Lighting (now fully available to all users)
+  // Step 6: Lighting
   if (currentStep === 6) {
     return (
-      <div id="step-content-6">
+      <div id="step-content-6" className="w-full max-w-full overflow-hidden">
         <LightingStep
           lightingSettings={lightingSettings}
           setLightingSettings={setLightingSettings}
@@ -156,10 +156,10 @@ const StepRenderer: React.FC<StepRendererProps> = ({
     );
   }
 
-  // Step 7: Style (now fully available to all users)
+  // Step 7: Style
   if (currentStep === 7) {
     return (
-      <div id="step-content-7">
+      <div id="step-content-7" className="w-full max-w-full overflow-hidden">
         <StyleStep
           styleReference={styleReference}
           setStyleReference={setStyleReference}

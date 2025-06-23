@@ -37,14 +37,14 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
 
   return (
     <motion.div 
-      className="mb-8"
+      className="w-full max-w-full overflow-hidden mb-6 sm:mb-8"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
       {/* Mobile Progress Bar */}
       {isMobile && (
-        <div className="mb-6 px-4">
+        <div className="w-full max-w-full overflow-hidden px-2 sm:px-4">
           <div className="flex items-center justify-between text-sm mb-4">
             <span className="font-medium text-white">
               Step {currentStep} of {totalSteps}
@@ -54,7 +54,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
             </span>
           </div>
           
-          <div className="relative">
+          <div className="relative w-full max-w-full">
             <div className="w-full bg-slate-700/50 rounded-full h-3 overflow-hidden backdrop-blur-sm">
               <motion.div 
                 className="bg-gradient-to-r from-purple-500 via-pink-500 to-purple-600 h-full rounded-full relative"
@@ -87,11 +87,12 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
 
       {/* Desktop Step Circles */}
       {!isMobile && (
-        <div className="px-4">
-          <div className="overflow-x-auto scrollbar-hide">
-            <div className={`flex items-center justify-center min-w-max mx-auto ${
-              totalSteps <= 4 ? 'gap-8' : totalSteps <= 6 ? 'gap-6' : 'gap-4'
-            }`}>
+        <div className="w-full max-w-full overflow-hidden px-2 sm:px-4">
+          <div className="w-full overflow-x-auto scrollbar-hide">
+            <div className={`
+              flex items-center justify-center min-w-max mx-auto
+              ${totalSteps <= 4 ? 'gap-8' : totalSteps <= 6 ? 'gap-6' : 'gap-4'}
+            `}>
               {Array.from({ length: totalSteps }, (_, i) => i + 1).map((step) => (
                 <div key={step} className="flex items-center flex-shrink-0">
                   <motion.div
@@ -178,4 +179,6 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
   );
 };
 
-export default StepIndicator;
+export default St
+
+;
