@@ -96,30 +96,19 @@
 @layer base {
   * {
     @apply border-border;
-    box-sizing: border-box;
   }
 
   body {
     @apply bg-background text-foreground;
     overflow-x: hidden;
     width: 100%;
-    max-width: 100vw;
-    position: relative;
+    max-width: 100%;
   }
 
   html {
     overflow-x: hidden;
     width: 100%;
-    max-width: 100vw;
-    position: relative;
-  }
-
-  /* Mobile viewport and container constraints */
-  .mobile-container {
-    width: 100%;
-    max-width: 100vw;
-    overflow-x: hidden;
-    position: relative;
+    max-width: 100%;
   }
 
   /* Prevent zoom on iOS when focusing inputs */
@@ -141,80 +130,6 @@
     input[type="tel"],
     input[type="color"] {
       font-size: 16px !important;
-      max-width: 100%;
-      box-sizing: border-box;
     }
-  }
-
-  /* Mobile touch and scrolling optimizations */
-  @media (max-width: 767px) {
-    * {
-      -webkit-touch-callout: none;
-      -webkit-tap-highlight-color: transparent;
-      max-width: 100vw;
-      box-sizing: border-box;
-    }
-    
-    body, html {
-      touch-action: pan-y;
-      -webkit-overflow-scrolling: touch;
-    }
-    
-    /* Prevent horizontal scroll on mobile */
-    .mobile-step-container {
-      width: 100%;
-      max-width: 100vw;
-      overflow-x: hidden;
-      padding-left: 8px;
-      padding-right: 8px;
-      box-sizing: border-box;
-    }
-    
-    /* Mobile input optimizations */
-    input, textarea, select {
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-      -webkit-appearance: none;
-      border-radius: 8px;
-    }
-  }
-
-  /* Custom scrollbar for desktop */
-  @media (min-width: 768px) {
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-  }
-}
-
-/* Mobile-specific utility classes */
-@layer utilities {
-  .mobile-full-width {
-    width: 100%;
-    max-width: 100vw;
-    overflow-x: hidden;
-  }
-  
-  .mobile-safe-padding {
-    padding-left: max(16px, env(safe-area-inset-left));
-    padding-right: max(16px, env(safe-area-inset-right));
-  }
-  
-  .mobile-touch-friendly {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  .container-constrained {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-    box-sizing: border-box;
   }
 }

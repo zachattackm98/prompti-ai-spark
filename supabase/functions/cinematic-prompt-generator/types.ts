@@ -35,12 +35,6 @@ export interface PromptRequest {
   sceneNumber?: number;
   totalScenes?: number;
   isMultiScene?: boolean;
-  // Mode-specific fields
-  mode?: 'instant' | 'animal-vlog' | 'creative';
-  animalType?: string;
-  selectedVibe?: string;
-  hasDialogue?: boolean;
-  dialogueContent?: string;
 }
 
 export interface GeneratedPrompt {

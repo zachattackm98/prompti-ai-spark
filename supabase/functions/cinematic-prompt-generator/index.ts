@@ -30,16 +30,8 @@ serve(async (req) => {
       sceneContext,
       sceneNumber = 1,
       totalScenes = 1,
-      isMultiScene = false,
-      // Mode-specific fields
-      mode = 'creative',
-      animalType,
-      selectedVibe,
-      hasDialogue,
-      dialogueContent
+      isMultiScene = false
     } = requestData;
-
-    console.log('Processing prompt request for mode:', mode);
 
     // Get user from JWT token
     const authHeader = req.headers.get('Authorization');
@@ -61,24 +53,19 @@ serve(async (req) => {
       });
     }
 
-    // Generate the prompt using OpenAI with mode and multi-scene context
+    // Generate the prompt using OpenAI with multi-scene context
     const prompt = await generatePromptWithOpenAI({
       ...requestData,
       sceneContext,
       sceneNumber,
       totalScenes,
-      isMultiScene,
-      mode,
-      animalType,
-      selectedVibe,
-      hasDialogue,
-      dialogueContent
+      isMultiScene
     });
 
     // Increment prompt count for all tiers after successful generation
     await incrementPromptCount(user.id, tier);
 
-    // Save to prompt history with mode metadata
+    // Save to prompt history
     try {
       await supabase
         .from('prompt_history')
@@ -88,14 +75,7 @@ serve(async (req) => {
           platform: platform,
           style: styleReference || '',
           emotion: emotion,
-          generated_prompt: JSON.stringify({
-            ...prompt,
-            mode,
-            animalType: mode === 'animal-vlog' ? animalType : null,
-            selectedVibe: mode === 'animal-vlog' ? selectedVibe : null,
-            hasDialogue: mode === 'animal-vlog' ? hasDialogue : null,
-            dialogueContent: mode === 'animal-vlog' && hasDialogue ? dialogueContent : null
-          })
+          generated_prompt: JSON.stringify(prompt)
         });
     } catch (dbError) {
       console.error('Error saving to prompt history:', dbError);

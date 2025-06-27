@@ -1,25 +1,8 @@
 
 import type { PromptRequest, PlatformConfig } from './types.ts';
 import { PLATFORM_PROMPTS } from './constants.ts';
-import { buildInstantModePrompt, buildAnimalVlogModePrompt } from './mode-prompt-builders.ts';
 
 export function buildSystemPrompt(request: PromptRequest): string {
-  const { mode } = request;
-  
-  // Handle mode-specific prompt building
-  if (mode === 'instant') {
-    return buildInstantModePrompt(request);
-  }
-  
-  if (mode === 'animal-vlog') {
-    return buildAnimalVlogModePrompt(request);
-  }
-  
-  // Default to creative mode (existing logic)
-  return buildCreativeModePrompt(request);
-}
-
-function buildCreativeModePrompt(request: PromptRequest): string {
   const { 
     platform, 
     emotion, 

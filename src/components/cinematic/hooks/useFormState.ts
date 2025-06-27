@@ -1,9 +1,9 @@
+
 import { useState } from 'react';
 import { FormState, CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt, SceneData } from './types';
 import { useMultiSceneState } from './useMultiSceneState';
 
 export const useFormState = () => {
-  // Existing state
   const [currentStep, setCurrentStep] = useState(1);
   const [sceneIdea, setSceneIdea] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState('veo3');
@@ -83,7 +83,6 @@ export const useFormState = () => {
   };
 
   return {
-    // Existing state
     currentStep,
     setCurrentStep,
     sceneIdea,

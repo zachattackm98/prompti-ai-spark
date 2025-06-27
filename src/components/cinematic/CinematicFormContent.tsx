@@ -1,41 +1,22 @@
-import React, { useEffect } from 'react';
-import ModeSelector from './ModeSelector';
-import ModeContentRenderer from './ModeContentRenderer';
-import { CinematicMode, INSTANT_MODE_PLATFORM_MAPPING } from './constants/modes';
+
+import React from 'react';
+import { Card } from '@/components/ui/card';
+import StepIndicator from './StepIndicator';
+import StepRenderer from './StepRenderer';
+import SceneSelector from './SceneSelector';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { CameraSettings, LightingSettings, DialogSettings, SoundSettings } from './useCinematicForm';
 
 interface CinematicFormContentProps {
-  // Mode state
-  selectedMode: CinematicMode;
-  setSelectedMode: (mode: CinematicMode) => void;
-  resetModeSpecificState: () => void;
-  
-  // Mode-specific state
-  animalType: string;
-  setAnimalType: (value: string) => void;
-  selectedVibe: string;
-  setSelectedVibe: (value: string) => void;
-  hasDialogue: boolean;
-  setHasDialogue: (value: boolean) => void;
-  dialogueContent: string;
-  setDialogueContent: (value: string) => void;
-  detectedPlatform: string;
-  setDetectedPlatform: (value: string) => void;
-  
-  // Multi-scene props
   isMultiScene: boolean;
   currentProject: any;
   handleSceneSelect: (sceneIndex: number) => void;
   handleAddScene: () => void;
   canAddMoreScenes: boolean;
-  
-  // Step props
   currentStep: number;
   totalSteps: number;
   canUseFeature: (feature: string) => boolean;
   features: any;
-  
-  // Form state props
   sceneIdea: string;
   setSceneIdea: (value: string) => void;
   selectedPlatform: string;
@@ -52,8 +33,6 @@ interface CinematicFormContentProps {
   setLightingSettings: (settings: LightingSettings) => void;
   styleReference: string;
   setStyleReference: (value: string) => void;
-  
-  // Action props
   handleNext: () => void;
   handlePrevious: () => void;
   handleGenerate: () => void;
@@ -62,65 +41,93 @@ interface CinematicFormContentProps {
 }
 
 const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
-  selectedMode,
-  setSelectedMode,
-  resetModeSpecificState,
+  isMultiScene,
+  currentProject,
+  handleSceneSelect,
+  handleAddScene,
+  canAddMoreScenes,
+  currentStep,
+  totalSteps,
+  canUseFeature,
+  features,
   sceneIdea,
   setSceneIdea,
-  setDetectedPlatform,
+  selectedPlatform,
   setSelectedPlatform,
-  ...otherProps
+  selectedEmotion,
+  setSelectedEmotion,
+  dialogSettings,
+  setDialogSettings,
+  soundSettings,
+  setSoundSettings,
+  cameraSettings,
+  setCameraSettings,
+  lightingSettings,
+  setLightingSettings,
+  styleReference,
+  setStyleReference,
+  handleNext,
+  handlePrevious,
+  handleGenerate,
+  isLoading,
+  setShowAuthDialog
 }) => {
-  // Handle mode change and reset state
-  const handleModeChange = (mode: CinematicMode) => {
-    if (mode !== selectedMode) {
-      console.log('CinematicFormContent: Mode changed from', selectedMode, 'to', mode);
-      setSelectedMode(mode);
-      resetModeSpecificState();
-    }
-  };
-
-  // Auto-detect platform for Instant mode
-  useEffect(() => {
-    if (selectedMode === 'instant' && sceneIdea.trim()) {
-      const lowerSceneIdea = sceneIdea.toLowerCase();
-      let detectedPlatform = 'veo3'; // default
-      
-      // Check for keyword matches
-      for (const [keyword, platform] of Object.entries(INSTANT_MODE_PLATFORM_MAPPING)) {
-        if (lowerSceneIdea.includes(keyword)) {
-          detectedPlatform = platform;
-          break;
-        }
-      }
-      
-      setDetectedPlatform(detectedPlatform);
-      setSelectedPlatform(detectedPlatform);
-    }
-  }, [selectedMode, sceneIdea, setDetectedPlatform, setSelectedPlatform]);
+  const isMobile = useIsMobile();
 
   return (
-    <div id="cinematic-form" className="w-full max-w-full overflow-hidden">
-      {/* Mode Selector */}
-      <div className="w-full max-w-full overflow-hidden mb-4 sm:mb-6">
-        <ModeSelector
-          selectedMode={selectedMode}
-          onModeChange={handleModeChange}
-        />
-      </div>
-      
-      {/* Mode-specific Content */}
-      <div className="w-full max-w-full overflow-hidden">
-        <div className="min-h-[400px] max-h-none w-full max-w-full overflow-hidden">
-          <ModeContentRenderer
-            selectedMode={selectedMode}
-            sceneIdea={sceneIdea}
-            setSceneIdea={setSceneIdea}
-            setSelectedPlatform={setSelectedPlatform}
-            {...otherProps}
-          />
+    <div id="cinematic-form" className="w-full">
+      <Card className={`
+        bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-purple-900/20 
+        border border-purple-500/20 backdrop-blur-sm overflow-hidden
+        ${isMobile ? 'mx-2' : ''}
+      `}>
+        <div className={`space-y-6 ${isMobile ? 'p-4' : 'p-6'}`}>
+          {/* Multi-scene project controls */}
+          {isMultiScene && currentProject && (
+            <div className="space-y-4">
+              <SceneSelector
+                currentProject={currentProject}
+                onSceneSelect={handleSceneSelect}
+                onAddScene={handleAddScene}
+                canAddMoreScenes={canAddMoreScenes}
+              />
+            </div>
+          )}
+
+          {/* Step Indicator */}
+          <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
+
+          {/* Step Content */}
+          <div className="min-h-[400px] flex flex-col justify-center">
+            <StepRenderer
+              currentStep={currentStep}
+              canUseFeature={canUseFeature}
+              features={features}
+              sceneIdea={sceneIdea}
+              setSceneIdea={setSceneIdea}
+              selectedPlatform={selectedPlatform}
+              setSelectedPlatform={setSelectedPlatform}
+              selectedEmotion={selectedEmotion}
+              setSelectedEmotion={setSelectedEmotion}
+              dialogSettings={dialogSettings}
+              setDialogSettings={setDialogSettings}
+              soundSettings={soundSettings}
+              setSoundSettings={setSoundSettings}
+              cameraSettings={cameraSettings}
+              setCameraSettings={setCameraSettings}
+              lightingSettings={lightingSettings}
+              setLightingSettings={setLightingSettings}
+              styleReference={styleReference}
+              setStyleReference={setStyleReference}
+              handleNext={handleNext}
+              handlePrevious={handlePrevious}
+              handleGenerate={handleGenerate}
+              isLoading={isLoading}
+              setShowAuthDialog={setShowAuthDialog}
+            />
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

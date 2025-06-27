@@ -1,7 +1,8 @@
+
 import { useFormState } from './hooks/useFormState';
-import { useCinematicModes } from './hooks/useCinematicModes';
-import { useCinematicSteps } from './hooks/useCinematicSteps';
-import { useCinematicPrompt } from './hooks/useCinematicPrompt';
+import { useStepNavigation } from './hooks/useStepNavigation';
+import { usePromptGeneration } from './hooks/usePromptGeneration';
+import { useCinematicActions } from './hooks/useCinematicActions';
 import { useCinematicNavigation } from './hooks/useCinematicNavigation';
 import { useCinematicScenes } from './hooks/useCinematicScenes';
 
@@ -16,7 +17,6 @@ export const useCinematicForm = (
   loadPromptHistory: () => void
 ) => {
   const {
-    // Existing state
     currentStep,
     setCurrentStep,
     sceneIdea,
@@ -54,39 +54,16 @@ export const useCinematicForm = (
     resetProject
   } = useFormState();
 
-  const {
-    // Mode state
-    selectedMode,
-    setSelectedMode,
-    resetModeSpecificState,
-    getTotalSteps,
-    
-    // Mode-specific state
-    animalType,
-    setAnimalType,
-    selectedVibe,
-    setSelectedVibe,
-    hasDialogue,
-    setHasDialogue,
-    dialogueContent,
-    setDialogueContent,
-    detectedPlatform,
-    setDetectedPlatform
-  } = useCinematicModes();
-
-  const totalSteps = getTotalSteps();
-
-  const {
-    handleNext,
-    handlePrevious,
-    scrollToForm,
-    handleGenerateNew
-  } = useCinematicSteps(
+  const { totalSteps, handleNext, handlePrevious, scrollToForm } = useStepNavigation(
     currentStep,
     setCurrentStep,
-    canUseFeature,
-    totalSteps,
-    resetForm
+    canUseFeature
+  );
+
+  const { handleGenerateNew } = useCinematicActions(
+    setCurrentStep,
+    resetForm,
+    totalSteps
   );
 
   const { handleSceneSelect, handleAddScene } = useCinematicNavigation(
@@ -124,11 +101,10 @@ export const useCinematicForm = (
     generatedPrompt,
     isLoading,
     currentProject,
-    isMultiScene,
-    selectedMode
+    isMultiScene
   };
 
-  const { handleGenerate } = useCinematicPrompt(
+  const { handleGenerate } = usePromptGeneration(
     user,
     subscription,
     canUseFeature,
@@ -138,33 +114,10 @@ export const useCinematicForm = (
     setGeneratedPrompt,
     setIsLoading,
     currentProject,
-    updateScenePrompt,
-    // Pass mode-specific state
-    animalType,
-    selectedVibe,
-    hasDialogue,
-    dialogueContent
+    updateScenePrompt
   );
 
   return {
-    // Mode state
-    selectedMode,
-    setSelectedMode,
-    resetModeSpecificState,
-    
-    // Mode-specific state
-    animalType,
-    setAnimalType,
-    selectedVibe,
-    setSelectedVibe,
-    hasDialogue,
-    setHasDialogue,
-    dialogueContent,
-    setDialogueContent,
-    detectedPlatform,
-    setDetectedPlatform,
-    
-    // Existing state
     currentStep,
     totalSteps,
     sceneIdea,
@@ -189,9 +142,9 @@ export const useCinematicForm = (
     handlePrevious,
     handleGenerate,
     handleGenerateNew,
-    // Multi-scene functionality (disabled for instant and animal-vlog modes)
-    currentProject: selectedMode === 'creative' ? currentProject : null,
-    isMultiScene: selectedMode === 'creative' ? isMultiScene : false,
+    // Multi-scene functionality
+    currentProject,
+    isMultiScene,
     handleContinueScene,
     handleSceneSelect,
     handleAddScene,
