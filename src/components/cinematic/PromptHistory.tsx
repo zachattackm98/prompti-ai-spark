@@ -19,7 +19,7 @@ const PromptHistory: React.FC<PromptHistoryProps> = ({
   showHistory,
   onCreateScenesFromHistory 
 }) => {
-  const { promptHistory, isLoading, deletePromptHistoryItem, clearAllHistory } = usePromptHistory();
+  const { promptHistory, isLoading, deletePromptHistoryItem, clearAllHistory, loadPromptHistory } = usePromptHistory();
   const { toast } = useToast();
   const { copyToClipboard, downloadPrompt } = usePromptHistoryActions();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
@@ -69,6 +69,22 @@ const PromptHistory: React.FC<PromptHistoryProps> = ({
     }
   };
 
+  const handleRefresh = async () => {
+    try {
+      await loadPromptHistory();
+      toast({
+        title: "Refreshed",
+        description: "Prompt history updated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh prompt history.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleCreateScenes = (item: any) => {
     if (onCreateScenesFromHistory) {
       onCreateScenesFromHistory(item);
@@ -90,6 +106,8 @@ const PromptHistory: React.FC<PromptHistoryProps> = ({
         <PromptHistoryHeader 
           hasPrompts={promptHistory.length > 0}
           onClearAll={handleClearAll}
+          onRefresh={handleRefresh}
+          isLoading={isLoading}
         />
         
         <div className={`space-y-3 ${isMobile ? 'max-h-80' : 'max-h-96'} overflow-y-auto`}>
