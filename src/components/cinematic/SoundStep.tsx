@@ -107,7 +107,7 @@ const SoundStep: React.FC<SoundStepProps> = ({
   }} transition={{
     duration: 0.5
   }}>
-      <Card className="bg-gradient-to-br from-slate-800/50 to-purple-900/30 border-purple-500/30 p-4 sm:p-6">
+      <Card className="bg-slate-800 border-slate-600 p-4 sm:p-6">
         {/* Header - Mobile optimized */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
           <div className="flex items-center gap-2 sm:gap-3">
