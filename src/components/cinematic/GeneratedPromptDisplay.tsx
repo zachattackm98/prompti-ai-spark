@@ -135,17 +135,17 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
               isMobile ? 'text-xs' : 'text-xs sm:text-sm'
             }`}>
               <div className="grid grid-cols-2 gap-2 text-gray-200">
-                <div><span className="text-emerald-300">Location:</span> {generatedPrompt.metadata.location}</div>
-                <div><span className="text-emerald-300">Time:</span> {generatedPrompt.metadata.timeOfDay}</div>
-                <div><span className="text-emerald-300">Mood:</span> {generatedPrompt.metadata.mood}</div>
-                <div><span className="text-emerald-300">Style:</span> {generatedPrompt.metadata.visualStyle}</div>
+                <div><span className="text-emerald-300">Location:</span> {generatedPrompt.metadata?.location || 'N/A'}</div>
+                <div><span className="text-emerald-300">Time:</span> {generatedPrompt.metadata?.timeOfDay || 'N/A'}</div>
+                <div><span className="text-emerald-300">Mood:</span> {generatedPrompt.metadata?.mood || 'N/A'}</div>
+                <div><span className="text-emerald-300">Style:</span> {generatedPrompt.metadata?.visualStyle || 'N/A'}</div>
               </div>
-              {generatedPrompt.metadata.characters.length > 0 && (
+              {generatedPrompt.metadata?.characters && generatedPrompt.metadata.characters.length > 0 && (
                 <div className="text-gray-200">
                   <span className="text-emerald-300">Characters:</span> {generatedPrompt.metadata.characters.join(', ')}
                 </div>
               )}
-              {generatedPrompt.metadata.colorPalette.length > 0 && (
+              {generatedPrompt.metadata?.colorPalette && generatedPrompt.metadata.colorPalette.length > 0 && (
                 <div className="text-gray-200">
                   <span className="text-emerald-300">Colors:</span> {generatedPrompt.metadata.colorPalette.join(', ')}
                 </div>
