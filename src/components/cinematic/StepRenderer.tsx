@@ -44,6 +44,8 @@ interface StepRendererProps {
   onCopyToClipboard: (text: string) => void;
   onDownloadPrompt: () => void;
   isLoading: boolean;
+  isContinuingScene: boolean;
+  clearContinuationMode: () => void;
   setShowAuthDialog?: (show: boolean) => void;
 }
 
@@ -76,6 +78,8 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   onCopyToClipboard,
   onDownloadPrompt,
   isLoading,
+  isContinuingScene,
+  clearContinuationMode,
   setShowAuthDialog
 }) => {
   const renderCurrentStep = () => {
@@ -88,6 +92,13 @@ const StepRenderer: React.FC<StepRendererProps> = ({
             setSceneIdea={setSceneIdea}
             onNext={handleNext}
             setShowAuthDialog={setShowAuthDialog}
+            isContinuingScene={isContinuingScene}
+            clearContinuationMode={clearContinuationMode}
+            selectedPlatform={selectedPlatform}
+            selectedEmotion={selectedEmotion}
+            cameraSettings={cameraSettings}
+            lightingSettings={lightingSettings}
+            styleReference={styleReference}
           />
         </div>
       );

@@ -36,6 +36,8 @@ interface CinematicFormContentProps {
   onCopyToClipboard: (text: string) => void;
   onDownloadPrompt: () => void;
   isLoading: boolean;
+  isContinuingScene: boolean;
+  clearContinuationMode: () => void;
   setShowAuthDialog?: (show: boolean) => void;
 }
 
@@ -69,6 +71,8 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
   onCopyToClipboard,
   onDownloadPrompt,
   isLoading,
+  isContinuingScene,
+  clearContinuationMode,
   setShowAuthDialog
 }) => {
   const isMobile = useIsMobile();
@@ -115,6 +119,8 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
               onCopyToClipboard={onCopyToClipboard}
               onDownloadPrompt={onDownloadPrompt}
               isLoading={isLoading}
+              isContinuingScene={isContinuingScene}
+              clearContinuationMode={clearContinuationMode}
               setShowAuthDialog={setShowAuthDialog}
             />
           </div>

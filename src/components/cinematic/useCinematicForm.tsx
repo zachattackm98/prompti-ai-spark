@@ -37,6 +37,8 @@ export const useCinematicForm = (
     setGeneratedPrompt,
     isLoading,
     setIsLoading,
+    isContinuingScene,
+    setIsContinuingScene,
     resetForm,
     loadPromptDataToCurrentState
   } = useFormState();
@@ -76,10 +78,13 @@ export const useCinematicForm = (
     setCurrentStep
   );
 
-  // Simplified continue scene logic - clear scene idea and reset to step 1
+  // Continue scene logic - preserve settings and mark as continuation
   const handleContinueScene = () => {
     // Clear the scene idea for the new scene
     setSceneIdea('');
+    
+    // Mark as continuing scene to show special UI
+    setIsContinuingScene(true);
     
     // All other settings (platform, emotion, camera, lighting, style) are preserved
     // This maintains continuity between scenes
@@ -89,6 +94,11 @@ export const useCinematicForm = (
     
     // Reset generated prompt since we're creating a new scene
     setGeneratedPrompt(null);
+  };
+
+  // Clear continuation state when user starts typing or navigates
+  const clearContinuationMode = () => {
+    setIsContinuingScene(false);
   };
 
   return {
@@ -104,6 +114,7 @@ export const useCinematicForm = (
     styleReference,
     generatedPrompt,
     isLoading,
+    isContinuingScene,
     setSceneIdea,
     setSelectedPlatform,
     setSelectedEmotion,
@@ -117,6 +128,7 @@ export const useCinematicForm = (
     handleGenerate,
     handleGenerateNew,
     handleContinueScene,
+    clearContinuationMode,
     loadPromptDataToCurrentState,
     setCurrentStep
   };

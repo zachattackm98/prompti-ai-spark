@@ -34,6 +34,7 @@ export const useFormState = () => {
   const [styleReference, setStyleReference] = useState('');
   const [generatedPrompt, setGeneratedPrompt] = useState<GeneratedPrompt | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isContinuingScene, setIsContinuingScene] = useState(false);
 
   const resetForm = () => {
     console.log('useFormState: Performing complete form reset');
@@ -49,6 +50,7 @@ export const useFormState = () => {
     setCameraSettings({ angle: '', movement: '', shot: '' });
     setLightingSettings({ mood: '', style: '', timeOfDay: '' });
     setStyleReference('');
+    setIsContinuingScene(false);
   };
 
   const loadPromptDataToCurrentState = (promptData: {
@@ -103,6 +105,8 @@ export const useFormState = () => {
     setGeneratedPrompt,
     isLoading,
     setIsLoading,
+    isContinuingScene,
+    setIsContinuingScene,
     resetForm,
     loadPromptDataToCurrentState
   };

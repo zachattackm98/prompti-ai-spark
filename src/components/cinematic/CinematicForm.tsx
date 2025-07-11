@@ -58,6 +58,8 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     handleGenerate,
     handleGenerateNew,
     handleContinueScene,
+    isContinuingScene,
+    clearContinuationMode,
     loadPromptDataToCurrentState,
     setCurrentStep
   } = useCinematicForm(
@@ -158,6 +160,8 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
                 }
               }}
               isLoading={isLoading}
+              isContinuingScene={isContinuingScene}
+              clearContinuationMode={clearContinuationMode}
               setShowAuthDialog={setShowAuthDialog}
             />
 

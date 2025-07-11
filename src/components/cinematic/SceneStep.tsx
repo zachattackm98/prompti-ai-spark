@@ -3,7 +3,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { ChevronRight } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ChevronRight, Settings, Camera, Lightbulb, Palette } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -12,16 +13,38 @@ interface SceneStepProps {
   setSceneIdea: (value: string) => void;
   onNext: () => void;
   setShowAuthDialog?: (show: boolean) => void;
+  isContinuingScene?: boolean;
+  clearContinuationMode?: () => void;
+  selectedPlatform?: string;
+  selectedEmotion?: string;
+  cameraSettings?: { angle: string; movement: string; shot: string };
+  lightingSettings?: { mood: string; style: string; timeOfDay: string };
+  styleReference?: string;
 }
 
 const SceneStep: React.FC<SceneStepProps> = ({ 
   sceneIdea, 
   setSceneIdea, 
   onNext, 
-  setShowAuthDialog 
+  setShowAuthDialog,
+  isContinuingScene = false,
+  clearContinuationMode,
+  selectedPlatform,
+  selectedEmotion,
+  cameraSettings,
+  lightingSettings,
+  styleReference
 }) => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setSceneIdea(e.target.value);
+    // Clear continuation mode when user starts typing
+    if (isContinuingScene && clearContinuationMode && e.target.value.length > 0) {
+      clearContinuationMode();
+    }
+  };
 
   const handleNextClick = () => {
     if (!user && setShowAuthDialog) {
@@ -31,6 +54,35 @@ const SceneStep: React.FC<SceneStepProps> = ({
     }
   };
 
+  // Helper function to format settings for display
+  const formatSettings = () => {
+    const settings = [];
+    if (selectedPlatform && selectedPlatform !== 'veo3') {
+      settings.push(`Platform: ${selectedPlatform.toUpperCase()}`);
+    }
+    if (selectedEmotion && selectedEmotion !== 'cinematic') {
+      settings.push(`Emotion: ${selectedEmotion}`);
+    }
+    if (cameraSettings && (cameraSettings.angle || cameraSettings.movement || cameraSettings.shot)) {
+      const cameraSet = [cameraSettings.angle, cameraSettings.movement, cameraSettings.shot].filter(Boolean);
+      if (cameraSet.length > 0) {
+        settings.push(`Camera: ${cameraSet.join(', ')}`);
+      }
+    }
+    if (lightingSettings && (lightingSettings.mood || lightingSettings.style || lightingSettings.timeOfDay)) {
+      const lightingSet = [lightingSettings.mood, lightingSettings.style, lightingSettings.timeOfDay].filter(Boolean);
+      if (lightingSet.length > 0) {
+        settings.push(`Lighting: ${lightingSet.join(', ')}`);
+      }
+    }
+    if (styleReference && styleReference.trim()) {
+      settings.push(`Style: Custom reference`);
+    }
+    return settings;
+  };
+
+  const preservedSettings = formatSettings();
+
   return (
     <motion.div 
       className="space-y-4 sm:space-y-6"
@@ -38,24 +90,69 @@ const SceneStep: React.FC<SceneStepProps> = ({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
     >
+      {/* Continuation Mode Header */}
+      {isContinuingScene && (
+        <motion.div 
+          className="bg-gradient-to-r from-green-900/30 to-blue-900/30 border border-green-400/20 rounded-lg p-4 mx-2 sm:mx-0"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Settings className="w-4 h-4 text-green-400" />
+            <Badge variant="secondary" className="bg-green-900/50 text-green-300 border-green-400/30">
+              Continuing Scene
+            </Badge>
+          </div>
+          
+          <p className="text-green-200 text-sm mb-3">
+            Your previous settings have been preserved. Describe your next scene and we'll maintain continuity.
+          </p>
+          
+          {preservedSettings.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs text-green-300/80 font-medium">Preserved Settings:</p>
+              <div className="flex flex-wrap gap-2">
+                {preservedSettings.map((setting, index) => (
+                  <Badge 
+                    key={index} 
+                    variant="outline" 
+                    className="text-xs bg-slate-800/50 border-green-400/20 text-green-300"
+                  >
+                    {setting}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </motion.div>
+      )}
+
       <div className="text-center space-y-2 sm:space-y-3 px-2">
         <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white leading-tight">
-          Describe Your Scene
+          {isContinuingScene ? 'Describe Your Next Scene' : 'Describe Your Scene'}
         </h3>
         <p className="text-gray-300 text-sm sm:text-base max-w-md mx-auto">
-          Tell us about the cinematic moment you want to create
+          {isContinuingScene 
+            ? 'Build on your story with the next cinematic moment'
+            : 'Tell us about the cinematic moment you want to create'
+          }
         </p>
       </div>
       
       <div className="w-full max-w-full overflow-hidden px-2 sm:px-0">
         <Textarea
           value={sceneIdea}
-          onChange={(e) => setSceneIdea(e.target.value)}
-          placeholder="e.g., A lone astronaut floating in space, Earth visible in the background, golden hour lighting..."
+          onChange={handleTextChange}
+          placeholder={isContinuingScene 
+            ? "e.g., The camera pulls back to reveal the astronaut's ship approaching a massive space station..."
+            : "e.g., A lone astronaut floating in space, Earth visible in the background, golden hour lighting..."
+          }
           className={`
             bg-slate-800/60 border-purple-400/30 text-white placeholder:text-gray-400 
             focus:border-purple-400/60 focus:ring-purple-400/20 
             w-full max-w-full resize-none transition-all duration-200
+            ${isContinuingScene ? 'border-green-400/30 focus:border-green-400/60' : ''}
             ${isMobile 
               ? 'min-h-[120px] text-base px-4 py-3 rounded-lg' 
               : 'min-h-[100px] sm:min-h-[120px] text-sm sm:text-base'
@@ -78,8 +175,10 @@ const SceneStep: React.FC<SceneStepProps> = ({
           disabled={!sceneIdea.trim()}
           size={isMobile ? "lg" : "sm"}
           className={`
-            bg-gradient-to-r from-purple-600 to-pink-600 
-            hover:from-purple-700 hover:to-pink-700 
+            ${isContinuingScene 
+              ? 'bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700'
+              : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
+            }
             text-white transition-all duration-200
             ${isMobile 
               ? 'w-full h-12 text-base font-medium' 
@@ -87,7 +186,7 @@ const SceneStep: React.FC<SceneStepProps> = ({
             }
           `}
         >
-          Next Step <ChevronRight className="w-4 h-4 ml-2" />
+          {isContinuingScene ? 'Continue Story' : 'Next Step'} <ChevronRight className="w-4 h-4 ml-2" />
         </Button>
       </div>
     </motion.div>
