@@ -12,7 +12,11 @@ export function buildSystemPrompt(request: PromptRequest): string {
     dialogSettings, 
     soundSettings, 
     enhancedPrompts, 
-    styleReference
+    styleReference,
+    sceneContext,
+    isMultiScene,
+    sceneNumber,
+    totalScenes
   } = request;
   
   const selectedPlatform = PLATFORM_PROMPTS[platform as keyof typeof PLATFORM_PROMPTS] || PLATFORM_PROMPTS.veo3;
@@ -118,6 +122,29 @@ User subscription tier: ${tier?.toUpperCase()}`;
     systemPrompt += `\n\nStyle reference: ${styleReference}`;
   }
 
+  // Add scene continuity instructions if this is a multi-scene project
+  if (sceneContext && isMultiScene) {
+    systemPrompt += `\n\nSCENE CONTINUITY REQUIREMENTS:
+This is scene ${sceneNumber} of ${totalScenes} in a multi-scene story. You MUST maintain consistency with the previous scene:
+
+PREVIOUS SCENE CONTEXT:
+- Scene excerpt: "${sceneContext.sceneExcerpt}"
+- Established characters: ${sceneContext.characters.join(', ')}
+- Location: ${sceneContext.location}
+- Visual style: ${sceneContext.visualStyle}
+- Mood: ${sceneContext.mood}
+- Key elements: ${sceneContext.keyElements.join(', ')}
+
+CONTINUITY INSTRUCTIONS:
+- Maintain the same characters throughout (same appearance, clothing, mannerisms)
+- Keep the established location or provide smooth transitions if changing locations
+- Preserve the visual style and color palette from the previous scene
+- Continue the emotional and narrative progression naturally
+- Reference elements from the previous scene to create narrative flow
+- Ensure technical specs (lighting, camera work) feel consistent with the established style
+- Progress the story logically from the previous scene's context`;
+  }
+
   // Add metadata requirements
   systemPrompt += `\n\nMETADATA REQUIREMENTS:
 Provide a JSON object in the METADATA section with the following structure:
@@ -139,7 +166,7 @@ This metadata will be used for scene continuity and context building.`;
   return systemPrompt;
 }
 
-export function parsePromptResponse(generatedContent: string, platform: string) {
+export function parsePromptResponse(generatedContent: string, platform: string, sceneNumber?: number, totalScenes?: number) {
   const selectedPlatform = PLATFORM_PROMPTS[platform as keyof typeof PLATFORM_PROMPTS] || PLATFORM_PROMPTS.veo3;
   
   // Default metadata structure
@@ -201,6 +228,8 @@ export function parsePromptResponse(generatedContent: string, platform: string) 
     technicalSpecs,
     styleNotes,
     platform: platform,
-    metadata
+    metadata,
+    sceneNumber,
+    totalScenes
   };
 }
