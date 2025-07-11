@@ -260,7 +260,7 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
           className="
             min-h-[44px] sm:min-h-[40px] px-4 sm:px-6 py-2 flex-1 sm:flex-initial
             text-sm sm:text-base font-medium whitespace-normal leading-snug
-            border-purple-500 text-purple-200 hover:bg-purple-700/60 hover:text-white bg-purple-900/60
+            border-purple-500 text-purple-200 hover:bg-purple-700/60 hover:text-slate-50 bg-purple-900/60
             transition-all duration-200 flex items-center justify-center
           "
         >
