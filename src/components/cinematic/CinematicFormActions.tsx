@@ -9,7 +9,7 @@ interface CinematicFormActionsProps {
   generatedPrompt: GeneratedPrompt | null;
   isMultiScene: boolean;
   handleGenerateNew: () => void;
-  handleContinueScene: (projectTitle: string, nextSceneIdea: string) => void;
+  handleContinueScene: (projectTitle: string, nextSceneIdea: string, mode?: 'fresh' | 'continue') => void;
   user: any;
   canUseFeature: (feature: string) => boolean;
   subscription: any;

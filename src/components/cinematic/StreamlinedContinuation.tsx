@@ -9,10 +9,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Film, Plus, Sparkles, ArrowRight, Lightbulb, Users, MapPin, Clock, Eye, Palette, HelpCircle, Info, Wand2 } from 'lucide-react';
 import { GeneratedPrompt, SceneData } from './hooks/types';
 import { extractEnhancedContext, generateMetadataBasedSuggestions, EnhancedSceneContext } from './utils/metadataContextExtractor';
+import SceneCreationModeDialog from './SceneCreationModeDialog';
 
 interface StreamlinedContinuationProps {
   generatedPrompt: GeneratedPrompt;
-  onContinueScene: (projectTitle: string, nextSceneIdea: string) => void;
+  onContinueScene: (projectTitle: string, nextSceneIdea: string, mode?: 'fresh' | 'continue') => void;
   onStartOver: () => void;
   isLoading?: boolean;
   currentScenes?: SceneData[];
@@ -28,6 +29,7 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
   const [projectTitle, setProjectTitle] = useState('');
   const [nextSceneIdea, setNextSceneIdea] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [showModeDialog, setShowModeDialog] = useState(false);
   const [enhancedContext, setEnhancedContext] = useState<EnhancedSceneContext | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
@@ -118,7 +120,8 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
   const handleQuickContinue = () => {
     if (suggestions.length > 0) {
       const defaultIdea = suggestions[0];
-      onContinueScene(projectTitle, defaultIdea);
+      setNextSceneIdea(defaultIdea);
+      setShowModeDialog(true);
     } else {
       setShowForm(true);
     }
@@ -126,7 +129,11 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
 
   const handleCustomContinue = () => {
     if (!projectTitle.trim() || !nextSceneIdea.trim()) return;
-    onContinueScene(projectTitle, nextSceneIdea);
+    setShowModeDialog(true);
+  };
+
+  const handleModeSelect = (mode: 'fresh' | 'continue') => {
+    onContinueScene(projectTitle, nextSceneIdea, mode);
   };
 
   if (!showForm) {
@@ -292,7 +299,7 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
                         variant="outline"
                         onClick={() => {
                           setNextSceneIdea(suggestion);
-                          setShowForm(true);
+                          setShowModeDialog(true);
                         }}
                         className="w-full text-left justify-start text-sm border-purple-400/30 text-purple-200 hover:bg-purple-900/30 hover:text-white bg-slate-800/40 p-3 h-auto"
                       >
@@ -482,6 +489,15 @@ For example:
             </div>
           </div>
         </Card>
+
+        {/* Scene Creation Mode Dialog */}
+        <SceneCreationModeDialog
+          open={showModeDialog}
+          onOpenChange={setShowModeDialog}
+          onModeSelect={handleModeSelect}
+          projectTitle={projectTitle}
+          nextSceneIdea={nextSceneIdea}
+        />
       </motion.div>
     </AnimatePresence>
   );

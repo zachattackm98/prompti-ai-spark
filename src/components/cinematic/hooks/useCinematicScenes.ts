@@ -7,19 +7,43 @@ export const useCinematicScenes = (
   createSceneDataFromCurrentState: () => any,
   startNewProject: (title: string, sceneData: any) => any,
   addNewScene: (data: any) => void,
-  loadSceneDataToCurrentState: (data: any) => void,
+  loadSceneDataToCurrentState: (data: any, autoAdvanceToResults?: boolean) => void,
   setCurrentStep: (step: number) => void
 ) => {
-  const handleContinueScene = (projectTitle: string, nextSceneIdea: string) => {
+  const handleContinueScene = (projectTitle: string, nextSceneIdea: string, mode: 'fresh' | 'continue' = 'continue') => {
     const currentSceneData = createSceneDataFromCurrentState();
     const project = startNewProject(projectTitle, currentSceneData);
     
-    // Add the next scene
-    const nextSceneData = {
-      ...currentSceneData,
-      sceneIdea: nextSceneIdea,
-      generatedPrompt: null
-    };
+    // Create next scene data based on mode
+    let nextSceneData;
+    
+    if (mode === 'fresh') {
+      // Fresh Mode: Only carry over basic project metadata
+      nextSceneData = {
+        sceneIdea: nextSceneIdea,
+        selectedPlatform: 'veo3', // Reset to default
+        selectedEmotion: 'dramatic', // Reset to default
+        dialogSettings: { hasDialog: false, dialogType: '', dialogStyle: '', language: '' },
+        soundSettings: { hasSound: false, soundDescription: '' },
+        cameraSettings: { angle: '', movement: '', shot: '' },
+        lightingSettings: { mood: '', style: '', timeOfDay: '' },
+        styleReference: '', // Reset style reference
+        generatedPrompt: null
+      };
+    } else {
+      // Continue Mode: Carry over story elements (characters, setting, style, platform)
+      nextSceneData = {
+        sceneIdea: nextSceneIdea,
+        selectedPlatform: currentSceneData.selectedPlatform, // Keep platform
+        selectedEmotion: currentSceneData.selectedEmotion, // Keep emotion for mood consistency
+        dialogSettings: { hasDialog: false, dialogType: '', dialogStyle: '', language: '' }, // Reset technical
+        soundSettings: { hasSound: false, soundDescription: '' }, // Reset technical
+        cameraSettings: { angle: '', movement: '', shot: '' }, // Reset technical
+        lightingSettings: { mood: '', style: '', timeOfDay: '' }, // Reset technical
+        styleReference: currentSceneData.styleReference, // Keep style reference for visual consistency
+        generatedPrompt: null
+      };
+    }
     
     addNewScene(nextSceneData);
     
@@ -27,7 +51,7 @@ export const useCinematicScenes = (
     loadSceneDataToCurrentState({
       ...nextSceneData,
       sceneNumber: 2
-    });
+    }, false); // Don't auto-advance to step 7 since we're creating a new scene
     
     // Reset to step 1 for the new scene
     setCurrentStep(1);
