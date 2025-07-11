@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import Header from '@/components/landing/Header';
@@ -13,9 +14,25 @@ const Generate = () => {
   const subscriptionContext = useSubscription();
   const { subscription, loading: subscriptionLoading } = subscriptionContext;
   const [showHistory, setShowHistory] = useState(false);
+  const location = useLocation();
 
   // Show loading state during initial load
   const isInitialLoading = authLoading || (user && subscriptionLoading);
+
+  // Auto-scroll to generator when coming from landing page
+  useEffect(() => {
+    if (!isInitialLoading && location.state?.scrollToGenerator) {
+      setTimeout(() => {
+        const generatorElement = document.getElementById('generator-start');
+        if (generatorElement) {
+          generatorElement.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 300); // Small delay to ensure page is fully rendered
+    }
+  }, [isInitialLoading, location.state]);
 
   const handleSignOut = async () => {
     try {

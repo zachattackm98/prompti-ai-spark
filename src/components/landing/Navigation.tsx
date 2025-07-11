@@ -38,6 +38,7 @@ const Navigation = ({ className }: NavigationProps) => {
             </Link>
             <Link 
               to="/generate" 
+              state={{ scrollToGenerator: location.pathname === '/' }}
               className={`
                 group flex items-center space-x-2 px-3 py-2 rounded-lg text-sm lg:text-base font-medium
                 transition-all duration-300 ease-out
