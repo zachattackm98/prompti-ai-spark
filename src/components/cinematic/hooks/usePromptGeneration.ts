@@ -24,7 +24,8 @@ export const usePromptGeneration = (
   formState: FormState,
   setGeneratedPrompt: (prompt: GeneratedPrompt | null) => void,
   setIsLoading: (loading: boolean) => void,
-  setCurrentStep?: (step: number) => void
+  setCurrentStep?: (step: number) => void,
+  clearContinuationMode?: () => void
 ) => {
   const { triggerUsageUpdate } = usePromptUsage();
 
@@ -80,6 +81,11 @@ export const usePromptGeneration = (
         // Navigate to step 8 to show the generated prompt
         if (setCurrentStep) {
           setCurrentStep(8);
+        }
+        
+        // Clear continuation mode when prompt is successfully generated
+        if (clearContinuationMode) {
+          clearContinuationMode();
         }
         
         // Trigger automatic usage update - this will cause all components to re-render

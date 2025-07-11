@@ -66,6 +66,11 @@ export const useCinematicForm = (
     styleReference
   };
 
+  // Clear continuation state when user starts typing or navigates
+  const clearContinuationMode = () => {
+    setIsContinuingScene(false);
+  };
+
   const { handleGenerate } = usePromptGeneration(
     user,
     subscription,
@@ -75,7 +80,8 @@ export const useCinematicForm = (
     formState,
     setGeneratedPrompt,
     setIsLoading,
-    setCurrentStep
+    setCurrentStep,
+    clearContinuationMode
   );
 
   // Continue scene logic - preserve settings and mark as continuation
@@ -96,10 +102,6 @@ export const useCinematicForm = (
     setGeneratedPrompt(null);
   };
 
-  // Clear continuation state when user starts typing or navigates
-  const clearContinuationMode = () => {
-    setIsContinuingScene(false);
-  };
 
   return {
     currentStep,

@@ -40,10 +40,6 @@ const SceneStep: React.FC<SceneStepProps> = ({
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setSceneIdea(e.target.value);
-    // Clear continuation mode when user starts typing
-    if (isContinuingScene && clearContinuationMode && e.target.value.length > 0) {
-      clearContinuationMode();
-    }
   };
 
   const handleNextClick = () => {
