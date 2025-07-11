@@ -19,20 +19,27 @@ export function buildSystemPrompt(request: PromptRequest): string {
 
   let systemPrompt = `${selectedPlatform.system}
 
-Your task is to transform user scene ideas into four distinct components:
+Your task is to transform user scene ideas into four distinct components using markdown headers:
 
-1. MAIN PROMPT: A detailed, cinematic description optimized for AI video generation
-2. TECHNICAL SPECS: Platform-specific technical parameters and settings
-3. STYLE NOTES: Visual style, mood, and artistic direction
-4. METADATA: Structured scene information for continuity (JSON format)
+### MAIN PROMPT
+A detailed, cinematic description optimized for AI video generation (keep under 200 words)
+
+### TECHNICAL SPECS
+Platform-specific technical parameters and settings (keep under 200 words)
+
+### STYLE NOTES
+Visual style, mood, and artistic direction (keep under 200 words)
+
+### METADATA
+Structured scene information for continuity in JSON format
 
 Guidelines:
 - Use specific cinematography terms (wide shot, close-up, dolly zoom, etc.)
 - Include detailed lighting descriptions (golden hour, dramatic shadows, etc.)
 - Specify camera movements and angles
 - Mention color palettes and mood
-- Keep prompts under 200 words each section
 - Make it production-ready and professional
+- IMPORTANT: Use the exact markdown headers above (### MAIN PROMPT, ### TECHNICAL SPECS, ### STYLE NOTES, ### METADATA)
 
 Current scene emotion/mood: ${emotion}
 User subscription tier: ${tier?.toUpperCase()}`;
@@ -149,11 +156,11 @@ export function parsePromptResponse(generatedContent: string, platform: string) 
     storyElements: []
   };
   
-  // More robust parsing approach using individual regex matches
-  const mainPromptMatch = generatedContent.match(/MAIN PROMPT:\s*([\s\S]*?)(?=TECHNICAL SPECS:|STYLE NOTES:|METADATA:|$)/i);
-  const technicalSpecsMatch = generatedContent.match(/TECHNICAL SPECS:\s*([\s\S]*?)(?=STYLE NOTES:|METADATA:|$)/i);
-  const styleNotesMatch = generatedContent.match(/STYLE NOTES:\s*([\s\S]*?)(?=METADATA:|$)/i);
-  const metadataMatch = generatedContent.match(/METADATA:\s*([\s\S]*?)$/i);
+  // Parse using markdown headers - match the first occurrence of each section
+  const mainPromptMatch = generatedContent.match(/###\s*MAIN PROMPT\s*\n([\s\S]*?)(?=###\s*TECHNICAL SPECS|###\s*STYLE NOTES|###\s*METADATA|$)/i);
+  const technicalSpecsMatch = generatedContent.match(/###\s*TECHNICAL SPECS\s*\n([\s\S]*?)(?=###\s*STYLE NOTES|###\s*METADATA|$)/i);
+  const styleNotesMatch = generatedContent.match(/###\s*STYLE NOTES\s*\n([\s\S]*?)(?=###\s*METADATA|$)/i);
+  const metadataMatch = generatedContent.match(/###\s*METADATA\s*\n([\s\S]*?)$/i);
   
   // Extract and clean each section
   const mainPrompt = mainPromptMatch?.[1]?.trim() || generatedContent;
