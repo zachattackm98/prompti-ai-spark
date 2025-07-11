@@ -96,15 +96,15 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
             </p>
             <Button
               onClick={() => onCopyToClipboard(generatedPrompt.mainPrompt)}
-              size={isMobile ? "default" : "sm"}
               variant="outline"
-              className={`
+              className="
+                w-full sm:w-auto h-11 sm:h-10 px-4 sm:px-6
+                text-sm sm:text-base font-medium
                 border-purple-400/30 text-purple-300 hover:bg-purple-900/30 bg-slate-800/40
                 transition-all duration-200
-                ${isMobile ? 'w-full h-10' : 'w-full sm:w-auto text-xs sm:text-sm'}
-              `}
+              "
             >
-              <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+              <Copy className="w-4 h-4 mr-2" />
               Copy Main Prompt
             </Button>
           </div>
@@ -124,16 +124,16 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
             </p>
             <Button
               onClick={handleCopyTechnicalSpecs}
-              size={isMobile ? "default" : "sm"}
               variant="outline"
-              className={`
+              className="
+                w-full sm:w-auto h-11 sm:h-10 px-4 sm:px-6
+                text-sm sm:text-base font-medium
                 border-blue-400/30 text-blue-300 hover:bg-blue-900/30 bg-slate-800/40
                 transition-all duration-200
-                ${isMobile ? 'w-full h-10' : 'w-full sm:w-auto text-xs sm:text-sm'}
-              `}
+              "
             >
-              <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-              Copy Technical Specs
+              <Copy className="w-4 h-4 mr-2" />
+              Copy Specs
             </Button>
           </div>
         </div>
@@ -152,16 +152,16 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
             </p>
             <Button
               onClick={handleCopyStyleNotes}
-              size={isMobile ? "default" : "sm"}
               variant="outline"
-              className={`
+              className="
+                w-full sm:w-auto h-11 sm:h-10 px-4 sm:px-6
+                text-sm sm:text-base font-medium
                 border-pink-400/30 text-pink-300 hover:bg-pink-900/30 bg-slate-800/40
                 transition-all duration-200
-                ${isMobile ? 'w-full h-10' : 'w-full sm:w-auto text-xs sm:text-sm'}
-              `}
+              "
             >
-              <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-              Copy Style Notes
+              <Copy className="w-4 h-4 mr-2" />
+              Copy Style
             </Button>
           </div>
         </div>
@@ -195,15 +195,15 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
             </div>
             <Button
               onClick={handleCopyMetadata}
-              size={isMobile ? "default" : "sm"}
               variant="outline"
-              className={`
+              className="
+                w-full sm:w-auto h-11 sm:h-10 px-4 sm:px-6
+                text-sm sm:text-base font-medium
                 border-emerald-400/30 text-emerald-300 hover:bg-emerald-900/30 bg-slate-800/40
                 transition-all duration-200
-                ${isMobile ? 'w-full h-10' : 'w-full sm:w-auto text-xs sm:text-sm'}
-              `}
+              "
             >
-              <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+              <Copy className="w-4 h-4 mr-2" />
               Copy Metadata
             </Button>
           </div>
@@ -217,54 +217,54 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
       }`}>
         <Button
           onClick={handleCopyAll}
-          size={isMobile ? "lg" : "default"}
-          className={`
+          className="
+            h-11 sm:h-10 px-4 sm:px-6
+            text-sm sm:text-base font-medium
             bg-gradient-to-r from-purple-600 to-pink-600 
             hover:from-purple-700 hover:to-pink-700 text-white
             transition-all duration-200
-            ${isMobile ? 'h-12 text-base font-medium' : 'text-xs sm:text-sm'}
-          `}
+          "
         >
-          <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+          <Copy className="w-4 h-4 mr-2" />
           Copy All (excludes metadata)
         </Button>
         <Button
           onClick={onDownloadPrompt}
           variant="outline"
-          size={isMobile ? "lg" : "default"}
-          className={`
+          className="
+            h-11 sm:h-10 px-4 sm:px-6
+            text-sm sm:text-base font-medium
             border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40
             transition-all duration-200
-            ${isMobile ? 'h-12 text-base' : 'text-xs sm:text-sm'}
-          `}
+          "
         >
-          <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+          <Download className="w-4 h-4 mr-2" />
           Download
         </Button>
         <Button
           onClick={onGenerateNew}
           variant="outline"
-          size={isMobile ? "lg" : "default"}
-          className={`
+          className="
+            h-11 sm:h-10 px-4 sm:px-6
+            text-sm sm:text-base font-medium
             border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40
             transition-all duration-200
-            ${isMobile ? 'h-12 text-base' : 'text-xs sm:text-sm'}
-          `}
+          "
         >
-          <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+          <RotateCcw className="w-4 h-4 mr-2" />
           Generate New
         </Button>
         <Button
           onClick={onContinueScene}
           variant="outline"
-          size={isMobile ? "lg" : "default"}
-          className={`
+          className="
+            h-11 sm:h-10 px-4 sm:px-6
+            text-sm sm:text-base font-medium
             border-purple-400/50 text-purple-300 hover:bg-purple-900/30 hover:text-white bg-slate-800/40
             transition-all duration-200
-            ${isMobile ? 'h-12 text-base' : 'text-xs sm:text-sm'}
-          `}
+          "
         >
-          <Film className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+          <Film className="w-4 h-4 mr-2" />
           Continue Scene
         </Button>
       </div>
