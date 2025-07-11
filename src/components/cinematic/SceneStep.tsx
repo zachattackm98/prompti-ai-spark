@@ -169,7 +169,7 @@ const SceneStep: React.FC<SceneStepProps> = ({
       
       <div className="flex justify-center px-2 sm:px-0 pt-2">
         {isContinuingScene ? (
-          <div className={`flex gap-3 ${isMobile ? 'w-full' : 'w-full sm:w-auto'}`}>
+          <div className={`flex gap-3 ${isMobile ? 'w-full max-w-md mx-auto' : 'w-full sm:w-auto'}`}>
             <Button
               onClick={onCancel}
               variant="outline"
@@ -177,7 +177,7 @@ const SceneStep: React.FC<SceneStepProps> = ({
               className={`
                 border-slate-400 text-slate-200 bg-slate-800/30 hover:bg-slate-700 hover:text-white hover:border-slate-300
                 transition-all duration-200
-                ${isMobile ? 'flex-1 h-12 text-base' : 'px-6'}
+                ${isMobile ? 'flex-1 h-12 text-base max-w-[140px]' : 'px-6'}
               `}
             >
               <X className="w-4 h-4 mr-2" />
@@ -191,7 +191,7 @@ const SceneStep: React.FC<SceneStepProps> = ({
                 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400
                 text-white font-semibold shadow-lg hover:shadow-xl
                 transition-all duration-200
-                ${isMobile ? 'flex-1 h-12 text-base font-medium' : 'px-6'}
+                ${isMobile ? 'flex-1 h-12 text-base font-medium max-w-[180px]' : 'px-6'}
               `}
             >
               Continue Story <ChevronRight className="w-4 h-4 ml-2" />
@@ -206,7 +206,7 @@ const SceneStep: React.FC<SceneStepProps> = ({
               bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700
               text-white transition-all duration-200
               ${isMobile 
-                ? 'w-full h-12 text-base font-medium' 
+                ? 'w-full max-w-sm h-12 text-base font-medium mx-auto' 
                 : 'w-full sm:w-auto'
               }
             `}
