@@ -117,7 +117,7 @@ const DialogStep: React.FC<DialogStepProps> = ({
               <Label htmlFor="dialog-toggle" className="text-white font-medium text-sm sm:text-base">
                 Include Dialog
               </Label>
-              <p className="text-xs sm:text-sm mt-1 text-gray-950">
+              <p className="text-xs sm:text-sm mt-1 text-white">
                 Add spoken words or narration to your video
               </p>
             </div>
