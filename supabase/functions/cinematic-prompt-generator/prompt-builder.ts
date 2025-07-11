@@ -49,7 +49,7 @@ Current scene emotion/mood: ${emotion}
 User subscription tier: ${tier?.toUpperCase()}`;
 
 
-  // Add dialog specifications
+  // Add dialog specifications or explicit no-dialog instruction
   if (dialogSettings?.hasDialog) {
     systemPrompt += `\n\nDIALOG SPECIFICATIONS:
 - Include Dialog: Yes`;
@@ -71,6 +71,10 @@ User subscription tier: ${tier?.toUpperCase()}`;
     }
     
     systemPrompt += `\nPlease incorporate these dialog requirements into your prompts, ensuring the scene includes the specified spoken elements.`;
+  } else {
+    // Explicitly instruct to avoid dialogue when not requested
+    systemPrompt += `\n\nIMPORTANT - NO DIALOGUE INSTRUCTION:
+DO NOT include any dialogue, conversations, spoken words, or narration in your prompts unless specifically requested. Focus purely on visual cinematography, camera work, lighting, and scene composition. The scene should be entirely visual without any verbal communication between characters.`;
   }
 
   // Add sound specifications
