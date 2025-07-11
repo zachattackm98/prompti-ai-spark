@@ -5,7 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 import AuthControls from './AuthControls';
 import { useAuth } from '@/hooks/useAuth';
 import { isAdminUser } from '@/utils/adminUtils';
-import { scrollToTop } from '@/utils/scrollUtils';
+import { scrollToTop, scrollToElementById } from '@/utils/scrollUtils';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -41,6 +41,17 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
     // Let React Router handle the navigation to landing page with hash
   };
 
+  const handleGenerateClick = (e: React.MouseEvent) => {
+    if (isGeneratePage) {
+      e.preventDefault();
+      onClose();
+      // Scroll to the generator form if already on the generate page
+      scrollToElementById('generator-start', 'smooth', 120);
+    } else {
+      onClose();
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, height: 0 }}
@@ -54,7 +65,7 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
           <Link 
             to="/generate" 
             className="text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base no-underline"
-            onClick={onClose}
+            onClick={handleGenerateClick}
           >
             Generate
           </Link>

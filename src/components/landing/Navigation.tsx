@@ -3,6 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { isAdminUser } from '@/utils/adminUtils';
+import { scrollToElementById } from '@/utils/scrollUtils';
 import { Clapperboard } from 'lucide-react';
 
 interface NavigationProps {
@@ -16,6 +17,14 @@ const Navigation = ({ className }: NavigationProps) => {
   
   // Check if we're on the Generate page to determine link behavior
   const isGeneratePage = location.pathname === '/generate';
+
+  const handleGenerateClick = (e: React.MouseEvent) => {
+    if (isGeneratePage) {
+      e.preventDefault();
+      // Scroll to the generator form if already on the generate page
+      scrollToElementById('generator-start', 'smooth', 120);
+    }
+  };
 
   return (
     <nav className={`hidden md:flex ${className || ''}`}>
@@ -39,6 +48,7 @@ const Navigation = ({ className }: NavigationProps) => {
             <Link 
               to="/generate" 
               state={{ scrollToGenerator: location.pathname === '/' }}
+              onClick={handleGenerateClick}
               className={`
                 group flex items-center space-x-2 px-3 py-2 rounded-lg text-sm lg:text-base font-medium
                 transition-all duration-300 ease-out
