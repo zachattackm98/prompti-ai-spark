@@ -15,6 +15,7 @@ import FAQ from './landing/FAQ';
 import FinalCTA from './landing/FinalCTA';
 import PopularResources from './landing/PopularResources';
 import Footer from './landing/Footer';
+import CinematicPromptGenerator from './CinematicPromptGenerator';
 
 
 const LandingPage = () => {
@@ -44,6 +45,14 @@ const LandingPage = () => {
       <SocialProof />
       <Benefits />
       <Process />
+      
+      {/* Prompt Generator for unauthenticated users */}
+      {!user && (
+        <section id="generator" className="py-16">
+          <CinematicPromptGenerator />
+        </section>
+      )}
+      
       <Features />
       <Testimonials />
       <Pricing />
