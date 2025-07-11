@@ -4,7 +4,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import CinematicForm from './cinematic/CinematicForm';
 import AuthDialog from './AuthDialog';
-import ComingSoonDialog from './ComingSoonDialog';
 
 interface CinematicPromptGeneratorProps {
   showHistory?: boolean;
@@ -18,12 +17,19 @@ const CinematicPromptGenerator: React.FC<CinematicPromptGeneratorProps> = ({
   onSignOut
 }) => {
   const { user } = useAuth();
-  const { subscription } = useSubscription();
+  const subscription = useSubscription();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
 
-  const handleUpgrade = () => {
-    setShowUpgradeDialog(true);
+  const handleUpgrade = async () => {
+    if (!user) {
+      setShowAuthDialog(true);
+      return;
+    }
+    try {
+      await subscription.createCheckout('creator');
+    } catch (error) {
+      console.error('Upgrade error:', error);
+    }
   };
 
   return (
@@ -39,11 +45,6 @@ const CinematicPromptGenerator: React.FC<CinematicPromptGeneratorProps> = ({
       <AuthDialog 
         open={showAuthDialog} 
         onOpenChange={setShowAuthDialog}
-      />
-      
-      <ComingSoonDialog 
-        open={showUpgradeDialog} 
-        onOpenChange={setShowUpgradeDialog}
       />
     </>
   );

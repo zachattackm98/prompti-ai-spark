@@ -10,7 +10,8 @@ import Footer from '@/components/landing/Footer';
 
 const Generate = () => {
   const { user, loading: authLoading, signOut } = useAuth();
-  const { subscription, loading: subscriptionLoading } = useSubscription();
+  const subscriptionContext = useSubscription();
+  const { subscription, loading: subscriptionLoading } = subscriptionContext;
   const [showHistory, setShowHistory] = useState(false);
 
   // Show loading state during initial load
@@ -24,9 +25,13 @@ const Generate = () => {
     }
   };
 
-  const handleUpgrade = () => {
-    // This would open upgrade dialog - placeholder for now
-    console.log('Upgrade clicked');
+  const handleUpgrade = async () => {
+    if (!user) return;
+    try {
+      await subscriptionContext.createCheckout('creator');
+    } catch (error) {
+      console.error('Upgrade error:', error);
+    }
   };
 
   if (isInitialLoading) {
