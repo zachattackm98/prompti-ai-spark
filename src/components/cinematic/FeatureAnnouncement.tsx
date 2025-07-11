@@ -36,11 +36,11 @@ const FeatureAnnouncement = ({ userTier, className = '' }: FeatureAnnouncementPr
           </div>
           <div className="flex items-center justify-center gap-1">
             <History className="w-2.5 h-2.5 text-blue-400 flex-shrink-0" />
-            <span>Coming: History</span>
+            <span>History</span>
           </div>
           <div className="flex items-center justify-center gap-1">
             <Film className="w-2.5 h-2.5 text-purple-400 flex-shrink-0" />
-            <span>Coming: Multi-Scene</span>
+            <span>Multi-Scene</span>
           </div>
         </div>
       </div>

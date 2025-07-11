@@ -35,8 +35,8 @@ export const pricingPlans: PricingPlan[] = [
       "500 prompts per month",
       "Everything in Starter plan",
       "Priority support",
-      "🚀 Coming Soon: Prompt history saving",
-      "🚀 Coming Soon: Advanced analytics"
+      "Prompt history saving",
+      "Advanced analytics"
     ],
     cta: "Upgrade to Creator",
     popular: true,
@@ -53,7 +53,7 @@ export const pricingPlans: PricingPlan[] = [
       "Everything in Creator plan", 
       "Team collaboration tools",
       "API access for integrations",
-      "🚀 Coming Soon: Multi-scene projects",
+      "Multi-scene projects",
       "Priority access to new platforms",
       "Dedicated support manager"
     ],
