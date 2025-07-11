@@ -15,7 +15,7 @@ import FAQ from './landing/FAQ';
 import FinalCTA from './landing/FinalCTA';
 import PopularResources from './landing/PopularResources';
 import Footer from './landing/Footer';
-import CinematicPromptGenerator from './CinematicPromptGenerator';
+
 
 const LandingPage = () => {
   const { user, loading: authLoading } = useAuth();
@@ -40,26 +40,11 @@ const LandingPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <Header />
       
-      {user && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-green-500/20 border-b border-green-500/30 py-3 pt-20 sm:pt-24"
-        >
-          <div className="container mx-auto px-4 text-center">
-            <p className="text-green-300 font-medium">
-              Welcome back! Ready to create amazing video prompts?
-            </p>
-          </div>
-        </motion.div>
-      )}
-      
       <Hero user={user} subscription={subscription} />
       <SocialProof />
       <Benefits />
       <Process />
       <Features />
-      <CinematicPromptGenerator />
       <Testimonials />
       <Pricing />
       <FAQ />

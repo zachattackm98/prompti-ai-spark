@@ -1,11 +1,13 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import LandingPage from '@/components/LandingPage';
 import ConfirmationSuccess from '@/components/auth/ConfirmationSuccess';
 
 const Index = () => {
+  const navigate = useNavigate();
   const { confirmationSuccess, loading: authLoading, user } = useAuth();
   const { loading: subscriptionLoading } = useSubscription();
 
@@ -14,6 +16,13 @@ const Index = () => {
     // Only show loading if auth is actually loading or if we have a user but subscription is loading
     return authLoading || (user && subscriptionLoading);
   }, [authLoading, user, subscriptionLoading]);
+
+  // Redirect authenticated users to generate page
+  useEffect(() => {
+    if (!isLoading && user && !confirmationSuccess) {
+      navigate('/generate', { replace: true });
+    }
+  }, [isLoading, user, confirmationSuccess, navigate]);
 
   // Show loading state while checking auth and subscription
   if (isLoading) {
@@ -29,7 +38,7 @@ const Index = () => {
     return <ConfirmationSuccess />;
   }
 
-  // Show regular landing page with proper loading coordination
+  // Show regular landing page for unauthenticated users only
   return <LandingPage />;
 };
 

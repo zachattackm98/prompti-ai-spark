@@ -19,43 +19,52 @@ const Navigation = ({ className }: NavigationProps) => {
   return (
     <nav className={`hidden md:flex ${className || ''}`}>
       <div className="flex items-center space-x-6 lg:space-x-8">
-        {user && (
-          <Link to="/generate" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-            Generate
-          </Link>
-        )}
-        
-        {/* Features Link */}
-        {isGeneratePage ? (
-          <Link to="/#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-            Features
-          </Link>
+        {/* Show different navigation based on auth status */}
+        {user ? (
+          <>
+            {/* Authenticated user navigation */}
+            <Link to="/generate" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+              Generate
+            </Link>
+            <Link to="/#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+              Features
+            </Link>
+            <Link to="/#process" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+              How it Works
+            </Link>
+            <Link to="/#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+              Pricing
+            </Link>
+          </>
         ) : (
-          <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-            Features
-          </a>
-        )}
-        
-        {/* How it Works Link */}
-        {isGeneratePage ? (
-          <Link to="/#process" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-            How it Works
-          </Link>
-        ) : (
-          <a href="#process" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-            How it Works
-          </a>
-        )}
-        
-        {/* Pricing Link */}
-        {isGeneratePage ? (
-          <Link to="/#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-            Pricing
-          </Link>
-        ) : (
-          <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-            Pricing
-          </a>
+          <>
+            {/* Unauthenticated user navigation */}
+            {isGeneratePage ? (
+              <>
+                <Link to="/#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                  Features
+                </Link>
+                <Link to="/#process" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                  How it Works
+                </Link>
+                <Link to="/#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                  Pricing
+                </Link>
+              </>
+            ) : (
+              <>
+                <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                  Features
+                </a>
+                <a href="#process" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                  How it Works
+                </a>
+                <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                  Pricing
+                </a>
+              </>
+            )}
+          </>
         )}
         
         {showTestingLink && (
