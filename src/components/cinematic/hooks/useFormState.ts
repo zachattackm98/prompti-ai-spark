@@ -69,7 +69,7 @@ export const useFormState = () => {
     generatedPrompt
   });
 
-  const loadSceneDataToCurrentState = (sceneData: SceneData) => {
+  const loadSceneDataToCurrentState = (sceneData: SceneData, autoAdvanceToResults: boolean = true) => {
     console.log('useFormState: Loading scene data to current state:', sceneData.sceneNumber);
     setSceneIdea(sceneData.sceneIdea);
     setSelectedPlatform(sceneData.selectedPlatform);
@@ -80,6 +80,12 @@ export const useFormState = () => {
     setLightingSettings(sceneData.lightingSettings);
     setStyleReference(sceneData.styleReference);
     setGeneratedPrompt(sceneData.generatedPrompt);
+    
+    // Auto-advance to step 7 if there's a generated prompt and autoAdvance is enabled
+    if (autoAdvanceToResults && sceneData.generatedPrompt) {
+      console.log('useFormState: Auto-advancing to step 7 due to existing generated prompt');
+      setCurrentStep(7);
+    }
   };
 
   // Create a custom loadProjectById that integrates with form state
