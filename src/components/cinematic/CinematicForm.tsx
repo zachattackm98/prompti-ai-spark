@@ -98,8 +98,8 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
         id="cinematic-generator"
         className={`relative overflow-hidden ${
           isMobile 
-            ? 'py-4 px-0 min-h-screen' 
-            : 'py-8 sm:py-16 px-6'
+            ? 'pt-2 pb-4 px-0 min-h-screen' 
+            : 'pt-4 pb-8 sm:pt-6 sm:pb-16 px-6'
         }`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
