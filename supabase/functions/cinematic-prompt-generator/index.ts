@@ -65,7 +65,7 @@ serve(async (req) => {
     // Increment prompt count for all tiers after successful generation
     await incrementPromptCount(user.id, tier);
 
-    // Save to prompt history
+    // Save to prompt history with detailed settings
     try {
       await supabase
         .from('prompt_history')
@@ -75,7 +75,13 @@ serve(async (req) => {
           platform: platform,
           style: styleReference || '',
           emotion: emotion,
-          generated_prompt: JSON.stringify(prompt)
+          generated_prompt: JSON.stringify(prompt),
+          dialog_settings: dialogSettings || {},
+          sound_settings: soundSettings || {},
+          camera_settings: cameraSettings || {},
+          lighting_settings: lightingSettings || {},
+          previous_scene_context: sceneContext || null,
+          is_continuation: isMultiScene || false
         });
     } catch (dbError) {
       console.error('Error saving to prompt history:', dbError);

@@ -11,6 +11,12 @@ export interface PromptHistoryItem {
   emotion: string;
   generated_prompt: string;
   created_at: string;
+  dialog_settings?: any;
+  sound_settings?: any;
+  camera_settings?: any;
+  lighting_settings?: any;
+  previous_scene_context?: any;
+  is_continuation?: boolean;
 }
 
 export const usePromptHistory = () => {

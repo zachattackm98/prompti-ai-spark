@@ -82,12 +82,16 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
       sceneIdea: historyItem.scene_idea,
       selectedPlatform: historyItem.platform,
       selectedEmotion: historyItem.emotion,
-      dialogSettings: { hasDialog: false, dialogType: '', dialogStyle: '', language: '', dialogContent: '' },
-      soundSettings: { hasSound: false, musicGenre: undefined, soundEffects: undefined, ambience: undefined, soundDescription: '' },
-      cameraSettings: { angle: '', movement: '', shot: '' },
-      lightingSettings: { mood: '', style: '', timeOfDay: '' },
+      dialogSettings: historyItem.dialog_settings || { hasDialog: false, dialogType: '', dialogStyle: '', language: '', dialogContent: '' },
+      soundSettings: historyItem.sound_settings || { hasSound: false, musicGenre: undefined, soundEffects: undefined, ambience: undefined, soundDescription: '' },
+      cameraSettings: historyItem.camera_settings || { angle: '', movement: '', shot: '' },
+      lightingSettings: historyItem.lighting_settings || { mood: '', style: '', timeOfDay: '' },
       styleReference: historyItem.style || '',
-      generatedPrompt: JSON.parse(historyItem.generated_prompt)
+      generatedPrompt: JSON.parse(historyItem.generated_prompt),
+      // Restore continuation context if this was a continuation scene
+      ...(historyItem.is_continuation && historyItem.previous_scene_context && {
+        sceneContext: historyItem.previous_scene_context
+      })
     };
     
     loadPromptDataToCurrentState(promptData, true);

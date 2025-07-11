@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Download, Copy, Eye, EyeOff, Film } from 'lucide-react';
+import { Trash2, Download, Copy, Eye, EyeOff, Film, Link } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { PromptHistoryItem as PromptHistoryItemType } from '@/hooks/usePromptHistory';
 
@@ -78,6 +78,12 @@ const PromptHistoryItem: React.FC<PromptHistoryItemProps> = ({
         <Badge className={getEmotionColor(item.emotion)}>
           {item.emotion}
         </Badge>
+        {item.is_continuation && (
+          <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30">
+            <Link className="w-3 h-3 mr-1" />
+            Continuation
+          </Badge>
+        )}
         {item.style && (
           <Badge variant="outline" className="text-gray-300 border-gray-500">
             {item.style.length > 20 ? `${item.style.substring(0, 20)}...` : item.style}
@@ -100,6 +106,47 @@ const PromptHistoryItem: React.FC<PromptHistoryItemProps> = ({
               <h5 className="font-medium text-pink-300 mb-1">Style Notes:</h5>
               <p className="text-gray-300 leading-relaxed">{promptData.styleNotes}</p>
             </div>
+            
+            {/* Show detailed settings if available */}
+            {(item.camera_settings || item.lighting_settings || item.dialog_settings || item.sound_settings) && (
+              <div className="border-t border-slate-600 pt-3 mt-3">
+                <h5 className="font-medium text-cyan-300 mb-2">Settings Used:</h5>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {item.camera_settings && (item.camera_settings.shot || item.camera_settings.angle || item.camera_settings.movement) && (
+                    <div>
+                      <span className="text-cyan-200 font-medium">Camera:</span>
+                      <div className="text-gray-400">
+                        {[item.camera_settings.shot, item.camera_settings.angle, item.camera_settings.movement].filter(Boolean).join(', ')}
+                      </div>
+                    </div>
+                  )}
+                  {item.lighting_settings && (item.lighting_settings.mood || item.lighting_settings.style || item.lighting_settings.timeOfDay) && (
+                    <div>
+                      <span className="text-yellow-200 font-medium">Lighting:</span>
+                      <div className="text-gray-400">
+                        {[item.lighting_settings.mood, item.lighting_settings.style, item.lighting_settings.timeOfDay].filter(Boolean).join(', ')}
+                      </div>
+                    </div>
+                  )}
+                  {item.dialog_settings && item.dialog_settings.hasDialog && (
+                    <div>
+                      <span className="text-green-200 font-medium">Dialog:</span>
+                      <div className="text-gray-400">
+                        {item.dialog_settings.dialogType} ({item.dialog_settings.language})
+                      </div>
+                    </div>
+                  )}
+                  {item.sound_settings && item.sound_settings.hasSound && (
+                    <div>
+                      <span className="text-orange-200 font-medium">Sound:</span>
+                      <div className="text-gray-400">
+                        {item.sound_settings.soundDescription || 'Custom sound enabled'}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

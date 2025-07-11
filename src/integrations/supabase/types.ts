@@ -129,32 +129,50 @@ export type Database = {
       }
       prompt_history: {
         Row: {
+          camera_settings: Json | null
           created_at: string | null
+          dialog_settings: Json | null
           emotion: string
           generated_prompt: string
           id: string
+          is_continuation: boolean | null
+          lighting_settings: Json | null
           platform: string
+          previous_scene_context: Json | null
           scene_idea: string
+          sound_settings: Json | null
           style: string | null
           user_id: string
         }
         Insert: {
+          camera_settings?: Json | null
           created_at?: string | null
+          dialog_settings?: Json | null
           emotion: string
           generated_prompt: string
           id?: string
+          is_continuation?: boolean | null
+          lighting_settings?: Json | null
           platform: string
+          previous_scene_context?: Json | null
           scene_idea: string
+          sound_settings?: Json | null
           style?: string | null
           user_id: string
         }
         Update: {
+          camera_settings?: Json | null
           created_at?: string | null
+          dialog_settings?: Json | null
           emotion?: string
           generated_prompt?: string
           id?: string
+          is_continuation?: boolean | null
+          lighting_settings?: Json | null
           platform?: string
+          previous_scene_context?: Json | null
           scene_idea?: string
+          sound_settings?: Json | null
           style?: string | null
           user_id?: string
         }
