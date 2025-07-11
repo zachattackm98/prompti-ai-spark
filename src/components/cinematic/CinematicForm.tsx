@@ -142,9 +142,11 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               setLightingSettings={setLightingSettings}
               styleReference={styleReference}
               setStyleReference={setStyleReference}
+              generatedPrompt={generatedPrompt}
               handleNext={handleNext}
               handlePrevious={handlePrevious}
               handleGenerate={handleGenerate}
+              handleGenerateNew={handleGenerateNew}
               isLoading={isLoading}
               setShowAuthDialog={setShowAuthDialog}
             />

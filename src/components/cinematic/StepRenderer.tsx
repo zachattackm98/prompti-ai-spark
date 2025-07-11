@@ -7,7 +7,8 @@ import SoundStep from './SoundStep';
 import CameraControlsStep from './CameraControlsStep';
 import LightingStep from './LightingStep';
 import StyleStep from './StyleStep';
-import { CameraSettings, LightingSettings, DialogSettings, SoundSettings } from './useCinematicForm';
+import GeneratedPromptDisplay from './GeneratedPromptDisplay';
+import { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './useCinematicForm';
 
 interface StepRendererProps {
   currentStep: number;
@@ -31,11 +32,13 @@ interface StepRendererProps {
   setLightingSettings: (settings: LightingSettings) => void;
   styleReference: string;
   setStyleReference: (value: string) => void;
+  generatedPrompt: GeneratedPrompt | null;
   
   // Handlers
   handleNext: () => void;
   handlePrevious: () => void;
   handleGenerate: () => void;
+  handleGenerateNew: () => void;
   isLoading: boolean;
   setShowAuthDialog?: (show: boolean) => void;
 }
@@ -60,12 +63,37 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   setLightingSettings,
   styleReference,
   setStyleReference,
+  generatedPrompt,
   handleNext,
   handlePrevious,
   handleGenerate,
+  handleGenerateNew,
   isLoading,
   setShowAuthDialog
 }) => {
+  // If there's a generated prompt, show it instead of the form steps
+  if (generatedPrompt) {
+    return (
+      <div className="space-y-6">
+        <GeneratedPromptDisplay
+          generatedPrompt={generatedPrompt}
+          onCopyToClipboard={(text) => {
+            navigator.clipboard.writeText(text);
+          }}
+          onDownloadPrompt={() => {
+            const blob = new Blob([`${generatedPrompt.mainPrompt}\n\n${generatedPrompt.technicalSpecs}\n\n${generatedPrompt.styleNotes}`], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cinematic-prompt.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          onGenerateNew={handleGenerateNew}
+        />
+      </div>
+    );
+  }
   // Step 1: Scene
   if (currentStep === 1) {
     return (

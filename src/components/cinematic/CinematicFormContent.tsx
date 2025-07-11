@@ -5,7 +5,7 @@ import StepIndicator from './StepIndicator';
 import StepRenderer from './StepRenderer';
 import SceneSelector from './SceneSelector';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { CameraSettings, LightingSettings, DialogSettings, SoundSettings } from './useCinematicForm';
+import { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './useCinematicForm';
 
 interface CinematicFormContentProps {
   isMultiScene: boolean;
@@ -33,9 +33,11 @@ interface CinematicFormContentProps {
   setLightingSettings: (settings: LightingSettings) => void;
   styleReference: string;
   setStyleReference: (value: string) => void;
+  generatedPrompt: GeneratedPrompt | null;
   handleNext: () => void;
   handlePrevious: () => void;
   handleGenerate: () => void;
+  handleGenerateNew: () => void;
   isLoading: boolean;
   setShowAuthDialog?: (show: boolean) => void;
 }
@@ -66,9 +68,11 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
   setLightingSettings,
   styleReference,
   setStyleReference,
+  generatedPrompt,
   handleNext,
   handlePrevious,
   handleGenerate,
+  handleGenerateNew,
   isLoading,
   setShowAuthDialog
 }) => {
@@ -119,9 +123,11 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
               setLightingSettings={setLightingSettings}
               styleReference={styleReference}
               setStyleReference={setStyleReference}
+              generatedPrompt={generatedPrompt}
               handleNext={handleNext}
               handlePrevious={handlePrevious}
               handleGenerate={handleGenerate}
+              handleGenerateNew={handleGenerateNew}
               isLoading={isLoading}
               setShowAuthDialog={setShowAuthDialog}
             />
