@@ -90,6 +90,17 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     };
     
     loadPromptDataToCurrentState(promptData, true);
+    
+    // Scroll to top of form content
+    setTimeout(() => {
+      const formContent = document.getElementById('form-content');
+      if (formContent) {
+        formContent.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }
+    }, 100);
   };
 
   return (
