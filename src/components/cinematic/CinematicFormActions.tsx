@@ -2,42 +2,42 @@
 import React from 'react';
 import GeneratedPromptDisplay from './GeneratedPromptDisplay';
 import CinematicUpgradeSection from './CinematicUpgradeSection';
-import StreamlinedContinuation from './StreamlinedContinuation';
-import { GeneratedPrompt } from './useCinematicForm';
+import { GeneratedPrompt } from './types';
 
 interface CinematicFormActionsProps {
   generatedPrompt: GeneratedPrompt | null;
-  isMultiScene: boolean;
   handleGenerateNew: () => void;
-  handleContinueScene: (projectTitle: string, nextSceneIdea: string, mode?: 'fresh' | 'continue') => void;
+  handleContinueScene: (projectTitle: string, nextSceneIdea: string) => void;
+  onCopyToClipboard: (text: string) => void;
+  onDownloadPrompt: () => void;
   user: any;
   canUseFeature: (feature: string) => boolean;
   subscription: any;
   onUpgrade: () => void;
-  currentProject?: any; // Add currentProject prop
 }
 
 const CinematicFormActions: React.FC<CinematicFormActionsProps> = ({
   generatedPrompt,
-  isMultiScene,
   handleGenerateNew,
   handleContinueScene,
+  onCopyToClipboard,
+  onDownloadPrompt,
   user,
   canUseFeature,
   subscription,
-  onUpgrade,
-  currentProject
+  onUpgrade
 }) => {
   if (!generatedPrompt) return null;
 
   return (
     <>
-      {/* Streamlined Continuation for Both Single and Multi-Scene */}
-      <StreamlinedContinuation
+      {/* Simplified GeneratedPromptDisplay with 4 action buttons */}
+      <GeneratedPromptDisplay
         generatedPrompt={generatedPrompt}
+        onCopyToClipboard={onCopyToClipboard}
+        onDownloadPrompt={onDownloadPrompt}
+        onGenerateNew={handleGenerateNew}
         onContinueScene={handleContinueScene}
-        onStartOver={handleGenerateNew}
-        currentScenes={currentProject?.scenes || []}
       />
 
       {/* Upgrade Section for Starter Users */}

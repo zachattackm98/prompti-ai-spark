@@ -153,14 +153,31 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
 
             <CinematicFormActions
               generatedPrompt={generatedPrompt}
-              isMultiScene={isMultiScene}
               handleGenerateNew={handleGenerateNew}
-              handleContinueScene={handleContinueScene}
+              handleContinueScene={(projectTitle: string, nextSceneIdea: string) => 
+                handleContinueScene(projectTitle, nextSceneIdea, 'continue')
+              }
+              onCopyToClipboard={(text: string) => {
+                navigator.clipboard.writeText(text);
+              }}
+              onDownloadPrompt={() => {
+                if (generatedPrompt) {
+                  const content = `${generatedPrompt.mainPrompt}\n\n${generatedPrompt.technicalSpecs}\n\n${generatedPrompt.styleNotes}`;
+                  const blob = new Blob([content], { type: 'text/plain' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'cinematic-prompt.txt';
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }
+              }}
               user={user}
               canUseFeature={subscriptionHelpers.canUseFeature}
               subscription={subscription}
               onUpgrade={onUpgrade}
-              currentProject={currentProject}
             />
 
             {/* Enhanced History and Project Tabs */}

@@ -87,18 +87,18 @@ export const useHistoryScenes = (
           sceneNumber: 1
         });
 
-        // Set current step to 1 to start fresh workflow for scene 2
-        setCurrentStep(1);
+        // Set current step to 7 (GeneratedPromptDisplay) to load directly to prompt display
+        setCurrentStep(7);
 
         // Scroll to form
         setTimeout(() => {
-          console.log('useHistoryScenes: Scrolling to step 1 for scene 2 workflow');
-          scrollToStepContent(1);
+          console.log('useHistoryScenes: Scrolling to step 7 for prompt display');
+          scrollToStepContent(7);
         }, 200);
 
         toast({
-          title: "Multi-Scene Project Created!",
-          description: "Scene 1 is ready. Continue with Scene 2 setup.",
+          title: "Prompt Loaded!",
+          description: "History prompt loaded. You can now continue the scene or generate new.",
         });
       }
     } catch (error) {

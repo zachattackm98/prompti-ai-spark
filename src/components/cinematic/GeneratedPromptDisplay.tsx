@@ -7,23 +7,25 @@ import { GeneratedPrompt } from './types';
 import { platforms } from './constants';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import ContinueScenePrompt from './ContinueScenePrompt';
 
 interface GeneratedPromptDisplayProps {
   generatedPrompt: GeneratedPrompt;
   onCopyToClipboard: (text: string) => void;
   onDownloadPrompt: () => void;
   onGenerateNew: () => void;
+  onContinueScene?: (projectTitle: string, nextSceneIdea: string) => void;
 }
 
 const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
   generatedPrompt,
   onCopyToClipboard,
   onDownloadPrompt,
-  onGenerateNew
+  onGenerateNew,
+  onContinueScene
 }) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const isMultiScene = generatedPrompt.sceneNumber && generatedPrompt.totalScenes && generatedPrompt.totalScenes > 1;
 
   const handleCopyAll = () => {
     const fullPrompt = `${generatedPrompt.mainPrompt}\n\n${generatedPrompt.technicalSpecs}\n\n${generatedPrompt.styleNotes}`;
@@ -45,17 +47,11 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
         <h3 className={`font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent leading-tight ${
           isMobile ? 'text-lg' : 'text-xl sm:text-2xl'
         }`}>
-          {isMultiScene ? `Scene ${generatedPrompt.sceneNumber} Complete!` : 'Your Cinematic Prompt is Ready!'}
+          Your Cinematic Prompt is Ready!
         </h3>
         <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-purple-300 flex-wrap">
           <Star className="w-3 h-3 sm:w-4 sm:h-4" />
           <span>Optimized for {platforms.find(p => p.id === generatedPrompt.platform)?.name}</span>
-          {isMultiScene && (
-            <>
-              <Film className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span>{generatedPrompt.sceneNumber}/{generatedPrompt.totalScenes} Scenes</span>
-            </>
-          )}
           <Star className="w-3 h-3 sm:w-4 sm:h-4" />
         </div>
       </div>
@@ -66,7 +62,7 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
             <h4 className={`font-semibold text-purple-300 mb-2 sm:mb-3 ${
               isMobile ? 'text-base' : 'text-base sm:text-lg'
             }`}>
-              Main Prompt{isMultiScene ? ` - Scene ${generatedPrompt.sceneNumber}` : ''}
+              Main Prompt
             </h4>
             <p className={`text-gray-200 leading-relaxed mb-3 ${
               isMobile ? 'text-sm' : 'text-sm sm:text-base'
@@ -123,7 +119,7 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
       <div className={`pt-2 sm:pt-4 ${
         isMobile 
           ? 'flex flex-col gap-3' 
-          : 'flex flex-col sm:flex-row justify-center gap-2 sm:gap-4'
+          : 'grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4'
       }`}>
         <Button
           onClick={handleCopyAll}
@@ -132,7 +128,7 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
             bg-gradient-to-r from-purple-600 to-pink-600 
             hover:from-purple-700 hover:to-pink-700 text-white
             transition-all duration-200
-            ${isMobile ? 'h-12 order-1 text-base font-medium' : 'text-xs sm:text-sm w-full sm:w-auto order-1'}
+            ${isMobile ? 'h-12 text-base font-medium' : 'text-xs sm:text-sm'}
           `}
         >
           <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
@@ -145,7 +141,7 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
           className={`
             border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40
             transition-all duration-200
-            ${isMobile ? 'h-12 order-2 text-base' : 'text-xs sm:text-sm w-full sm:w-auto order-2'}
+            ${isMobile ? 'h-12 text-base' : 'text-xs sm:text-sm'}
           `}
         >
           <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
@@ -158,12 +154,31 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
           className={`
             border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40
             transition-all duration-200
-            ${isMobile ? 'h-12 order-3 text-base' : 'text-xs sm:text-sm w-full sm:w-auto order-3'}
+            ${isMobile ? 'h-12 text-base' : 'text-xs sm:text-sm'}
           `}
         >
           <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-          {isMultiScene ? 'New Project' : 'Generate New'}
+          Generate New
         </Button>
+        {onContinueScene && (
+          <ContinueScenePrompt
+            generatedPrompt={generatedPrompt}
+            onContinueScene={onContinueScene}
+          >
+            <Button
+              variant="outline"
+              size={isMobile ? "lg" : "default"}
+              className={`
+                border-purple-400/50 text-purple-300 hover:bg-purple-900/30 hover:text-white bg-slate-800/40
+                transition-all duration-200
+                ${isMobile ? 'h-12 text-base' : 'text-xs sm:text-sm'}
+              `}
+            >
+              <Film className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+              Continue Scene
+            </Button>
+          </ContinueScenePrompt>
+        )}
       </div>
     </motion.div>
   );

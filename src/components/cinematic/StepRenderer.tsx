@@ -7,7 +7,7 @@ import SoundStep from './SoundStep';
 import CameraControlsStep from './CameraControlsStep';
 import LightingStep from './LightingStep';
 import StyleStep from './StyleStep';
-import GeneratedPromptDisplay from './GeneratedPromptDisplay';
+
 
 import { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './useCinematicForm';
 
@@ -163,43 +163,20 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       );
     }
 
-    // Step 7: Show generated prompt if available, otherwise show style step
+    // Step 7: Style Step
     if (currentStep === 7) {
-      if (generatedPrompt) {
-        return (
-          <div id="step-content-7">
-            <GeneratedPromptDisplay
-              generatedPrompt={generatedPrompt}
-              onCopyToClipboard={(text) => {
-                navigator.clipboard.writeText(text);
-              }}
-              onDownloadPrompt={() => {
-                const blob = new Blob([`${generatedPrompt.mainPrompt}\n\n${generatedPrompt.technicalSpecs}\n\n${generatedPrompt.styleNotes}`], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'cinematic-prompt.txt';
-                a.click();
-                URL.revokeObjectURL(url);
-              }}
-              onGenerateNew={handleGenerateNew}
-            />
-          </div>
-        );
-      } else {
-        return (
-          <div id="step-content-7">
-            <StyleStep
-              styleReference={styleReference}
-              setStyleReference={setStyleReference}
-              onPrevious={handlePrevious}
-              onGenerate={handleGenerate}
-              isLoading={isLoading}
-              showUpgrade={false}
-            />
-          </div>
-        );
-      }
+      return (
+        <div id="step-content-7">
+          <StyleStep
+            styleReference={styleReference}
+            setStyleReference={setStyleReference}
+            onPrevious={handlePrevious}
+            onGenerate={handleGenerate}
+            isLoading={isLoading}
+            showUpgrade={false}
+          />
+        </div>
+      );
     }
 
     return null;
