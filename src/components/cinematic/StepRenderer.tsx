@@ -94,6 +94,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
             setShowAuthDialog={setShowAuthDialog}
             isContinuingScene={isContinuingScene}
             clearContinuationMode={clearContinuationMode}
+            onCancel={handleGenerateNew}
             selectedPlatform={selectedPlatform}
             selectedEmotion={selectedEmotion}
             cameraSettings={cameraSettings}

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronRight, Settings, Camera, Lightbulb, Palette } from 'lucide-react';
+import { ChevronRight, Settings, Camera, Lightbulb, Palette, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -15,6 +15,7 @@ interface SceneStepProps {
   setShowAuthDialog?: (show: boolean) => void;
   isContinuingScene?: boolean;
   clearContinuationMode?: () => void;
+  onCancel?: () => void;
   selectedPlatform?: string;
   selectedEmotion?: string;
   cameraSettings?: { angle: string; movement: string; shot: string };
@@ -29,6 +30,7 @@ const SceneStep: React.FC<SceneStepProps> = ({
   setShowAuthDialog,
   isContinuingScene = false,
   clearContinuationMode,
+  onCancel,
   selectedPlatform,
   selectedEmotion,
   cameraSettings,
@@ -166,24 +168,51 @@ const SceneStep: React.FC<SceneStepProps> = ({
       </div>
       
       <div className="flex justify-center px-2 sm:px-0 pt-2">
-        <Button
-          onClick={handleNextClick}
-          disabled={!sceneIdea.trim()}
-          size={isMobile ? "lg" : "sm"}
-          className={`
-            ${isContinuingScene 
-              ? 'bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700'
-              : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
-            }
-            text-white transition-all duration-200
-            ${isMobile 
-              ? 'w-full h-12 text-base font-medium' 
-              : 'w-full sm:w-auto'
-            }
-          `}
-        >
-          {isContinuingScene ? 'Continue Story' : 'Next Step'} <ChevronRight className="w-4 h-4 ml-2" />
-        </Button>
+        {isContinuingScene ? (
+          <div className={`flex gap-3 ${isMobile ? 'w-full' : 'w-full sm:w-auto'}`}>
+            <Button
+              onClick={onCancel}
+              variant="outline"
+              size={isMobile ? "lg" : "sm"}
+              className={`
+                border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white
+                transition-all duration-200
+                ${isMobile ? 'flex-1 h-12 text-base' : 'px-6'}
+              `}
+            >
+              <X className="w-4 h-4 mr-2" />
+              Cancel
+            </Button>
+            <Button
+              onClick={handleNextClick}
+              disabled={!sceneIdea.trim()}
+              size={isMobile ? "lg" : "sm"}
+              className={`
+                bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700
+                text-white transition-all duration-200
+                ${isMobile ? 'flex-1 h-12 text-base font-medium' : 'px-6'}
+              `}
+            >
+              Continue Story <ChevronRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            onClick={handleNextClick}
+            disabled={!sceneIdea.trim()}
+            size={isMobile ? "lg" : "sm"}
+            className={`
+              bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700
+              text-white transition-all duration-200
+              ${isMobile 
+                ? 'w-full h-12 text-base font-medium' 
+                : 'w-full sm:w-auto'
+              }
+            `}
+          >
+            Next Step <ChevronRight className="w-4 h-4 ml-2" />
+          </Button>
+        )}
       </div>
     </motion.div>
   );
