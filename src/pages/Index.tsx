@@ -17,12 +17,7 @@ const Index = () => {
     return authLoading || (user && subscriptionLoading);
   }, [authLoading, user, subscriptionLoading]);
 
-  // Redirect authenticated users to generate page
-  useEffect(() => {
-    if (!isLoading && user && !confirmationSuccess) {
-      navigate('/generate', { replace: true });
-    }
-  }, [isLoading, user, confirmationSuccess, navigate]);
+  // No auto-redirect - let authenticated users access the landing page
 
   // Show loading state while checking auth and subscription
   if (isLoading) {
@@ -38,7 +33,7 @@ const Index = () => {
     return <ConfirmationSuccess />;
   }
 
-  // Show regular landing page for unauthenticated users only
+  // Show landing page for all users (authenticated and unauthenticated)
   return <LandingPage />;
 };
 

@@ -23,7 +23,19 @@ const Navigation = ({ className }: NavigationProps) => {
         {/* Show different navigation based on auth status */}
         {user ? (
           <>
-            {/* Authenticated user navigation - only app-specific links */}
+            {/* Authenticated user navigation */}
+            <Link 
+              to="/" 
+              className={`
+                text-sm lg:text-base font-medium transition-colors duration-300
+                ${location.pathname === '/' 
+                  ? 'text-white' 
+                  : 'text-gray-300 hover:text-white'
+                }
+              `}
+            >
+              Home
+            </Link>
             <Link 
               to="/generate" 
               className={`
@@ -38,6 +50,20 @@ const Navigation = ({ className }: NavigationProps) => {
               <Clapperboard className="w-4 h-4" />
               <span>Generate</span>
             </Link>
+            {/* Landing page sections for authenticated users */}
+            {location.pathname === '/' && (
+              <>
+                <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                  Features
+                </a>
+                <a href="#process" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                  How it Works
+                </a>
+                <a href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+                  Pricing
+                </a>
+              </>
+            )}
           </>
         ) : (
           <>
