@@ -175,82 +175,228 @@ export function generateSceneSuggestions(contexts: ExtractedContext[]): string[]
   const latestContext = contexts[contexts.length - 1];
   const suggestions: string[] = [];
 
-  // Character-specific suggestions
+  // Enhanced character-driven suggestions with emotion-specific actions
   if (latestContext.characters.length > 0) {
-    const character = latestContext.characters[0];
-    suggestions.push(`Follow ${character} as they react to what just happened`);
-    suggestions.push(`Show ${character} making a crucial decision`);
-    suggestions.push(`${character} encounters an unexpected obstacle`);
+    const character = latestContext.characters[0].split(' ')[0]; // Use first name
+    const emotionActions = getEmotionSpecificActions(latestContext.mood, character);
+    suggestions.push(...emotionActions);
   }
 
-  // Location-specific suggestions
+  // Smart location-based progression
   if (latestContext.locations.length > 0) {
     const location = latestContext.locations[0];
-    suggestions.push(`Pan to reveal more of the ${location}`);
-    suggestions.push(`Someone new enters the ${location}`);
-    suggestions.push(`The action moves from the ${location} to somewhere urgent`);
+    const locationProgression = getLocationProgressions(location, latestContext.mood);
+    suggestions.push(...locationProgression);
   }
 
-  // Prop-driven suggestions
+  // Cinematic technique suggestions
+  const cinematicSuggestions = getCinematographySuggestions(latestContext);
+  suggestions.push(...cinematicSuggestions);
+
+  // Narrative structure suggestions based on story beats
+  const narrativeBeats = getStoryBeatSuggestions(latestContext);
+  suggestions.push(...narrativeBeats);
+
+  // Prop and detail-driven micro-stories
   if (latestContext.props.length > 0) {
-    const prop = latestContext.props[0];
-    suggestions.push(`The ${prop} becomes crucial to the story`);
-    suggestions.push(`A close-up reveals something important about the ${prop}`);
+    const propSuggestions = getPropDrivenSuggestions(latestContext.props, latestContext.mood);
+    suggestions.push(...propSuggestions);
   }
 
-  // Mood-driven narrative suggestions
-  const narrativeTwists = {
+  // Time-sensitive progressions
+  if (latestContext.timeOfDay) {
+    const timeProgression = getTimeProgressions(latestContext.timeOfDay, latestContext.mood);
+    suggestions.push(...timeProgression);
+  }
+
+  // Filter, rank, and ensure diversity
+  const scoredSuggestions = rankSuggestionsByRelevance(suggestions, latestContext);
+  const diverseSuggestions = ensureSuggestionDiversity(scoredSuggestions);
+  
+  return diverseSuggestions.slice(0, 5); // Return top 5 diverse suggestions
+}
+
+function getEmotionSpecificActions(mood: string, character: string): string[] {
+  const actionMap: Record<string, string[]> = {
     'dramatic': [
-      'The tension escalates with an unexpected reveal',
-      'Stakes are raised as time runs out',
-      'A shocking truth changes everything'
+      `${character} discovers a hidden truth that changes everything`,
+      `${character} faces an impossible choice with no good options`,
+      `${character} confronts their deepest fear head-on`
     ],
     'mysterious': [
-      'A clue leads to more questions than answers',
-      'Someone is watching from the shadows',
-      'The mystery deepens with a new discovery'
+      `${character} notices subtle clues others have missed`,
+      `${character} follows a mysterious figure into the unknown`,
+      `${character} uncovers a secret that raises new questions`
     ],
     'romantic': [
-      'A tender moment brings them closer',
-      'Misunderstanding creates romantic tension',
-      'A gesture reveals true feelings'
+      `${character} has a vulnerable moment revealing their true feelings`,
+      `${character} creates a surprise that shows their thoughtfulness`,
+      `${character} stands up for someone they care about`
     ],
     'uplifting': [
-      'Hope emerges from an unexpected source',
-      'A breakthrough moment lifts spirits',
-      'Unity forms in the face of challenge'
+      `${character} inspires others through an act of kindness`,
+      `${character} achieves a breakthrough after perseverance`,
+      `${character} brings people together despite differences`
     ],
     'intense': [
-      'The chase intensifies with higher stakes',
-      'Split-second decisions determine fate',
-      'Adrenaline peaks as time runs out'
+      `${character} races against time to prevent disaster`,
+      `${character} makes a split-second decision under pressure`,
+      `${character} pushes their limits beyond what seems possible`
     ],
     'suspenseful': [
-      'Something moves in the shadows',
-      'The calm before the storm',
-      'An ominous discovery raises alarms'
+      `${character} realizes they're being watched or followed`,
+      `${character} discovers something is terribly wrong`,
+      `${character} must stay quiet while danger passes nearby`
     ],
     'serene': [
-      'A peaceful moment of reflection',
-      'Beauty is found in the quiet details',
-      'Harmony emerges from chaos'
+      `${character} finds peace in a moment of quiet reflection`,
+      `${character} appreciates the beauty in simple details`,
+      `${character} shares a gentle, meaningful connection`
     ]
   };
 
-  const moodSuggestions = narrativeTwists[latestContext.mood as keyof typeof narrativeTwists];
-  if (moodSuggestions) {
-    suggestions.push(...moodSuggestions);
+  return actionMap[mood] || [`${character} takes action that moves the story forward`];
+}
+
+function getLocationProgressions(location: string, mood: string): string[] {
+  const baseProgression = [
+    `The camera reveals a hidden aspect of the ${location}`,
+    `The atmosphere in the ${location} shifts dramatically`,
+    `A new arrival transforms the energy of the ${location}`
+  ];
+
+  const moodSpecific: Record<string, string[]> = {
+    'mysterious': [`Shadows in the ${location} hide important secrets`],
+    'dramatic': [`The ${location} becomes the center of conflict`],
+    'intense': [`Escape from the ${location} becomes urgent`],
+    'romantic': [`The ${location} becomes intimate and meaningful`],
+    'suspenseful': [`Something ominous approaches the ${location}`]
+  };
+
+  return [...baseProgression.slice(0, 1), ...(moodSpecific[mood] || [])];
+}
+
+function getCinematographySuggestions(context: ExtractedContext): string[] {
+  const techniques = [
+    "A close-up reveals crucial emotional details",
+    "The perspective shifts to show a different angle",
+    "A wide shot establishes new spatial relationships",
+    "Slow motion emphasizes a pivotal moment"
+  ];
+
+  // Add mood-specific cinematography
+  if (context.mood === 'dramatic') {
+    techniques.push("Dynamic camera movement builds tension");
+  } else if (context.mood === 'serene') {
+    techniques.push("Gentle camera movement creates tranquility");
+  } else if (context.mood === 'intense') {
+    techniques.push("Rapid cuts escalate the pace");
   }
 
-  // Time-specific suggestions
-  if (latestContext.timeOfDay) {
-    const timeSpecific = getTimeBasedSuggestions(latestContext.timeOfDay);
-    suggestions.push(...timeSpecific);
+  return techniques.slice(0, 2);
+}
+
+function getStoryBeatSuggestions(context: ExtractedContext): string[] {
+  const universalBeats = [
+    "An unexpected complication changes the plan",
+    "A moment of discovery that reframes everything",
+    "The stakes are raised with new information",
+    "A character's motivation is revealed through action"
+  ];
+
+  return universalBeats.slice(0, 2);
+}
+
+function getPropDrivenSuggestions(props: string[], mood: string): string[] {
+  if (props.length === 0) return [];
+  
+  const prop = props[0];
+  const suggestions = [
+    `The ${prop} reveals its true importance to the story`,
+    `A detail about the ${prop} triggers a memory or realization`
+  ];
+
+  if (mood === 'mysterious') {
+    suggestions.push(`The ${prop} holds a secret nobody expected`);
+  } else if (mood === 'dramatic') {
+    suggestions.push(`The ${prop} becomes a catalyst for conflict`);
   }
 
-  // Ensure we have enough suggestions and they're unique
-  const uniqueSuggestions = [...new Set(suggestions)];
-  return uniqueSuggestions.slice(0, 4); // Return top 4 unique suggestions
+  return suggestions.slice(0, 1);
+}
+
+function getTimeProgressions(timeOfDay: string, mood: string): string[] {
+  const timeMap: Record<string, string[]> = {
+    'morning': ['The fresh start of day brings new energy and possibility'],
+    'afternoon': ['The intensity of midday creates urgency'],
+    'evening': ['As day fades, the mood becomes more intimate'],
+    'night': ['Darkness conceals intentions and heightens mystery'],
+    'dawn': ['First light reveals what darkness has hidden'],
+    'dusk': ['The transition between day and night mirrors inner change']
+  };
+
+  const base = timeMap[timeOfDay.toLowerCase()] || [];
+  return base.slice(0, 1);
+}
+
+function rankSuggestionsByRelevance(suggestions: string[], context: ExtractedContext): string[] {
+  // Score suggestions based on context richness
+  return suggestions.map(suggestion => {
+    let score = 0;
+    
+    // Higher score for character-specific suggestions
+    if (context.characters.length > 0 && suggestion.includes(context.characters[0])) {
+      score += 3;
+    }
+    
+    // Higher score for location-specific suggestions
+    if (context.locations.length > 0 && suggestion.includes(context.locations[0])) {
+      score += 2;
+    }
+    
+    // Higher score for mood alignment
+    if (suggestion.toLowerCase().includes(context.mood.toLowerCase())) {
+      score += 2;
+    }
+    
+    // Prefer action-oriented suggestions
+    if (suggestion.includes('discovers') || suggestion.includes('realizes') || 
+        suggestion.includes('faces') || suggestion.includes('creates')) {
+      score += 1;
+    }
+    
+    return { suggestion, score };
+  })
+  .sort((a, b) => b.score - a.score)
+  .map(item => item.suggestion);
+}
+
+function ensureSuggestionDiversity(suggestions: string[]): string[] {
+  const diverse: string[] = [];
+  const categories = new Set<string>();
+  
+  for (const suggestion of suggestions) {
+    let category = 'general';
+    
+    if (suggestion.includes('discovers') || suggestion.includes('realizes')) {
+      category = 'discovery';
+    } else if (suggestion.includes('faces') || suggestion.includes('confronts')) {
+      category = 'conflict';
+    } else if (suggestion.includes('reveals') || suggestion.includes('close-up')) {
+      category = 'revelation';
+    } else if (suggestion.includes('camera') || suggestion.includes('perspective')) {
+      category = 'cinematic';
+    }
+    
+    if (!categories.has(category) || diverse.length < 3) {
+      diverse.push(suggestion);
+      categories.add(category);
+    }
+    
+    if (diverse.length >= 5) break;
+  }
+  
+  return diverse;
 }
 
 function getGenericSuggestions(): string[] {
