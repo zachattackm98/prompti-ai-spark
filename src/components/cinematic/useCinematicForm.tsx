@@ -3,6 +3,7 @@ import { useFormState } from './hooks/useFormState';
 import { useStepNavigation } from './hooks/useStepNavigation';
 import { usePromptGeneration } from './hooks/usePromptGeneration';
 import { useCinematicActions } from './hooks/useCinematicActions';
+import { scrollToElementById } from '@/utils/scrollUtils';
 
 // Re-export types for backward compatibility
 export type { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './hooks/types';
@@ -117,15 +118,9 @@ export const useCinematicForm = (
     // Reset generated prompt since we're creating a new scene
     setGeneratedPrompt(null);
     
-    // Smooth scroll to form content area for better UX
+    // Smooth scroll to generator form for better UX
     setTimeout(() => {
-      const formContent = document.getElementById('form-content');
-      if (formContent) {
-        formContent.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
+      scrollToElementById('generator-start', 'smooth', 120);
     }, 100);
   };
 
