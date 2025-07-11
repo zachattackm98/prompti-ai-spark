@@ -47,6 +47,15 @@ export interface GeneratedPrompt {
   metadata: SceneMetadata;
 }
 
+export interface PreviousSceneContext {
+  sceneExcerpt: string;
+  characters: string[];
+  location: string;
+  visualStyle: string;
+  mood: string;
+  keyElements: string[];
+}
+
 export interface FormState {
   currentStep: number;
   sceneIdea: string;
@@ -59,4 +68,5 @@ export interface FormState {
   styleReference: string;
   generatedPrompt: GeneratedPrompt | null;
   isLoading: boolean;
+  previousSceneContext?: PreviousSceneContext;
 }

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronRight, Settings, Camera, Lightbulb, Palette, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PreviousSceneContext } from './hooks/types';
 
 interface SceneStepProps {
   sceneIdea: string;
@@ -21,6 +22,7 @@ interface SceneStepProps {
   cameraSettings?: { angle: string; movement: string; shot: string };
   lightingSettings?: { mood: string; style: string; timeOfDay: string };
   styleReference?: string;
+  previousSceneContext?: PreviousSceneContext;
 }
 
 const SceneStep: React.FC<SceneStepProps> = ({ 
@@ -35,7 +37,8 @@ const SceneStep: React.FC<SceneStepProps> = ({
   selectedEmotion,
   cameraSettings,
   lightingSettings,
-  styleReference
+  styleReference,
+  previousSceneContext
 }) => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
@@ -79,7 +82,31 @@ const SceneStep: React.FC<SceneStepProps> = ({
     return settings;
   };
 
+  // Helper function to format previous scene context for display
+  const formatPreviousSceneInfo = () => {
+    if (!previousSceneContext) return [];
+    
+    const info = [];
+    if (previousSceneContext.sceneExcerpt) {
+      info.push(`Previous scene: ${previousSceneContext.sceneExcerpt}`);
+    }
+    if (previousSceneContext.characters?.length > 0) {
+      info.push(`Characters: ${previousSceneContext.characters.join(', ')}`);
+    }
+    if (previousSceneContext.location) {
+      info.push(`Location: ${previousSceneContext.location}`);
+    }
+    if (previousSceneContext.visualStyle) {
+      info.push(`Visual style: ${previousSceneContext.visualStyle}`);
+    }
+    if (previousSceneContext.mood) {
+      info.push(`Mood: ${previousSceneContext.mood}`);
+    }
+    return info;
+  };
+
   const preservedSettings = formatSettings();
+  const previousSceneInfo = formatPreviousSceneInfo();
 
   return (
     <motion.div 
@@ -107,6 +134,24 @@ const SceneStep: React.FC<SceneStepProps> = ({
             Your previous settings have been preserved. Describe your next scene and we'll maintain continuity.
           </p>
           
+          {/* Previous Scene Context */}
+          {previousSceneInfo.length > 0 && (
+            <div className="space-y-2 mb-3">
+              <p className="text-xs text-blue-300/80 font-medium">Story Context:</p>
+              <div className="space-y-1">
+                {previousSceneInfo.map((info, index) => (
+                  <p 
+                    key={index}
+                    className="text-xs text-blue-200/90 bg-blue-900/20 rounded px-2 py-1 border border-blue-400/20"
+                  >
+                    {info}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Preserved Settings */}
           {preservedSettings.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs text-green-300/80 font-medium">Preserved Settings:</p>

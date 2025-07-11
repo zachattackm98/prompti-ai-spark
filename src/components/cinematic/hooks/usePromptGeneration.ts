@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { usePromptUsage } from '@/hooks/usePromptUsage';
-import { GeneratedPrompt } from './types';
+import { GeneratedPrompt, PreviousSceneContext } from './types';
 
 interface FormState {
   sceneIdea: string;
@@ -13,6 +13,8 @@ interface FormState {
   cameraSettings: any;
   lightingSettings: any;
   styleReference: string;
+  previousSceneContext?: PreviousSceneContext;
+  isContinuingScene?: boolean;
 }
 
 export const usePromptGeneration = (
@@ -52,7 +54,10 @@ export const usePromptGeneration = (
         cameraSettings: formState.cameraSettings,
         lightingSettings: formState.lightingSettings,
         tier: subscription.tier,
-        enhancedPrompts: canUseFeature('enhancedPrompts')
+        enhancedPrompts: canUseFeature('enhancedPrompts'),
+        // Include previous scene context for continuity
+        isMultiScene: formState.isContinuingScene || false,
+        sceneContext: formState.previousSceneContext || null
       };
 
       console.log('Generating prompt:', {

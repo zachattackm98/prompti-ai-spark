@@ -5,6 +5,7 @@ import StepIndicator from './StepIndicator';
 import StepRenderer from './StepRenderer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './useCinematicForm';
+import { PreviousSceneContext } from './hooks/types';
 
 interface CinematicFormContentProps {
   currentStep: number;
@@ -37,6 +38,7 @@ interface CinematicFormContentProps {
   onDownloadPrompt: () => void;
   isLoading: boolean;
   isContinuingScene: boolean;
+  previousSceneContext?: PreviousSceneContext;
   clearContinuationMode: () => void;
   setShowAuthDialog?: (show: boolean) => void;
 }
@@ -72,6 +74,7 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
   onDownloadPrompt,
   isLoading,
   isContinuingScene,
+  previousSceneContext,
   clearContinuationMode,
   setShowAuthDialog
 }) => {
@@ -120,6 +123,7 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
               onDownloadPrompt={onDownloadPrompt}
               isLoading={isLoading}
               isContinuingScene={isContinuingScene}
+              previousSceneContext={previousSceneContext}
               clearContinuationMode={clearContinuationMode}
               setShowAuthDialog={setShowAuthDialog}
             />

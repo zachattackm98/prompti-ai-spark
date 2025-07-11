@@ -10,6 +10,7 @@ import StyleStep from './StyleStep';
 import GeneratedPromptDisplay from './GeneratedPromptDisplay';
 
 import { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './useCinematicForm';
+import { PreviousSceneContext } from './hooks/types';
 
 interface StepRendererProps {
   currentStep: number;
@@ -45,6 +46,7 @@ interface StepRendererProps {
   onDownloadPrompt: () => void;
   isLoading: boolean;
   isContinuingScene: boolean;
+  previousSceneContext?: PreviousSceneContext;
   clearContinuationMode: () => void;
   setShowAuthDialog?: (show: boolean) => void;
 }
@@ -79,6 +81,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   onDownloadPrompt,
   isLoading,
   isContinuingScene,
+  previousSceneContext,
   clearContinuationMode,
   setShowAuthDialog
 }) => {
@@ -100,6 +103,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
             cameraSettings={cameraSettings}
             lightingSettings={lightingSettings}
             styleReference={styleReference}
+            previousSceneContext={previousSceneContext}
           />
         </div>
       );

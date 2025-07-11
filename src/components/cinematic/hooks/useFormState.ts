@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { FormState, CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './types';
+import { FormState, CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt, PreviousSceneContext } from './types';
 
 export const useFormState = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -35,6 +35,7 @@ export const useFormState = () => {
   const [generatedPrompt, setGeneratedPrompt] = useState<GeneratedPrompt | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isContinuingScene, setIsContinuingScene] = useState(false);
+  const [previousSceneContext, setPreviousSceneContext] = useState<PreviousSceneContext | undefined>(undefined);
 
   const resetForm = () => {
     console.log('useFormState: Performing complete form reset');
@@ -51,6 +52,24 @@ export const useFormState = () => {
     setLightingSettings({ mood: '', style: '', timeOfDay: '' });
     setStyleReference('');
     setIsContinuingScene(false);
+    setPreviousSceneContext(undefined);
+  };
+
+  // Extract metadata from generated prompt for scene continuity
+  const extractMetadataFromPrompt = (prompt: GeneratedPrompt): PreviousSceneContext => {
+    const { mainPrompt, metadata } = prompt;
+    
+    // Extract key information from the prompt and metadata
+    const sceneExcerpt = mainPrompt.substring(0, 150) + '...';
+    
+    return {
+      sceneExcerpt,
+      characters: metadata?.characters || [],
+      location: metadata?.location || '',
+      visualStyle: metadata?.visualStyle || '',
+      mood: metadata?.mood || '',
+      keyElements: metadata?.storyElements || []
+    };
   };
 
   const loadPromptDataToCurrentState = (promptData: {
@@ -74,6 +93,12 @@ export const useFormState = () => {
     setLightingSettings(promptData.lightingSettings);
     setStyleReference(promptData.styleReference);
     setGeneratedPrompt(promptData.generatedPrompt);
+    
+    // Extract metadata for potential scene continuation
+    if (promptData.generatedPrompt) {
+      const metadata = extractMetadataFromPrompt(promptData.generatedPrompt);
+      setPreviousSceneContext(metadata);
+    }
     
     // Auto-advance to step 8 if there's a generated prompt and autoAdvance is enabled
     if (autoAdvanceToResults && promptData.generatedPrompt) {
@@ -107,7 +132,10 @@ export const useFormState = () => {
     setIsLoading,
     isContinuingScene,
     setIsContinuingScene,
+    previousSceneContext,
+    setPreviousSceneContext,
     resetForm,
-    loadPromptDataToCurrentState
+    loadPromptDataToCurrentState,
+    extractMetadataFromPrompt
   };
 };

@@ -39,8 +39,11 @@ export const useCinematicForm = (
     setIsLoading,
     isContinuingScene,
     setIsContinuingScene,
+    previousSceneContext,
+    setPreviousSceneContext,
     resetForm,
-    loadPromptDataToCurrentState
+    loadPromptDataToCurrentState,
+    extractMetadataFromPrompt
   } = useFormState();
 
   const { totalSteps, handleNext, handlePrevious, scrollToForm } = useStepNavigation(
@@ -63,7 +66,9 @@ export const useCinematicForm = (
     soundSettings,
     cameraSettings,
     lightingSettings,
-    styleReference
+    styleReference,
+    previousSceneContext,
+    isContinuingScene
   };
 
   // Clear continuation state when user starts typing or navigates
@@ -86,6 +91,12 @@ export const useCinematicForm = (
 
   // Continue scene logic - preserve settings and mark as continuation
   const handleContinueScene = () => {
+    // Extract metadata from current generated prompt for context
+    if (generatedPrompt) {
+      const metadata = extractMetadataFromPrompt(generatedPrompt);
+      setPreviousSceneContext(metadata);
+    }
+    
     // Clear the scene idea for the new scene
     setSceneIdea('');
     
@@ -128,6 +139,7 @@ export const useCinematicForm = (
     generatedPrompt,
     isLoading,
     isContinuingScene,
+    previousSceneContext,
     setSceneIdea,
     setSelectedPlatform,
     setSelectedEmotion,
