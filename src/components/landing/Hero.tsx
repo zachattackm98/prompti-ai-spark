@@ -202,10 +202,10 @@ const Hero: React.FC<HeroProps> = ({
                 <div className="bg-gray-900/70 rounded-xl p-4 sm:p-6 font-mono text-xs sm:text-sm">
                   <div className="text-purple-400 mb-2">// Generated Prompt</div>
                   <div className="text-gray-300 leading-relaxed space-y-1">
-                    <div><span className="text-pink-400">SHOT:</span> Wide cinematic establishing shot</div>
-                    <div><span className="text-pink-400">SCENE:</span> A lone astronaut walking across a vast alien desert at golden hour</div>
-                    <div><span className="text-pink-400">MOOD:</span> Epic, contemplative, mysterious</div>
-                    <div><span className="text-pink-400">STYLE:</span> Denis Villeneuve aesthetic, 35mm film grain</div>
+                    <div><span className="text-pink-400">SHOT:</span> Medium tracking shot following from behind</div>
+                    <div><span className="text-pink-400">SCENE:</span> A kid riding a bicycle down the street in a rainy day</div>
+                    <div><span className="text-pink-400">MOOD:</span> Nostalgic, peaceful, cinematic</div>
+                    <div><span className="text-pink-400">STYLE:</span> Soft lighting, gentle rain droplets, warm color grading</div>
                   </div>
                 </div>
               </div>

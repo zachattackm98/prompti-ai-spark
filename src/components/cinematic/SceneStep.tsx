@@ -144,7 +144,7 @@ const SceneStep: React.FC<SceneStepProps> = ({
           onChange={handleTextChange}
           placeholder={isContinuingScene 
             ? "e.g., The camera pulls back to reveal the astronaut's ship approaching a massive space station..."
-            : "e.g., A lone astronaut floating in space, Earth visible in the background, golden hour lighting..."
+            : "e.g., A kid riding a bicycle down the street in a rainy day..."
           }
           className={`
             bg-slate-800/60 border-purple-400/30 text-white placeholder:text-gray-400 
