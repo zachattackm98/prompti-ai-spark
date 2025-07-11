@@ -10,6 +10,8 @@ interface StepIndicatorProps {
 
 const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }) => {
   const isMobile = useIsMobile();
+  const isResultsStep = currentStep === 8;
+  const displaySteps = 7; // Only show 7 numbered steps
 
   return (
     <motion.div 
@@ -22,14 +24,18 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
       {isMobile && (
         <div className="mb-4 px-2">
           <div className="flex items-center justify-between text-xs text-gray-400 mb-3">
-            <span className="font-medium">Step {currentStep} of {totalSteps}</span>
-            <span className="text-purple-300">{Math.round((currentStep / totalSteps) * 100)}%</span>
+            <span className="font-medium">
+              {isResultsStep ? 'Results' : `Step ${currentStep} of ${displaySteps}`}
+            </span>
+            <span className="text-purple-300">
+              {isResultsStep ? '100%' : Math.round((currentStep / displaySteps) * 100) + '%'}
+            </span>
           </div>
           <div className="w-full bg-slate-700/50 rounded-full h-2.5 overflow-hidden">
             <motion.div 
               className="bg-gradient-to-r from-purple-600 to-pink-600 h-full rounded-full"
               initial={{ width: 0 }}
-              animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
+              animate={{ width: isResultsStep ? '100%' : `${(currentStep / displaySteps) * 100}%` }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
             />
           </div>
@@ -40,15 +46,13 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
       {!isMobile && (
         <div className="px-4">
           <div className="overflow-x-auto scrollbar-hide">
-            <div className={`flex items-center justify-center min-w-max mx-auto ${
-              totalSteps <= 4 ? 'gap-6' : totalSteps <= 6 ? 'gap-4' : 'gap-3'
-            }`}>
-              {Array.from({ length: totalSteps }, (_, i) => i + 1).map((step) => (
+            <div className="flex items-center justify-center min-w-max mx-auto gap-4">
+              {/* Numbered steps 1-7 */}
+              {Array.from({ length: displaySteps }, (_, i) => i + 1).map((step) => (
                 <div key={step} className="flex items-center flex-shrink-0">
                   <motion.div
                     className={`
-                      rounded-full flex items-center justify-center font-medium transition-all duration-300
-                      ${totalSteps <= 4 ? 'w-10 h-10 text-sm' : totalSteps <= 6 ? 'w-9 h-9 text-sm' : 'w-8 h-8 text-xs'}
+                      w-9 h-9 rounded-full flex items-center justify-center font-medium transition-all duration-300 text-sm
                       ${currentStep >= step
                         ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
                         : 'bg-slate-700 text-gray-400'
@@ -59,11 +63,10 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
                   >
                     {step}
                   </motion.div>
-                  {step < totalSteps && (
+                  {step < displaySteps && (
                     <div
                       className={`
-                        mx-1 transition-all duration-300
-                        ${totalSteps <= 4 ? 'w-20 h-1' : totalSteps <= 6 ? 'w-16 h-1' : 'w-12 h-0.5'}
+                        w-16 h-1 mx-1 transition-all duration-300
                         ${currentStep > step 
                           ? 'bg-gradient-to-r from-purple-600 to-pink-600' 
                           : 'bg-slate-700'
@@ -73,11 +76,27 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
                   )}
                 </div>
               ))}
+              
+              {/* Results indicator */}
+              {isResultsStep && (
+                <>
+                  <div
+                    className="w-16 h-1 mx-1 bg-gradient-to-r from-purple-600 to-pink-600"
+                  />
+                  <motion.div
+                    className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-sm shadow-lg"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Results
+                  </motion.div>
+                </>
+              )}
             </div>
             
             <div className="text-center mt-3">
               <span className="text-gray-400 text-sm font-medium">
-                Step {currentStep} of {totalSteps}
+                {isResultsStep ? 'Results' : `Step ${currentStep} of ${displaySteps}`}
               </span>
             </div>
           </div>
