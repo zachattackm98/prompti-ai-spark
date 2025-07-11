@@ -126,7 +126,7 @@ const SoundStep: React.FC<SoundStepProps> = ({
               <Label htmlFor="sound-toggle" className="text-white font-medium text-sm sm:text-base">
                 Include Sound Design
               </Label>
-              <p className="text-xs sm:text-sm mt-1 text-gray-950">
+              <p className="text-xs sm:text-sm mt-1 text-white">
                 Add music, sound effects, and ambience to your video
               </p>
             </div>
