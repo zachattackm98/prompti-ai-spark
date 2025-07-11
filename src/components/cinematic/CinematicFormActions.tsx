@@ -50,15 +50,13 @@ const CinematicFormActions: React.FC<CinematicFormActionsProps> = ({
         onGenerateNew={handleGenerateNew}
       />
 
-      {/* Streamlined Continuation for Multi-Scene */}
-      {!isMultiScene && (
-        <StreamlinedContinuation
-          generatedPrompt={generatedPrompt}
-          onContinueScene={handleContinueScene}
-          onStartOver={handleGenerateNew}
-          currentScenes={currentProject?.scenes || []}
-        />
-      )}
+      {/* Streamlined Continuation for Both Single and Multi-Scene */}
+      <StreamlinedContinuation
+        generatedPrompt={generatedPrompt}
+        onContinueScene={handleContinueScene}
+        onStartOver={handleGenerateNew}
+        currentScenes={currentProject?.scenes || []}
+      />
 
       {/* Upgrade Section for Starter Users */}
       <CinematicUpgradeSection
