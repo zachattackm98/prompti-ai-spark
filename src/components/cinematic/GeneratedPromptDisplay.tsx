@@ -14,7 +14,7 @@ interface GeneratedPromptDisplayProps {
   onCopyToClipboard: (text: string) => void;
   onDownloadPrompt: () => void;
   onGenerateNew: () => void;
-  onContinueScene?: () => void;
+  onContinueScene: () => void;
 }
 
 const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
@@ -212,21 +212,19 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
           <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
           Generate New
         </Button>
-        {onContinueScene && (
-          <Button
-            onClick={onContinueScene}
-            variant="outline"
-            size={isMobile ? "lg" : "default"}
-            className={`
-              border-purple-400/50 text-purple-300 hover:bg-purple-900/30 hover:text-white bg-slate-800/40
-              transition-all duration-200
-              ${isMobile ? 'h-12 text-base' : 'text-xs sm:text-sm'}
-            `}
-          >
-            <Film className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-            Continue Scene
-          </Button>
-        )}
+        <Button
+          onClick={onContinueScene}
+          variant="outline"
+          size={isMobile ? "lg" : "default"}
+          className={`
+            border-purple-400/50 text-purple-300 hover:bg-purple-900/30 hover:text-white bg-slate-800/40
+            transition-all duration-200
+            ${isMobile ? 'h-12 text-base' : 'text-xs sm:text-sm'}
+          `}
+        >
+          <Film className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+          Continue Scene
+        </Button>
       </div>
     </motion.div>
   );

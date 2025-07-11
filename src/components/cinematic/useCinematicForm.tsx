@@ -75,27 +75,15 @@ export const useCinematicForm = (
     setIsLoading
   );
 
-  // Enhanced continue scene logic with proper metadata transfer
-  const handleContinueScene = (projectTitle: string, nextSceneIdea: string) => {
-    console.log('Continuing scene with metadata transfer:', {
-      projectTitle,
-      nextSceneIdea,
-      currentSettings: {
-        platform: selectedPlatform,
-        emotion: selectedEmotion,
-        camera: cameraSettings,
-        lighting: lightingSettings,
-        style: styleReference
-      }
-    });
-    
-    // Update scene idea for the new scene
-    setSceneIdea(nextSceneIdea);
+  // Simplified continue scene logic - clear scene idea and reset to step 1
+  const handleContinueScene = () => {
+    // Clear the scene idea for the new scene
+    setSceneIdea('');
     
     // All other settings (platform, emotion, camera, lighting, style) are preserved
     // This maintains continuity between scenes
     
-    // Reset to step 1 to allow user to review and modify settings if needed
+    // Reset to step 1 to allow user to enter new scene idea
     setCurrentStep(1);
     
     // Reset generated prompt since we're creating a new scene
