@@ -7,7 +7,7 @@ import SoundStep from './SoundStep';
 import CameraControlsStep from './CameraControlsStep';
 import LightingStep from './LightingStep';
 import StyleStep from './StyleStep';
-import GeneratedPromptDisplay from './GeneratedPromptDisplay';
+
 import { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './useCinematicForm';
 
 interface StepRendererProps {
@@ -183,26 +183,6 @@ const StepRenderer: React.FC<StepRendererProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Show generated prompt at the top if it exists */}
-      {generatedPrompt && (
-        <GeneratedPromptDisplay
-          generatedPrompt={generatedPrompt}
-          onCopyToClipboard={(text) => {
-            navigator.clipboard.writeText(text);
-          }}
-          onDownloadPrompt={() => {
-            const blob = new Blob([`${generatedPrompt.mainPrompt}\n\n${generatedPrompt.technicalSpecs}\n\n${generatedPrompt.styleNotes}`], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'cinematic-prompt.txt';
-            a.click();
-            URL.revokeObjectURL(url);
-          }}
-          onGenerateNew={handleGenerateNew}
-        />
-      )}
-      
       {/* Always show the current form step */}
       {renderCurrentStep()}
     </div>
