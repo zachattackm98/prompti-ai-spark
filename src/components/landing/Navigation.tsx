@@ -3,6 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { isAdminUser } from '@/utils/adminUtils';
+import { Clapperboard } from 'lucide-react';
 
 interface NavigationProps {
   className?: string;
@@ -23,8 +24,19 @@ const Navigation = ({ className }: NavigationProps) => {
         {user ? (
           <>
             {/* Authenticated user navigation - only app-specific links */}
-            <Link to="/generate" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-              Generate
+            <Link 
+              to="/generate" 
+              className={`
+                group flex items-center space-x-2 px-3 py-2 rounded-lg text-sm lg:text-base font-medium
+                transition-all duration-300 ease-out
+                ${isGeneratePage 
+                  ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30' 
+                  : 'text-gray-300 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/20'
+                }
+              `}
+            >
+              <Clapperboard className="w-4 h-4" />
+              <span>Generate</span>
             </Link>
           </>
         ) : (

@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { User, Mail } from 'lucide-react';
 
 interface AuthControlsProps {
   onAuthClick: () => void;
@@ -20,12 +21,19 @@ const AuthControls = ({ onAuthClick, onSignOut, isMobile = false }: AuthControls
           <>
             <Link 
               to="/account"
-              className="block text-gray-300 hover:text-white transition-colors duration-300 py-2 text-base no-underline"
+              className="group flex items-center space-x-2 px-4 py-3 rounded-lg bg-slate-800/60 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 text-white no-underline"
             >
-              Account
+              <User className="w-4 h-4" />
+              <span className="font-medium">Account</span>
             </Link>
-            <div className="text-gray-300 text-sm py-2">
-              Welcome, {user.email}
+            <div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-gradient-to-r from-slate-800/40 to-slate-700/40 border border-white/10">
+              <Mail className="w-4 h-4 text-gray-400" />
+              <div className="flex flex-col">
+                <span className="text-xs text-gray-400 font-medium">Welcome back</span>
+                <span className="text-white text-sm font-medium truncate max-w-[180px]">
+                  {user.email}
+                </span>
+              </div>
             </div>
             <Button 
               onClick={onSignOut}
@@ -65,12 +73,19 @@ const AuthControls = ({ onAuthClick, onSignOut, isMobile = false }: AuthControls
         <>
           <Link 
             to="/account"
-            className="text-gray-300 hover:text-white transition-colors duration-300 text-sm hidden lg:block no-underline"
+            className="group flex items-center space-x-2 px-3 py-2 rounded-lg bg-slate-800/60 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 text-white no-underline text-sm hidden lg:flex"
           >
-            Account
+            <User className="w-4 h-4" />
+            <span className="font-medium">Account</span>
           </Link>
-          <div className="text-gray-300 text-xs lg:text-sm hidden lg:block max-w-[120px] xl:max-w-none truncate">
-            Welcome, {user.email.length > 15 ? user.email.substring(0, 15) + '...' : user.email}
+          <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gradient-to-r from-slate-800/40 to-slate-700/40 border border-white/10 hidden lg:flex">
+            <Mail className="w-3 h-3 text-gray-400" />
+            <div className="flex flex-col">
+              <span className="text-xs text-gray-400 font-medium leading-none">Welcome</span>
+              <span className="text-white text-xs font-medium truncate max-w-[100px] xl:max-w-[140px] leading-none mt-0.5">
+                {user.email}
+              </span>
+            </div>
           </div>
           <Button 
             onClick={onSignOut}
