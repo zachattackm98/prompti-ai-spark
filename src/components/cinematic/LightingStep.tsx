@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Lightbulb, Crown } from 'lucide-react';
 import { LightingSettings } from './useCinematicForm';
 import UpgradePrompt from './UpgradePrompt';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface LightingStepProps {
   lightingSettings: LightingSettings;
@@ -35,6 +36,7 @@ const LightingStep: React.FC<LightingStepProps> = ({
   showUpgrade = false
 }) => {
   const isMobile = useIsMobile();
+  const { subscription } = useSubscription();
 
   const handleSettingChange = (key: keyof LightingSettings, value: string) => {
     setLightingSettings({
@@ -63,7 +65,7 @@ const LightingStep: React.FC<LightingStepProps> = ({
         <UpgradePrompt
           feature="Lighting & Visual Style"
           requiredTier="creator"
-          currentTier="starter"
+          currentTier={subscription.tier}
         />
         
         <div className="flex flex-col sm:flex-row justify-between gap-3 px-2 sm:px-0">

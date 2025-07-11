@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Camera, Crown } from 'lucide-react';
 import { CameraSettings } from './useCinematicForm';
 import UpgradePrompt from './UpgradePrompt';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface CameraControlsStepProps {
   cameraSettings: CameraSettings;
@@ -35,6 +36,7 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
   showUpgrade = false
 }) => {
   const isMobile = useIsMobile();
+  const { subscription } = useSubscription();
 
   const handleSettingChange = (key: keyof CameraSettings, value: string) => {
     setCameraSettings({
@@ -63,7 +65,7 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
         <UpgradePrompt
           feature="Camera Controls"
           requiredTier="creator"
-          currentTier="starter"
+          currentTier={subscription.tier}
         />
         
         <div className="flex flex-col sm:flex-row justify-between gap-3 px-2 sm:px-0">
