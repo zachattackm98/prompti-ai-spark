@@ -101,12 +101,15 @@ export const useCinematicForm = (
     // Reset generated prompt since we're creating a new scene
     setGeneratedPrompt(null);
     
-    // Smooth scroll to top of the form for better UX
+    // Smooth scroll to form content area for better UX
     setTimeout(() => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
+      const formContent = document.getElementById('form-content');
+      if (formContent) {
+        formContent.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
     }, 100);
   };
 

@@ -84,7 +84,7 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
         border border-purple-500/20 backdrop-blur-sm overflow-hidden
         ${isMobile ? 'mx-2' : ''}
       `}>
-        <div className={`space-y-6 ${isMobile ? 'p-4' : 'p-6'}`}>
+        <div id="form-content" className={`space-y-6 ${isMobile ? 'p-4' : 'p-6'}`}>
           {/* Step Indicator */}
           <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
