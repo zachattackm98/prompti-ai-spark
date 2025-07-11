@@ -32,24 +32,6 @@ const CinematicFormActions: React.FC<CinematicFormActionsProps> = ({
 
   return (
     <>
-      {/* Generated Prompt Display */}
-      <GeneratedPromptDisplay
-        generatedPrompt={generatedPrompt}
-        onCopyToClipboard={(text) => {
-          navigator.clipboard.writeText(text);
-        }}
-        onDownloadPrompt={() => {
-          const blob = new Blob([`${generatedPrompt.mainPrompt}\n\n${generatedPrompt.technicalSpecs}\n\n${generatedPrompt.styleNotes}`], { type: 'text/plain' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'cinematic-prompt.txt';
-          a.click();
-          URL.revokeObjectURL(url);
-        }}
-        onGenerateNew={handleGenerateNew}
-      />
-
       {/* Streamlined Continuation for Both Single and Multi-Scene */}
       <StreamlinedContinuation
         generatedPrompt={generatedPrompt}
