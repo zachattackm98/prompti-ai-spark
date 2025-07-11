@@ -22,18 +22,12 @@ const Navigation = ({ className }: NavigationProps) => {
         {/* Show different navigation based on auth status */}
         {user ? (
           <>
-            {/* Authenticated user navigation */}
+            {/* Authenticated user navigation - only app-specific links */}
             <Link to="/generate" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
               Generate
             </Link>
-            <Link to="/#features" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-              Features
-            </Link>
-            <Link to="/#process" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-              How it Works
-            </Link>
-            <Link to="/#pricing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-              Pricing
+            <Link to="/account" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
+              Account
             </Link>
           </>
         ) : (
