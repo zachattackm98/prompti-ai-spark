@@ -7,7 +7,7 @@ import SoundStep from './SoundStep';
 import CameraControlsStep from './CameraControlsStep';
 import LightingStep from './LightingStep';
 import StyleStep from './StyleStep';
-
+import GeneratedPromptDisplay from './GeneratedPromptDisplay';
 
 import { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './useCinematicForm';
 
@@ -40,6 +40,9 @@ interface StepRendererProps {
   handlePrevious: () => void;
   handleGenerate: () => void;
   handleGenerateNew: () => void;
+  handleContinueScene: () => void;
+  onCopyToClipboard: (text: string) => void;
+  onDownloadPrompt: () => void;
   isLoading: boolean;
   setShowAuthDialog?: (show: boolean) => void;
 }
@@ -69,6 +72,9 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   handlePrevious,
   handleGenerate,
   handleGenerateNew,
+  handleContinueScene,
+  onCopyToClipboard,
+  onDownloadPrompt,
   isLoading,
   setShowAuthDialog
 }) => {
@@ -174,6 +180,21 @@ const StepRenderer: React.FC<StepRendererProps> = ({
             onGenerate={handleGenerate}
             isLoading={isLoading}
             showUpgrade={false}
+          />
+        </div>
+      );
+    }
+
+    // Step 8: Generated Prompt Display
+    if (currentStep === 8 && generatedPrompt) {
+      return (
+        <div id="step-content-8">
+          <GeneratedPromptDisplay
+            generatedPrompt={generatedPrompt}
+            onCopyToClipboard={onCopyToClipboard}
+            onDownloadPrompt={onDownloadPrompt}
+            onGenerateNew={handleGenerateNew}
+            onContinueScene={handleContinueScene}
           />
         </div>
       );

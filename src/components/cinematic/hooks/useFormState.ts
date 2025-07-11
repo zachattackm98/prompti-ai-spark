@@ -73,10 +73,10 @@ export const useFormState = () => {
     setStyleReference(promptData.styleReference);
     setGeneratedPrompt(promptData.generatedPrompt);
     
-    // Auto-advance to step 7 if there's a generated prompt and autoAdvance is enabled
+    // Auto-advance to step 8 if there's a generated prompt and autoAdvance is enabled
     if (autoAdvanceToResults && promptData.generatedPrompt) {
-      console.log('useFormState: Auto-advancing to step 7 due to existing generated prompt');
-      setCurrentStep(7);
+      console.log('useFormState: Auto-advancing to step 8 due to existing generated prompt');
+      setCurrentStep(8);
     }
   };
 

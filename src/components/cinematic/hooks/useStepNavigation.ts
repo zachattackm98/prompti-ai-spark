@@ -6,8 +6,8 @@ export const useStepNavigation = (
   setCurrentStep: (step: number) => void,
   canUseFeature: (feature: string) => boolean
 ) => {
-  // Always return 7 steps - all users can see all steps now
-  const totalSteps = 7;
+  // Always return 8 steps - 7 form steps + 1 results step
+  const totalSteps = 8;
 
   const scrollToForm = () => {
     // Small delay to allow step transition to complete

@@ -72,7 +72,8 @@ export const useCinematicForm = (
     loadPromptHistory,
     formState,
     setGeneratedPrompt,
-    setIsLoading
+    setIsLoading,
+    setCurrentStep
   );
 
   // Simplified continue scene logic - clear scene idea and reset to step 1

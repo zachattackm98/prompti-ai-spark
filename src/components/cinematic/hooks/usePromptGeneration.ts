@@ -23,7 +23,8 @@ export const usePromptGeneration = (
   loadPromptHistory: () => void,
   formState: FormState,
   setGeneratedPrompt: (prompt: GeneratedPrompt | null) => void,
-  setIsLoading: (loading: boolean) => void
+  setIsLoading: (loading: boolean) => void,
+  setCurrentStep?: (step: number) => void
 ) => {
   const { triggerUsageUpdate } = usePromptUsage();
 
@@ -75,6 +76,11 @@ export const usePromptGeneration = (
         const generatedPrompt: GeneratedPrompt = data.prompt;
         
         setGeneratedPrompt(generatedPrompt);
+        
+        // Navigate to step 8 to show the generated prompt
+        if (setCurrentStep) {
+          setCurrentStep(8);
+        }
         
         // Trigger automatic usage update - this will cause all components to re-render
         triggerUsageUpdate();

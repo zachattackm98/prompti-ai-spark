@@ -32,6 +32,9 @@ interface CinematicFormContentProps {
   handlePrevious: () => void;
   handleGenerate: () => void;
   handleGenerateNew: () => void;
+  handleContinueScene: () => void;
+  onCopyToClipboard: (text: string) => void;
+  onDownloadPrompt: () => void;
   isLoading: boolean;
   setShowAuthDialog?: (show: boolean) => void;
 }
@@ -62,6 +65,9 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
   handlePrevious,
   handleGenerate,
   handleGenerateNew,
+  handleContinueScene,
+  onCopyToClipboard,
+  onDownloadPrompt,
   isLoading,
   setShowAuthDialog
 }) => {
@@ -105,6 +111,9 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
               handlePrevious={handlePrevious}
               handleGenerate={handleGenerate}
               handleGenerateNew={handleGenerateNew}
+              handleContinueScene={handleContinueScene}
+              onCopyToClipboard={onCopyToClipboard}
+              onDownloadPrompt={onDownloadPrompt}
               isLoading={isLoading}
               setShowAuthDialog={setShowAuthDialog}
             />

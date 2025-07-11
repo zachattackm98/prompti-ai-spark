@@ -11,7 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 // Component imports
 import CinematicFormHeader from './CinematicFormHeader';
 import CinematicFormContent from './CinematicFormContent';
-import CinematicFormActions from './CinematicFormActions';
+import CinematicUpgradeSection from './CinematicUpgradeSection';
 import BackgroundAnimation from './BackgroundAnimation';
 import PromptHistory from './PromptHistory';
 
@@ -139,13 +139,6 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               handlePrevious={handlePrevious}
               handleGenerate={handleGenerate}
               handleGenerateNew={handleGenerateNew}
-              isLoading={isLoading}
-              setShowAuthDialog={setShowAuthDialog}
-            />
-
-            <CinematicFormActions
-              generatedPrompt={generatedPrompt}
-              handleGenerateNew={handleGenerateNew}
               handleContinueScene={handleContinueScene}
               onCopyToClipboard={(text: string) => {
                 navigator.clipboard.writeText(text);
@@ -164,11 +157,20 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
                   URL.revokeObjectURL(url);
                 }
               }}
-              user={user}
-              canUseFeature={subscriptionHelpers.canUseFeature}
-              subscription={subscription}
-              onUpgrade={onUpgrade}
+              isLoading={isLoading}
+              setShowAuthDialog={setShowAuthDialog}
             />
+
+            {/* Upgrade Section for Starter Users */}
+            {generatedPrompt && (
+              <CinematicUpgradeSection
+                user={user}
+                generatedPrompt={generatedPrompt}
+                canUseFeature={subscriptionHelpers.canUseFeature}
+                subscription={subscription}
+                onUpgrade={onUpgrade}
+              />
+            )}
 
             {/* Simplified History */}
             {showHistory && (
