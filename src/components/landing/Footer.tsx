@@ -1,8 +1,19 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
 
 const Footer = () => {
+  const { toast } = useToast();
+
+  const handleComingSoonClick = (e: React.MouseEvent<HTMLAnchorElement>, linkName: string) => {
+    e.preventDefault();
+    toast({
+      title: "Coming Soon",
+      description: `${linkName} will be available soon!`,
+      duration: 3000,
+    });
+  };
   const footerLinks = {
     Product: [
       { name: 'Features', href: '#features' },
@@ -55,7 +66,8 @@ const Footer = () => {
                   <li key={link.name}>
                     <a 
                       href={link.href}
-                      className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base"
+                      onClick={link.href === '#' ? (e) => handleComingSoonClick(e, link.name) : undefined}
+                      className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base cursor-pointer"
                     >
                       {link.name}
                     </a>
@@ -72,13 +84,25 @@ const Footer = () => {
           </p>
           
           <div className="flex space-x-4 sm:space-x-6">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
+            <a 
+              href="#" 
+              onClick={(e) => handleComingSoonClick(e, 'Twitter')}
+              className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer"
+            >
               Twitter
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
+            <a 
+              href="#" 
+              onClick={(e) => handleComingSoonClick(e, 'Discord')}
+              className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer"
+            >
               Discord
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
+            <a 
+              href="#" 
+              onClick={(e) => handleComingSoonClick(e, 'GitHub')}
+              className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer"
+            >
               GitHub
             </a>
           </div>
