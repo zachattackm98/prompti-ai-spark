@@ -156,11 +156,35 @@ export const useSubscriptionEffects = (
     await checkSubscription();
   };
 
-  // Check subscription when user changes - BUT NOT during checkout success
+  // Optimized subscription check with focus prevention
   useEffect(() => {
     if (checkoutSuccessInProgress) {
       console.log('[SUBSCRIPTION] Skipping user effect check - checkout success in progress');
       return;
+    }
+    
+    // Prevent checking on window focus if we already have recent data
+    const cachedData = localStorage.getItem('subscription_cache');
+    if (cachedData) {
+      try {
+        const cached = JSON.parse(cachedData);
+        const cacheAge = Date.now() - cached.timestamp;
+        
+        // If we have fresh cache (less than 2 minutes), use it instead of refetching
+        if (cacheAge < 2 * 60 * 1000) {
+          console.log('[SUBSCRIPTION] Using fresh cache, skipping API call');
+          setSubscription({
+            tier: cached.tier,
+            isActive: cached.isActive,
+            isCancelling: cached.isCancelling || false,
+            expiresAt: cached.expiresAt,
+          });
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        console.error('[SUBSCRIPTION] Failed to parse cached data');
+      }
     }
     
     console.log('[SUBSCRIPTION] User state changed:', user?.email || 'no user');

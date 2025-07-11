@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import LandingPage from '@/components/LandingPage';
@@ -9,8 +9,11 @@ const Index = () => {
   const { confirmationSuccess, loading: authLoading, user } = useAuth();
   const { loading: subscriptionLoading } = useSubscription();
 
-  // Determine overall loading state - we need both auth and subscription data (if user exists)
-  const isLoading = authLoading || (user && subscriptionLoading);
+  // Optimized loading state calculation with memoization
+  const isLoading = useMemo(() => {
+    // Only show loading if auth is actually loading or if we have a user but subscription is loading
+    return authLoading || (user && subscriptionLoading);
+  }, [authLoading, user, subscriptionLoading]);
 
   // Show loading state while checking auth and subscription
   if (isLoading) {

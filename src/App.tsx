@@ -16,7 +16,25 @@ import AuthPage from "./components/auth/AuthPage";
 import ResetPasswordPage from "./components/auth/ResetPasswordPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-const queryClient = new QueryClient();
+// Optimized React Query configuration to prevent unnecessary refetches
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Prevent refetching on window focus to avoid refresh issues
+      refetchOnWindowFocus: false,
+      // Reduce refetch frequency for better performance
+      refetchOnReconnect: 'always',
+      // Keep data fresh for 5 minutes
+      staleTime: 5 * 60 * 1000,
+      // Cache data for 10 minutes
+      gcTime: 10 * 60 * 1000,
+      // Retry failed requests only once
+      retry: 1,
+      // Shorter timeout for better UX
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

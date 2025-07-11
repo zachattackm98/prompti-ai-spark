@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -7,6 +7,7 @@ import { scrollToTop } from '@/utils/scrollUtils';
 import { AuthContext } from './AuthContext';
 import { signUp, signIn, signOut, resetPassword, updatePassword } from './authOperations';
 import { processHashAuth, processUrlAuth } from './authTokenHandlers';
+import { useFocusManager } from '@/hooks/useFocusManager';
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -18,6 +19,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
   const [confirmationSuccess, setConfirmationSuccess] = useState(false);
   const { toast } = useToast();
+  const authInitialized = useRef(false);
+  
+  // Prevent excessive auth checks on window focus
+  useFocusManager({
+    enabled: false, // Disable focus manager for auth to prevent loops
+    throttleMs: 5000
+  });
 
   useEffect(() => {
     console.log('[AUTH] Initializing auth provider');
@@ -50,13 +58,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Handle auth parameters first
     handleAuthParams();
 
-    // Set up auth state listener - simplified without redundant redirects
+    // Optimized auth state listener with deduplication
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('[AUTH] Auth state changed:', event, session?.user?.email || 'no user');
+        
+        // Prevent redundant state updates
+        const isSameSession = session?.access_token === (user as any)?.access_token;
+        if (isSameSession && authInitialized.current) {
+          console.log('[AUTH] Same session, skipping update');
+          return;
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        authInitialized.current = true;
 
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('[AUTH] User signed in successfully, scrolling to top');
@@ -64,15 +81,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         } else if (event === 'SIGNED_OUT') {
           console.log('[AUTH] User signed out');
           setConfirmationSuccess(false);
+          authInitialized.current = false;
         }
       }
     );
 
-    // Check for existing session
+    // Optimized initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('[AUTH] Initial session check:', session?.user?.email || 'no session');
-      setSession(session);
-      setUser(session?.user ?? null);
+      if (!authInitialized.current) {
+        setSession(session);
+        setUser(session?.user ?? null);
+        authInitialized.current = true;
+      }
       setLoading(false);
     });
 
