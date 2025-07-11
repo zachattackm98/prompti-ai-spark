@@ -30,19 +30,16 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
     starter: {
       name: 'Starter Plan',
       color: 'border-purple-400/50 text-purple-300',
-      gradient: 'from-slate-900/80 via-slate-900/60 to-purple-900/20',
       border: 'border-purple-500/20'
     },
     creator: {
       name: 'Creator Plan',
       color: 'border-blue-400/50 text-blue-300',
-      gradient: 'from-slate-900/80 via-slate-900/60 to-blue-900/20',
       border: 'border-blue-500/20'
     },
     studio: {
       name: 'Studio Plan',
       color: 'border-yellow-400/50 text-yellow-300',
-      gradient: 'from-slate-900/80 via-slate-900/60 to-yellow-900/20',
       border: 'border-yellow-500/20'
     }
   };
@@ -55,7 +52,7 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
       animate={{ opacity: 1, y: 0 }}
       className="w-full"
     >
-      <Card className={`bg-gradient-to-r ${config.gradient} border ${config.border} p-4 backdrop-blur-sm`}>
+      <Card className={`border ${config.border} p-4 backdrop-blur-sm bg-transparent`}>
         {/* Header - Mobile optimized */}
         <div className={`flex items-center justify-between mb-3 ${isMobile ? 'flex-col gap-2' : ''}`}>
           <div className="flex items-center gap-2">
