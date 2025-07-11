@@ -26,9 +26,6 @@ const Navigation = ({ className }: NavigationProps) => {
             <Link to="/generate" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
               Generate
             </Link>
-            <Link to="/account" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm lg:text-base">
-              Account
-            </Link>
           </>
         ) : (
           <>
