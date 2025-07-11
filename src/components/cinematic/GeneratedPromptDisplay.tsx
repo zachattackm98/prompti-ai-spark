@@ -98,14 +98,14 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
               onClick={() => onCopyToClipboard(generatedPrompt.mainPrompt)}
               variant="outline"
               className="
-                w-full sm:w-auto h-11 sm:h-10 px-4 sm:px-6
-                text-sm sm:text-base font-medium
+                w-full sm:w-auto min-h-[44px] sm:min-h-[40px] px-4 sm:px-6 py-2
+                text-sm sm:text-base font-medium whitespace-normal leading-snug
                 border-purple-400/30 text-purple-300 hover:bg-purple-900/30 bg-slate-800/40
-                transition-all duration-200
+                transition-all duration-200 flex items-center justify-center
               "
             >
-              <Copy className="w-4 h-4 mr-2" />
-              Copy Main Prompt
+              <Copy className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="text-center">Copy Main Prompt</span>
             </Button>
           </div>
         </div>
@@ -126,14 +126,14 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
               onClick={handleCopyTechnicalSpecs}
               variant="outline"
               className="
-                w-full sm:w-auto h-11 sm:h-10 px-4 sm:px-6
-                text-sm sm:text-base font-medium
+                w-full sm:w-auto min-h-[44px] sm:min-h-[40px] px-4 sm:px-6 py-2
+                text-sm sm:text-base font-medium whitespace-normal leading-snug
                 border-blue-400/30 text-blue-300 hover:bg-blue-900/30 bg-slate-800/40
-                transition-all duration-200
+                transition-all duration-200 flex items-center justify-center
               "
             >
-              <Copy className="w-4 h-4 mr-2" />
-              Copy Specs
+              <Copy className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="text-center">Copy Specs</span>
             </Button>
           </div>
         </div>
@@ -154,14 +154,14 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
               onClick={handleCopyStyleNotes}
               variant="outline"
               className="
-                w-full sm:w-auto h-11 sm:h-10 px-4 sm:px-6
-                text-sm sm:text-base font-medium
+                w-full sm:w-auto min-h-[44px] sm:min-h-[40px] px-4 sm:px-6 py-2
+                text-sm sm:text-base font-medium whitespace-normal leading-snug
                 border-pink-400/30 text-pink-300 hover:bg-pink-900/30 bg-slate-800/40
-                transition-all duration-200
+                transition-all duration-200 flex items-center justify-center
               "
             >
-              <Copy className="w-4 h-4 mr-2" />
-              Copy Style
+              <Copy className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="text-center">Copy Style</span>
             </Button>
           </div>
         </div>
@@ -197,14 +197,14 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
               onClick={handleCopyMetadata}
               variant="outline"
               className="
-                w-full sm:w-auto h-11 sm:h-10 px-4 sm:px-6
-                text-sm sm:text-base font-medium
+                w-full sm:w-auto min-h-[44px] sm:min-h-[40px] px-4 sm:px-6 py-2
+                text-sm sm:text-base font-medium whitespace-normal leading-snug
                 border-emerald-400/30 text-emerald-300 hover:bg-emerald-900/30 bg-slate-800/40
-                transition-all duration-200
+                transition-all duration-200 flex items-center justify-center
               "
             >
-              <Copy className="w-4 h-4 mr-2" />
-              Copy Metadata
+              <Copy className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="text-center">Copy Metadata</span>
             </Button>
           </div>
         </div>
@@ -213,59 +213,59 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
       <div className={`pt-2 sm:pt-4 ${
         isMobile 
           ? 'flex flex-col gap-3' 
-          : 'grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4'
+          : 'flex flex-wrap gap-2 sm:gap-4 justify-center'
       }`}>
         <Button
           onClick={handleCopyAll}
           className="
-            h-11 sm:h-10 px-4 sm:px-6
-            text-sm sm:text-base font-medium
+            min-h-[44px] sm:min-h-[40px] px-4 sm:px-6 py-2 flex-1 sm:flex-initial
+            text-sm sm:text-base font-medium whitespace-normal leading-snug
             bg-gradient-to-r from-purple-600 to-pink-600 
             hover:from-purple-700 hover:to-pink-700 text-white
-            transition-all duration-200
+            transition-all duration-200 flex items-center justify-center
           "
         >
-          <Copy className="w-4 h-4 mr-2" />
-          Copy All (excludes metadata)
+          <Copy className="w-4 h-4 mr-2 flex-shrink-0" />
+          <span className="text-center">Copy Complete</span>
         </Button>
         <Button
           onClick={onDownloadPrompt}
           variant="outline"
           className="
-            h-11 sm:h-10 px-4 sm:px-6
-            text-sm sm:text-base font-medium
+            min-h-[44px] sm:min-h-[40px] px-4 sm:px-6 py-2 flex-1 sm:flex-initial
+            text-sm sm:text-base font-medium whitespace-normal leading-snug
             border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40
-            transition-all duration-200
+            transition-all duration-200 flex items-center justify-center
           "
         >
-          <Download className="w-4 h-4 mr-2" />
-          Download
+          <Download className="w-4 h-4 mr-2 flex-shrink-0" />
+          <span className="text-center">Download</span>
         </Button>
         <Button
           onClick={onGenerateNew}
           variant="outline"
           className="
-            h-11 sm:h-10 px-4 sm:px-6
-            text-sm sm:text-base font-medium
+            min-h-[44px] sm:min-h-[40px] px-4 sm:px-6 py-2 flex-1 sm:flex-initial
+            text-sm sm:text-base font-medium whitespace-normal leading-snug
             border-slate-600 text-white hover:bg-slate-700 bg-slate-800/40
-            transition-all duration-200
+            transition-all duration-200 flex items-center justify-center
           "
         >
-          <RotateCcw className="w-4 h-4 mr-2" />
-          Generate New
+          <RotateCcw className="w-4 h-4 mr-2 flex-shrink-0" />
+          <span className="text-center">Generate New</span>
         </Button>
         <Button
           onClick={onContinueScene}
           variant="outline"
           className="
-            h-11 sm:h-10 px-4 sm:px-6
-            text-sm sm:text-base font-medium
+            min-h-[44px] sm:min-h-[40px] px-4 sm:px-6 py-2 flex-1 sm:flex-initial
+            text-sm sm:text-base font-medium whitespace-normal leading-snug
             border-purple-400/50 text-purple-300 hover:bg-purple-900/30 hover:text-white bg-slate-800/40
-            transition-all duration-200
+            transition-all duration-200 flex items-center justify-center
           "
         >
-          <Film className="w-4 h-4 mr-2" />
-          Continue Scene
+          <Film className="w-4 h-4 mr-2 flex-shrink-0" />
+          <span className="text-center">Continue Scene</span>
         </Button>
       </div>
     </motion.div>
