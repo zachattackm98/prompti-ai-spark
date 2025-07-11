@@ -82,6 +82,19 @@ const SceneStep: React.FC<SceneStepProps> = ({
     return settings;
   };
 
+  // Helper function to get camera settings status for continuing scenes
+  const getCameraSettingsStatus = () => {
+    if (!isContinuingScene) return null;
+    
+    const hasCameraSettings = cameraSettings && (cameraSettings.angle || cameraSettings.movement || cameraSettings.shot);
+    if (hasCameraSettings) {
+      const cameraSet = [cameraSettings.angle, cameraSettings.movement, cameraSettings.shot].filter(Boolean);
+      return `Camera: ${cameraSet.join(', ')}`;
+    }
+    
+    return 'Camera: Fresh camera work (reset for new scene)';
+  };
+
   // Helper function to format previous scene context for display
   const formatPreviousSceneInfo = () => {
     if (!previousSceneContext) return [];
@@ -166,6 +179,23 @@ const SceneStep: React.FC<SceneStepProps> = ({
                   </Badge>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Camera Settings Status for Continuing Scenes */}
+          {getCameraSettingsStatus() && (
+            <div className="space-y-2">
+              <p className="text-xs text-yellow-300/80 font-medium">Camera Settings:</p>
+              <Badge 
+                variant="outline" 
+                className="text-xs bg-amber-900/20 border-yellow-400/30 text-yellow-300"
+              >
+                <Camera className="w-3 h-3 mr-1" />
+                {getCameraSettingsStatus()}
+              </Badge>
+              <p className="text-xs text-yellow-200/70 mt-1">
+                Camera settings are reset for each new scene. You can customize them again if needed.
+              </p>
             </div>
           )}
         </motion.div>

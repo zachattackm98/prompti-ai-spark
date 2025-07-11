@@ -31,6 +31,13 @@ export const usePromptGeneration = (
 ) => {
   const { triggerUsageUpdate } = usePromptUsage();
 
+  // Helper function to check if camera settings are default/empty
+  const isCameraSettingsEmpty = (cameraSettings: any): boolean => {
+    return !cameraSettings || 
+           (!cameraSettings.angle && !cameraSettings.movement && !cameraSettings.shot) ||
+           (cameraSettings.angle === '' && cameraSettings.movement === '' && cameraSettings.shot === '');
+  };
+
   const handleGenerate = async () => {
     if (!user) {
       setShowAuthDialog(true);
@@ -44,14 +51,14 @@ export const usePromptGeneration = (
     setIsLoading(true);
 
     try {
-      const requestData = {
+      // Build base request data
+      const requestData: any = {
         sceneIdea: formState.sceneIdea,
         platform: formState.selectedPlatform,
         emotion: formState.selectedEmotion,
         styleReference: formState.styleReference,
         dialogSettings: formState.dialogSettings,
         soundSettings: formState.soundSettings,
-        cameraSettings: formState.cameraSettings,
         lightingSettings: formState.lightingSettings,
         tier: subscription.tier,
         enhancedPrompts: canUseFeature('enhancedPrompts'),
@@ -59,6 +66,13 @@ export const usePromptGeneration = (
         isMultiScene: formState.isContinuingScene || false,
         sceneContext: formState.previousSceneContext || null
       };
+
+      // Only include camera settings if they are explicitly set (not empty/default)
+      // This is especially important when continuing a scene - we don't want to force
+      // the previous scene's camera work unless the user specifically chose camera settings
+      if (!isCameraSettingsEmpty(formState.cameraSettings)) {
+        requestData.cameraSettings = formState.cameraSettings;
+      }
 
       console.log('Generating prompt:', {
         sceneIdea: formState.sceneIdea,

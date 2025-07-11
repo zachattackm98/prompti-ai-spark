@@ -14,6 +14,7 @@ interface CameraControlsStepProps {
   onNext: () => void;
   onPrevious: () => void;
   showUpgrade?: boolean;
+  isContinuingScene?: boolean;
 }
 
 const cameraAngles = [
@@ -33,7 +34,8 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
   setCameraSettings,
   onNext,
   onPrevious,
-  showUpgrade = false
+  showUpgrade = false,
+  isContinuingScene = false
 }) => {
   const isMobile = useIsMobile();
   const { subscription } = useSubscription();
@@ -44,6 +46,16 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
       [key]: value
     });
   };
+
+  const handleClearSettings = () => {
+    setCameraSettings({
+      angle: '',
+      movement: '',
+      shot: ''
+    });
+  };
+
+  const hasAnySettings = cameraSettings.angle || cameraSettings.movement || cameraSettings.shot;
 
   if (showUpgrade) {
     return (
@@ -112,6 +124,15 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
           <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
         </div>
         <p className="text-gray-300 text-sm sm:text-base">Fine-tune your cinematic vision with professional camera settings</p>
+        
+        {/* Continuing Scene Note */}
+        {isContinuingScene && (
+          <div className="bg-blue-900/20 border border-blue-400/30 rounded-lg p-3 text-center">
+            <p className="text-blue-200 text-xs">
+              📷 Camera settings have been reset for your new scene. You can select fresh camera work or skip to keep it flexible.
+            </p>
+          </div>
+        )}
       </div>
       
       <div className="space-y-4 sm:space-y-6">
@@ -174,6 +195,20 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
             ))}
           </div>
         </div>
+
+        {/* Clear Settings Option */}
+        {hasAnySettings && (
+          <div className="flex justify-center">
+            <Button
+              onClick={handleClearSettings}
+              variant="ghost"
+              size="sm"
+              className="text-gray-400 hover:text-white hover:bg-slate-700/50 text-xs"
+            >
+              Clear All Camera Settings
+            </Button>
+          </div>
+        )}
       </div>
       
       <div className="flex flex-col sm:flex-row justify-between gap-3 px-2 sm:px-0">

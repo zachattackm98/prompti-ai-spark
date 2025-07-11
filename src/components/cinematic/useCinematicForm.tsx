@@ -103,8 +103,13 @@ export const useCinematicForm = (
     // Mark as continuing scene to show special UI
     setIsContinuingScene(true);
     
-    // All other settings (platform, emotion, camera, lighting, style) are preserved
-    // This maintains continuity between scenes
+    // Reset camera settings to default values when continuing a scene
+    // This allows users to use fresh camera work for the new scene
+    // while preserving other continuity settings (platform, emotion, lighting, style)
+    setCameraSettings({ angle: '', movement: '', shot: '' });
+    
+    // All other settings (platform, emotion, lighting, style) are preserved
+    // This maintains visual continuity between scenes
     
     // Reset to step 1 to allow user to enter new scene idea
     setCurrentStep(1);

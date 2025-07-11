@@ -165,6 +165,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
             onNext={handleNext}
             onPrevious={handlePrevious}
             showUpgrade={false}
+            isContinuingScene={isContinuingScene}
           />
         </div>
       );
