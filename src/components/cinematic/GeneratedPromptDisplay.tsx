@@ -36,6 +36,22 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
     });
   };
 
+  const handleCopyTechnicalSpecs = () => {
+    onCopyToClipboard(generatedPrompt.technicalSpecs);
+    toast({
+      title: "Success!",
+      description: "Technical specifications copied to clipboard.",
+    });
+  };
+
+  const handleCopyStyleNotes = () => {
+    onCopyToClipboard(generatedPrompt.styleNotes);
+    toast({
+      title: "Success!",
+      description: "Style notes copied to clipboard.",
+    });
+  };
+
   const handleCopyMetadata = () => {
     const metadataText = JSON.stringify(generatedPrompt.metadata, null, 2);
     onCopyToClipboard(metadataText);
@@ -101,11 +117,24 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
             }`}>
               Technical Specifications
             </h4>
-            <p className={`text-gray-200 leading-relaxed ${
+            <p className={`text-gray-200 leading-relaxed mb-3 ${
               isMobile ? 'text-sm' : 'text-sm sm:text-base'
             }`}>
               {generatedPrompt.technicalSpecs}
             </p>
+            <Button
+              onClick={handleCopyTechnicalSpecs}
+              size={isMobile ? "default" : "sm"}
+              variant="outline"
+              className={`
+                border-blue-400/30 text-blue-300 hover:bg-blue-900/30 bg-slate-800/40
+                transition-all duration-200
+                ${isMobile ? 'w-full h-10' : 'w-full sm:w-auto text-xs sm:text-sm'}
+              `}
+            >
+              <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+              Copy Technical Specs
+            </Button>
           </div>
         </div>
 
@@ -116,11 +145,24 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
             }`}>
               Style Notes
             </h4>
-            <p className={`text-gray-200 leading-relaxed ${
+            <p className={`text-gray-200 leading-relaxed mb-3 ${
               isMobile ? 'text-sm' : 'text-sm sm:text-base'
             }`}>
               {generatedPrompt.styleNotes}
             </p>
+            <Button
+              onClick={handleCopyStyleNotes}
+              size={isMobile ? "default" : "sm"}
+              variant="outline"
+              className={`
+                border-pink-400/30 text-pink-300 hover:bg-pink-900/30 bg-slate-800/40
+                transition-all duration-200
+                ${isMobile ? 'w-full h-10' : 'w-full sm:w-auto text-xs sm:text-sm'}
+              `}
+            >
+              <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+              Copy Style Notes
+            </Button>
           </div>
         </div>
 
