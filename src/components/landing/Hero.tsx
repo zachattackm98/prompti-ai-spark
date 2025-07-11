@@ -42,10 +42,8 @@ const Hero: React.FC<HeroProps> = ({
 
   const handleScrollToGenerator = () => {
     if (currentUser) {
-      // For authenticated users on landing page, redirect to generate page
-      if (!isGeneratePage) {
-        navigate('/generate');
-      }
+      // For authenticated users, always navigate to generate page
+      navigate('/generate');
     } else {
       // For non-authenticated users, scroll to the generator on this page
       const generatorSection = document.getElementById('cinematic-generator');

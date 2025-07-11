@@ -38,19 +38,6 @@ const Navigation = ({ className }: NavigationProps) => {
             </Link>
             <Link 
               to="/generate" 
-              onClick={(e) => {
-                // If on home page, scroll to generator instead of navigating
-                if (location.pathname === '/') {
-                  e.preventDefault();
-                  const formContent = document.getElementById('cinematic-form');
-                  if (formContent) {
-                    formContent.scrollIntoView({ 
-                      behavior: 'smooth',
-                      block: 'start'
-                    });
-                  }
-                }
-              }}
               className={`
                 group flex items-center space-x-2 px-3 py-2 rounded-lg text-sm lg:text-base font-medium
                 transition-all duration-300 ease-out
