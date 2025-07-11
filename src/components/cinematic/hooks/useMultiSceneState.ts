@@ -158,18 +158,36 @@ export const useMultiSceneState = () => {
     return currentProject.scenes[currentProject.currentSceneIndex];
   }, [currentProject]);
 
-  const loadProjectById = useCallback(async (projectId: string) => {
+  const loadProjectById = useCallback(async (projectId: string, loadSceneDataToCurrentState?: (sceneData: SceneData) => void) => {
     console.log('useMultiSceneState: Loading project by ID:', projectId);
     const project = await loadProject(projectId);
     if (project) {
-      setCurrentProject(project);
+      // Always set current scene index to 0 (Scene 1)
+      const updatedProject = {
+        ...project,
+        currentSceneIndex: 0,
+        updatedAt: new Date().toISOString()
+      };
+      
+      setCurrentProject(updatedProject);
       setIsMultiScene(true);
-      console.log('useMultiSceneState: Project loaded from database');
+      
+      // Save the updated scene index to database
+      await saveProject(updatedProject);
+      
+      // Load Scene 1's data to current state if callback provided
+      if (loadSceneDataToCurrentState && updatedProject.scenes.length > 0) {
+        loadSceneDataToCurrentState(updatedProject.scenes[0]);
+        console.log('useMultiSceneState: Scene 1 data loaded to current state');
+      }
+      
+      console.log('useMultiSceneState: Project loaded from database, defaulted to Scene 1');
+      return updatedProject;
     } else {
       console.error('useMultiSceneState: Failed to load project from database');
     }
     return project;
-  }, [loadProject]);
+  }, [loadProject, saveProject]);
 
   const deleteCurrentProject = useCallback(async () => {
     if (!currentProject) return false;

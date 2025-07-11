@@ -82,6 +82,11 @@ export const useFormState = () => {
     setGeneratedPrompt(sceneData.generatedPrompt);
   };
 
+  // Create a custom loadProjectById that integrates with form state
+  const loadProjectByIdWithState = async (projectId: string) => {
+    return await multiSceneState.loadProjectById(projectId, loadSceneDataToCurrentState);
+  };
+
   return {
     currentStep,
     setCurrentStep,
@@ -108,6 +113,7 @@ export const useFormState = () => {
     resetForm,
     createSceneDataFromCurrentState,
     loadSceneDataToCurrentState,
-    ...multiSceneState
+    ...multiSceneState,
+    loadProjectById: loadProjectByIdWithState
   };
 };
