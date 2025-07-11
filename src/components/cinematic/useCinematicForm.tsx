@@ -3,8 +3,6 @@ import { useFormState } from './hooks/useFormState';
 import { useStepNavigation } from './hooks/useStepNavigation';
 import { usePromptGeneration } from './hooks/usePromptGeneration';
 import { useCinematicActions } from './hooks/useCinematicActions';
-import { useCinematicNavigation } from './hooks/useCinematicNavigation';
-import { useCinematicScenes } from './hooks/useCinematicScenes';
 
 // Re-export types for backward compatibility
 export type { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './hooks/types';
@@ -40,19 +38,7 @@ export const useCinematicForm = (
     isLoading,
     setIsLoading,
     resetForm,
-    createSceneDataFromCurrentState,
-    loadSceneDataToCurrentState,
-    // Multi-scene state
-    currentProject,
-    isMultiScene,
-    getCurrentScene,
-    startNewProject,
-    addNewScene,
-    updateCurrentScene,
-    setCurrentSceneIndex,
-    updateScenePrompt,
-    resetProject,
-    loadProjectById
+    loadPromptDataToCurrentState
   } = useFormState();
 
   const { totalSteps, handleNext, handlePrevious, scrollToForm } = useStepNavigation(
@@ -67,30 +53,7 @@ export const useCinematicForm = (
     totalSteps
   );
 
-  const { handleSceneSelect, handleAddScene } = useCinematicNavigation(
-    currentStep,
-    setCurrentStep,
-    totalSteps,
-    currentProject,
-    createSceneDataFromCurrentState,
-    updateCurrentScene,
-    setCurrentSceneIndex,
-    loadSceneDataToCurrentState,
-    addNewScene
-  );
-
-  const { handleContinueScene, canAddMoreScenes } = useCinematicScenes(
-    subscription,
-    currentProject,
-    createSceneDataFromCurrentState,
-    startNewProject,
-    addNewScene,
-    loadSceneDataToCurrentState,
-    setCurrentStep
-  );
-
   const formState = {
-    currentStep,
     sceneIdea,
     selectedPlatform,
     selectedEmotion,
@@ -98,11 +61,7 @@ export const useCinematicForm = (
     soundSettings,
     cameraSettings,
     lightingSettings,
-    styleReference,
-    generatedPrompt,
-    isLoading,
-    currentProject,
-    isMultiScene
+    styleReference
   };
 
   const { handleGenerate } = usePromptGeneration(
@@ -113,10 +72,25 @@ export const useCinematicForm = (
     loadPromptHistory,
     formState,
     setGeneratedPrompt,
-    setIsLoading,
-    currentProject,
-    updateScenePrompt
+    setIsLoading
   );
+
+  // Simplified continue scene logic - just transfer metadata to current form
+  const handleContinueScene = (projectTitle: string, nextSceneIdea: string) => {
+    console.log('Continuing scene with transferred metadata');
+    
+    // Transfer metadata from current prompt to new scene
+    if (generatedPrompt?.metadata) {
+      // Keep most form settings the same for continuity
+      setSceneIdea(nextSceneIdea);
+      // Reset to step 1 to allow user to modify settings if needed
+      setCurrentStep(1);
+    } else {
+      // Fallback if no metadata
+      setSceneIdea(nextSceneIdea);
+      setCurrentStep(1);
+    }
+  };
 
   return {
     currentStep,
@@ -143,17 +117,8 @@ export const useCinematicForm = (
     handlePrevious,
     handleGenerate,
     handleGenerateNew,
-    // Multi-scene functionality
-    currentProject,
-    isMultiScene,
     handleContinueScene,
-    handleSceneSelect,
-    handleAddScene,
-    canAddMoreScenes,
-    // Expose multi-scene state functions for history integration
-    startNewProject,
-    loadSceneDataToCurrentState,
-    setCurrentStep,
-    loadProjectById
+    loadPromptDataToCurrentState,
+    setCurrentStep
   };
 };

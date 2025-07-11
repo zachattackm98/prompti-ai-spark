@@ -3,16 +3,10 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import StepIndicator from './StepIndicator';
 import StepRenderer from './StepRenderer';
-import SceneSelector from './SceneSelector';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './useCinematicForm';
 
 interface CinematicFormContentProps {
-  isMultiScene: boolean;
-  currentProject: any;
-  handleSceneSelect: (sceneIndex: number) => void;
-  handleAddScene: () => void;
-  canAddMoreScenes: boolean;
   currentStep: number;
   totalSteps: number;
   canUseFeature: (feature: string) => boolean;
@@ -43,11 +37,6 @@ interface CinematicFormContentProps {
 }
 
 const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
-  isMultiScene,
-  currentProject,
-  handleSceneSelect,
-  handleAddScene,
-  canAddMoreScenes,
   currentStep,
   totalSteps,
   canUseFeature,
@@ -86,18 +75,6 @@ const CinematicFormContent: React.FC<CinematicFormContentProps> = ({
         ${isMobile ? 'mx-2' : ''}
       `}>
         <div className={`space-y-6 ${isMobile ? 'p-4' : 'p-6'}`}>
-          {/* Multi-scene project controls */}
-          {isMultiScene && currentProject && (
-            <div className="space-y-4">
-              <SceneSelector
-                currentProject={currentProject}
-                onSceneSelect={handleSceneSelect}
-                onAddScene={handleAddScene}
-                canAddMoreScenes={canAddMoreScenes}
-              />
-            </div>
-          )}
-
           {/* Step Indicator */}
           <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 

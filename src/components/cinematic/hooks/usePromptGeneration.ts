@@ -2,8 +2,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { usePromptUsage } from '@/hooks/usePromptUsage';
-import { GeneratedPrompt, MultiSceneProject } from './types';
-import { extractEnhancedContext, buildStructuredSceneContext } from '../utils/metadataContextExtractor';
+import { GeneratedPrompt } from './types';
 
 interface FormState {
   sceneIdea: string;
@@ -14,8 +13,6 @@ interface FormState {
   cameraSettings: any;
   lightingSettings: any;
   styleReference: string;
-  currentProject: MultiSceneProject | null;
-  isMultiScene: boolean;
 }
 
 export const usePromptGeneration = (
@@ -26,9 +23,7 @@ export const usePromptGeneration = (
   loadPromptHistory: () => void,
   formState: FormState,
   setGeneratedPrompt: (prompt: GeneratedPrompt | null) => void,
-  setIsLoading: (loading: boolean) => void,
-  currentProject: MultiSceneProject | null,
-  updateScenePrompt: (sceneIndex: number, prompt: GeneratedPrompt) => void
+  setIsLoading: (loading: boolean) => void
 ) => {
   const { triggerUsageUpdate } = usePromptUsage();
 
@@ -45,26 +40,6 @@ export const usePromptGeneration = (
     setIsLoading(true);
 
     try {
-      // Build context for multi-scene projects
-      let sceneContext = '';
-      let sceneNumber = 1;
-      let totalScenes = 1;
-      let isMultiScene = false;
-
-      if (currentProject && currentProject.scenes.length > 0) {
-        isMultiScene = true;
-        sceneNumber = currentProject.currentSceneIndex + 1;
-        totalScenes = currentProject.scenes.length;
-        
-        // Build enhanced context from previous scenes using the metadata extractor
-        const previousScenes = currentProject.scenes.slice(0, currentProject.currentSceneIndex);
-        if (previousScenes.length > 0) {
-          const enhancedContext = extractEnhancedContext(previousScenes);
-          sceneContext = buildStructuredSceneContext(enhancedContext);
-          console.log('Enhanced scene context built:', sceneContext.substring(0, 200) + '...');
-        }
-      }
-
       const requestData = {
         sceneIdea: formState.sceneIdea,
         platform: formState.selectedPlatform,
@@ -75,19 +50,12 @@ export const usePromptGeneration = (
         cameraSettings: formState.cameraSettings,
         lightingSettings: formState.lightingSettings,
         tier: subscription.tier,
-        enhancedPrompts: canUseFeature('enhancedPrompts'),
-        // Multi-scene context
-        sceneContext,
-        sceneNumber,
-        totalScenes,
-        isMultiScene
+        enhancedPrompts: canUseFeature('enhancedPrompts')
       };
 
-      console.log('Generating prompt with multi-scene context:', {
-        isMultiScene,
-        sceneNumber,
-        totalScenes,
-        hasContext: !!sceneContext
+      console.log('Generating prompt:', {
+        sceneIdea: formState.sceneIdea,
+        platform: formState.selectedPlatform
       });
 
       const { data, error } = await supabase.functions.invoke('cinematic-prompt-generator', {
@@ -104,18 +72,9 @@ export const usePromptGeneration = (
       }
 
       if (data?.prompt) {
-        const generatedPrompt: GeneratedPrompt = {
-          ...data.prompt,
-          sceneNumber,
-          totalScenes
-        };
+        const generatedPrompt: GeneratedPrompt = data.prompt;
         
         setGeneratedPrompt(generatedPrompt);
-        
-        // Update the scene prompt in multi-scene project
-        if (currentProject) {
-          updateScenePrompt(currentProject.currentSceneIndex, generatedPrompt);
-        }
         
         // Trigger automatic usage update - this will cause all components to re-render
         triggerUsageUpdate();

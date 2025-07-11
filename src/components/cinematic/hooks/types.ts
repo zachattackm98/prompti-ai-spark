@@ -44,32 +44,7 @@ export interface GeneratedPrompt {
   technicalSpecs: string;
   styleNotes: string;
   platform: string;
-  sceneNumber?: number;
-  totalScenes?: number;
   metadata: SceneMetadata;
-}
-
-export interface SceneData {
-  id?: string; // Add optional id field for database
-  sceneNumber: number;
-  sceneIdea: string;
-  selectedPlatform: string;
-  selectedEmotion: string;
-  dialogSettings: DialogSettings;
-  soundSettings: SoundSettings;
-  cameraSettings: CameraSettings;
-  lightingSettings: LightingSettings;
-  styleReference: string;
-  generatedPrompt: GeneratedPrompt | null;
-}
-
-export interface MultiSceneProject {
-  id: string;
-  title: string;
-  scenes: SceneData[];
-  currentSceneIndex: number;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface FormState {
@@ -84,7 +59,4 @@ export interface FormState {
   styleReference: string;
   generatedPrompt: GeneratedPrompt | null;
   isLoading: boolean;
-  // Multi-scene properties
-  currentProject: MultiSceneProject | null;
-  isMultiScene: boolean;
 }

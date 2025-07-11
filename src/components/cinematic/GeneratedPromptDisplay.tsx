@@ -7,7 +7,7 @@ import { GeneratedPrompt } from './types';
 import { platforms } from './constants';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import ContinueScenePrompt from './ContinueScenePrompt';
+
 
 interface GeneratedPromptDisplayProps {
   generatedPrompt: GeneratedPrompt;
@@ -161,23 +161,19 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
           Generate New
         </Button>
         {onContinueScene && (
-          <ContinueScenePrompt
-            generatedPrompt={generatedPrompt}
-            onContinueScene={onContinueScene}
+          <Button
+            onClick={() => onContinueScene('Cinematic Project', 'Enter your next scene idea')}
+            variant="outline"
+            size={isMobile ? "lg" : "default"}
+            className={`
+              border-purple-400/50 text-purple-300 hover:bg-purple-900/30 hover:text-white bg-slate-800/40
+              transition-all duration-200
+              ${isMobile ? 'h-12 text-base' : 'text-xs sm:text-sm'}
+            `}
           >
-            <Button
-              variant="outline"
-              size={isMobile ? "lg" : "default"}
-              className={`
-                border-purple-400/50 text-purple-300 hover:bg-purple-900/30 hover:text-white bg-slate-800/40
-                transition-all duration-200
-                ${isMobile ? 'h-12 text-base' : 'text-xs sm:text-sm'}
-              `}
-            >
-              <Film className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-              Continue Scene
-            </Button>
-          </ContinueScenePrompt>
+            <Film className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+            Continue Scene
+          </Button>
         )}
       </div>
     </motion.div>

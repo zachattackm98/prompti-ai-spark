@@ -7,14 +7,13 @@ import { createSubscriptionHelpers } from '@/hooks/subscription/subscriptionHelp
 import { useCinematicForm } from './useCinematicForm';
 import { usePromptHistory } from '@/hooks/usePromptHistory';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useHistoryScenes } from './hooks/useHistoryScenes';
 
 // Component imports
 import CinematicFormHeader from './CinematicFormHeader';
 import CinematicFormContent from './CinematicFormContent';
 import CinematicFormActions from './CinematicFormActions';
 import BackgroundAnimation from './BackgroundAnimation';
-import HistoryProjectTabs from './HistoryProjectTabs';
+import PromptHistory from './PromptHistory';
 
 interface CinematicFormProps {
   setShowAuthDialog: (show: boolean) => void;
@@ -58,17 +57,9 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     handlePrevious,
     handleGenerate,
     handleGenerateNew,
-    currentProject,
-    isMultiScene,
     handleContinueScene,
-    handleSceneSelect,
-    handleAddScene,
-    canAddMoreScenes,
-    // Multi-scene state functions
-    startNewProject,
-    loadSceneDataToCurrentState,
-    setCurrentStep,
-    loadProjectById
+    loadPromptDataToCurrentState,
+    setCurrentStep
   } = useCinematicForm(
     user,
     subscription,
@@ -77,15 +68,21 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     loadPromptHistory
   );
 
-  const { createScenesFromHistory } = useHistoryScenes(
-    startNewProject,
-    loadSceneDataToCurrentState,
-    setCurrentStep
-  );
-
-  // Handle project loading from the tabbed interface
-  const handleLoadProject = async (projectId: string) => {
-    await loadProjectById(projectId);
+  // Handle loading prompt data from history
+  const handleCreateFromHistory = (historyItem: any) => {
+    const promptData = {
+      sceneIdea: historyItem.scene_idea,
+      selectedPlatform: historyItem.platform,
+      selectedEmotion: historyItem.emotion,
+      dialogSettings: { hasDialog: false, dialogType: '', dialogStyle: '', language: '', dialogContent: '' },
+      soundSettings: { hasSound: false, musicGenre: undefined, soundEffects: undefined, ambience: undefined, soundDescription: '' },
+      cameraSettings: { angle: '', movement: '', shot: '' },
+      lightingSettings: { mood: '', style: '', timeOfDay: '' },
+      styleReference: historyItem.style || '',
+      generatedPrompt: JSON.parse(historyItem.generated_prompt)
+    };
+    
+    loadPromptDataToCurrentState(promptData, true);
   };
 
   return (
@@ -117,11 +114,6 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
             <CinematicFormHeader />
 
             <CinematicFormContent
-              isMultiScene={isMultiScene}
-              currentProject={currentProject}
-              handleSceneSelect={handleSceneSelect}
-              handleAddScene={handleAddScene}
-              canAddMoreScenes={canAddMoreScenes}
               currentStep={currentStep}
               totalSteps={totalSteps}
               canUseFeature={subscriptionHelpers.canUseFeature}
@@ -154,9 +146,7 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
             <CinematicFormActions
               generatedPrompt={generatedPrompt}
               handleGenerateNew={handleGenerateNew}
-              handleContinueScene={(projectTitle: string, nextSceneIdea: string) => 
-                handleContinueScene(projectTitle, nextSceneIdea, 'continue')
-              }
+              handleContinueScene={handleContinueScene}
               onCopyToClipboard={(text: string) => {
                 navigator.clipboard.writeText(text);
               }}
@@ -180,14 +170,15 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               onUpgrade={onUpgrade}
             />
 
-            {/* Enhanced History and Project Tabs */}
-            <div className={isMobile ? 'px-2' : ''}>
-              <HistoryProjectTabs 
-                showHistory={showHistory} 
-                onCreateScenesFromHistory={createScenesFromHistory}
-                onLoadProject={handleLoadProject}
-              />
-            </div>
+            {/* Simplified History */}
+            {showHistory && (
+              <div className={isMobile ? 'px-2' : ''}>
+                <PromptHistory 
+                  showHistory={showHistory} 
+                  onCreateScenesFromHistory={handleCreateFromHistory}
+                />
+              </div>
+            )}
           </div>
         </div>
       </motion.section>

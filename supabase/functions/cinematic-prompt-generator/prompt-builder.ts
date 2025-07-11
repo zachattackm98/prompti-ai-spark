@@ -12,11 +12,7 @@ export function buildSystemPrompt(request: PromptRequest): string {
     dialogSettings, 
     soundSettings, 
     enhancedPrompts, 
-    styleReference,
-    sceneContext,
-    sceneNumber = 1,
-    totalScenes = 1,
-    isMultiScene = false
+    styleReference
   } = request;
   
   const selectedPlatform = PLATFORM_PROMPTS[platform as keyof typeof PLATFORM_PROMPTS] || PLATFORM_PROMPTS.veo3;
@@ -41,23 +37,6 @@ Guidelines:
 Current scene emotion/mood: ${emotion}
 User subscription tier: ${tier?.toUpperCase()}`;
 
-  // Add multi-scene context if applicable
-  if (isMultiScene && sceneContext) {
-    systemPrompt += `\n\nMULTI-SCENE PROJECT CONTEXT:
-This is Scene ${sceneNumber} of ${totalScenes} in a cinematic sequence.
-
-CRITICAL CONTINUITY REQUIREMENTS:
-- EXACT character appearance consistency: Keep faces, hair, clothing, and physical traits identical
-- PRECISE environmental continuity: Maintain the same locations, lighting conditions, and time of day unless explicitly changing
-- SEAMLESS narrative flow: This scene should feel like the immediate next moment in the story
-- CONSISTENT visual language: Use identical camera styles, color grading, and cinematographic approach
-- CHARACTER BEHAVIOR: Maintain established personality traits, speech patterns, and mannerisms
-
-ENHANCED STORY CONTEXT (extracted from previous scenes):
-${sceneContext}
-
-INSTRUCTIONS: Generate this scene as a direct continuation that could be edited seamlessly with the previous footage. Focus on maintaining visual and narrative consistency above all else.`;
-  }
 
   // Add dialog specifications
   if (dialogSettings?.hasDialog) {
@@ -153,7 +132,7 @@ This metadata will be used for scene continuity and context building.`;
   return systemPrompt;
 }
 
-export function parsePromptResponse(generatedContent: string, platform: string, sceneNumber?: number, totalScenes?: number) {
+export function parsePromptResponse(generatedContent: string, platform: string) {
   const selectedPlatform = PLATFORM_PROMPTS[platform as keyof typeof PLATFORM_PROMPTS] || PLATFORM_PROMPTS.veo3;
   
   // Parse the response into structured sections
@@ -194,8 +173,6 @@ export function parsePromptResponse(generatedContent: string, platform: string, 
     technicalSpecs: sections[2]?.trim() || selectedPlatform.technical,
     styleNotes: sections[3]?.trim() || `Professional cinematic quality`,
     platform: platform,
-    sceneNumber,
-    totalScenes,
     metadata
   };
 }

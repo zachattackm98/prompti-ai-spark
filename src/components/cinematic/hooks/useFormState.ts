@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
-import { FormState, CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt, SceneData } from './types';
-import { useMultiSceneState } from './useMultiSceneState';
+import { FormState, CameraSettings, LightingSettings, DialogSettings, SoundSettings, GeneratedPrompt } from './types';
 
 export const useFormState = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -36,10 +35,8 @@ export const useFormState = () => {
   const [generatedPrompt, setGeneratedPrompt] = useState<GeneratedPrompt | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const multiSceneState = useMultiSceneState();
-
   const resetForm = () => {
-    console.log('useFormState: Performing complete form reset including multi-scene project');
+    console.log('useFormState: Performing complete form reset');
     
     // Reset all form state
     setGeneratedPrompt(null);
@@ -52,45 +49,35 @@ export const useFormState = () => {
     setCameraSettings({ angle: '', movement: '', shot: '' });
     setLightingSettings({ mood: '', style: '', timeOfDay: '' });
     setStyleReference('');
-    
-    // Reset multi-scene project completely
-    multiSceneState.resetProject();
   };
 
-  const createSceneDataFromCurrentState = (): Omit<SceneData, 'sceneNumber'> => ({
-    sceneIdea,
-    selectedPlatform,
-    selectedEmotion,
-    dialogSettings,
-    soundSettings,
-    cameraSettings,
-    lightingSettings,
-    styleReference,
-    generatedPrompt
-  });
-
-  const loadSceneDataToCurrentState = (sceneData: SceneData, autoAdvanceToResults: boolean = true) => {
-    console.log('useFormState: Loading scene data to current state:', sceneData.sceneNumber);
-    setSceneIdea(sceneData.sceneIdea);
-    setSelectedPlatform(sceneData.selectedPlatform);
-    setSelectedEmotion(sceneData.selectedEmotion);
-    setDialogSettings(sceneData.dialogSettings);
-    setSoundSettings(sceneData.soundSettings);
-    setCameraSettings(sceneData.cameraSettings);
-    setLightingSettings(sceneData.lightingSettings);
-    setStyleReference(sceneData.styleReference);
-    setGeneratedPrompt(sceneData.generatedPrompt);
+  const loadPromptDataToCurrentState = (promptData: {
+    sceneIdea: string;
+    selectedPlatform: string;
+    selectedEmotion: string;
+    dialogSettings: DialogSettings;
+    soundSettings: SoundSettings;
+    cameraSettings: CameraSettings;
+    lightingSettings: LightingSettings;
+    styleReference: string;
+    generatedPrompt: GeneratedPrompt | null;
+  }, autoAdvanceToResults: boolean = true) => {
+    console.log('useFormState: Loading prompt data to current state');
+    setSceneIdea(promptData.sceneIdea);
+    setSelectedPlatform(promptData.selectedPlatform);
+    setSelectedEmotion(promptData.selectedEmotion);
+    setDialogSettings(promptData.dialogSettings);
+    setSoundSettings(promptData.soundSettings);
+    setCameraSettings(promptData.cameraSettings);
+    setLightingSettings(promptData.lightingSettings);
+    setStyleReference(promptData.styleReference);
+    setGeneratedPrompt(promptData.generatedPrompt);
     
     // Auto-advance to step 7 if there's a generated prompt and autoAdvance is enabled
-    if (autoAdvanceToResults && sceneData.generatedPrompt) {
+    if (autoAdvanceToResults && promptData.generatedPrompt) {
       console.log('useFormState: Auto-advancing to step 7 due to existing generated prompt');
       setCurrentStep(7);
     }
-  };
-
-  // Create a custom loadProjectById that integrates with form state
-  const loadProjectByIdWithState = async (projectId: string) => {
-    return await multiSceneState.loadProjectById(projectId, loadSceneDataToCurrentState);
   };
 
   return {
@@ -117,9 +104,6 @@ export const useFormState = () => {
     isLoading,
     setIsLoading,
     resetForm,
-    createSceneDataFromCurrentState,
-    loadSceneDataToCurrentState,
-    ...multiSceneState,
-    loadProjectById: loadProjectByIdWithState
+    loadPromptDataToCurrentState
   };
 };
