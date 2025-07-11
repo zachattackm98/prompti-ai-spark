@@ -100,6 +100,14 @@ export const useCinematicForm = (
     
     // Reset generated prompt since we're creating a new scene
     setGeneratedPrompt(null);
+    
+    // Smooth scroll to top of the form for better UX
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
   };
 
 
