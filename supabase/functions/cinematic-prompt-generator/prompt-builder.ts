@@ -135,9 +135,6 @@ This metadata will be used for scene continuity and context building.`;
 export function parsePromptResponse(generatedContent: string, platform: string) {
   const selectedPlatform = PLATFORM_PROMPTS[platform as keyof typeof PLATFORM_PROMPTS] || PLATFORM_PROMPTS.veo3;
   
-  // Parse the response into structured sections
-  const sections = generatedContent.split(/(?:MAIN PROMPT:|TECHNICAL SPECS:|STYLE NOTES:|METADATA:)/i);
-  
   // Default metadata structure
   const defaultMetadata = {
     characters: [],
@@ -152,16 +149,40 @@ export function parsePromptResponse(generatedContent: string, platform: string) 
     storyElements: []
   };
   
-  // Try to parse metadata from the response
+  // More robust parsing approach using individual regex matches
+  const mainPromptMatch = generatedContent.match(/MAIN PROMPT:\s*([\s\S]*?)(?=TECHNICAL SPECS:|STYLE NOTES:|METADATA:|$)/i);
+  const technicalSpecsMatch = generatedContent.match(/TECHNICAL SPECS:\s*([\s\S]*?)(?=STYLE NOTES:|METADATA:|$)/i);
+  const styleNotesMatch = generatedContent.match(/STYLE NOTES:\s*([\s\S]*?)(?=METADATA:|$)/i);
+  const metadataMatch = generatedContent.match(/METADATA:\s*([\s\S]*?)$/i);
+  
+  // Extract and clean each section
+  const mainPrompt = mainPromptMatch?.[1]?.trim() || generatedContent;
+  const technicalSpecs = technicalSpecsMatch?.[1]?.trim() || selectedPlatform.technical;
+  const styleNotes = styleNotesMatch?.[1]?.trim() || "Professional cinematic quality";
+  
+  // Parse metadata more robustly
   let metadata = defaultMetadata;
-  if (sections[4]) {
+  if (metadataMatch) {
     try {
-      const metadataText = sections[4].trim();
-      // Extract JSON from the text
+      const metadataText = metadataMatch[1].trim();
+      
+      // Try to find JSON block more accurately
       const jsonMatch = metadataText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsedMetadata = JSON.parse(jsonMatch[0]);
-        metadata = { ...defaultMetadata, ...parsedMetadata };
+        // Ensure all required fields exist with proper types
+        metadata = {
+          characters: Array.isArray(parsedMetadata.characters) ? parsedMetadata.characters : [],
+          location: typeof parsedMetadata.location === 'string' ? parsedMetadata.location : defaultMetadata.location,
+          timeOfDay: typeof parsedMetadata.timeOfDay === 'string' ? parsedMetadata.timeOfDay : defaultMetadata.timeOfDay,
+          mood: typeof parsedMetadata.mood === 'string' ? parsedMetadata.mood : defaultMetadata.mood,
+          visualStyle: typeof parsedMetadata.visualStyle === 'string' ? parsedMetadata.visualStyle : defaultMetadata.visualStyle,
+          keyProps: Array.isArray(parsedMetadata.keyProps) ? parsedMetadata.keyProps : [],
+          colorPalette: Array.isArray(parsedMetadata.colorPalette) ? parsedMetadata.colorPalette : [],
+          cameraWork: typeof parsedMetadata.cameraWork === 'string' ? parsedMetadata.cameraWork : defaultMetadata.cameraWork,
+          lighting: typeof parsedMetadata.lighting === 'string' ? parsedMetadata.lighting : defaultMetadata.lighting,
+          storyElements: Array.isArray(parsedMetadata.storyElements) ? parsedMetadata.storyElements : []
+        };
       }
     } catch (error) {
       console.error('Failed to parse metadata, using defaults:', error);
@@ -169,9 +190,9 @@ export function parsePromptResponse(generatedContent: string, platform: string) 
   }
   
   return {
-    mainPrompt: sections[1]?.trim() || generatedContent,
-    technicalSpecs: sections[2]?.trim() || selectedPlatform.technical,
-    styleNotes: sections[3]?.trim() || `Professional cinematic quality`,
+    mainPrompt,
+    technicalSpecs,
+    styleNotes,
     platform: platform,
     metadata
   };

@@ -28,11 +28,20 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
   const isMobile = useIsMobile();
 
   const handleCopyAll = () => {
-    const fullPrompt = `${generatedPrompt.mainPrompt}\n\n${generatedPrompt.technicalSpecs}\n\n${generatedPrompt.styleNotes}`;
+    const fullPrompt = `MAIN PROMPT:\n${generatedPrompt.mainPrompt}\n\nTECHNICAL SPECS:\n${generatedPrompt.technicalSpecs}\n\nSTYLE NOTES:\n${generatedPrompt.styleNotes}\n\nMETADATA:\n${JSON.stringify(generatedPrompt.metadata, null, 2)}`;
     onCopyToClipboard(fullPrompt);
     toast({
       title: "Success!",
       description: "Complete prompt copied to clipboard.",
+    });
+  };
+
+  const handleCopyMetadata = () => {
+    const metadataText = JSON.stringify(generatedPrompt.metadata, null, 2);
+    onCopyToClipboard(metadataText);
+    toast({
+      title: "Success!",
+      description: "Metadata copied to clipboard.",
     });
   };
 
@@ -112,6 +121,49 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
             }`}>
               {generatedPrompt.styleNotes}
             </p>
+          </div>
+        </div>
+
+        <div className="bg-slate-800/60 rounded-xl border border-emerald-400/20 overflow-hidden">
+          <div className={`${isMobile ? 'p-4' : 'p-4 sm:p-6'}`}>
+            <h4 className={`font-semibold text-emerald-300 mb-2 sm:mb-3 ${
+              isMobile ? 'text-base' : 'text-base sm:text-lg'
+            }`}>
+              Metadata
+            </h4>
+            <div className={`space-y-2 mb-3 ${
+              isMobile ? 'text-xs' : 'text-xs sm:text-sm'
+            }`}>
+              <div className="grid grid-cols-2 gap-2 text-gray-200">
+                <div><span className="text-emerald-300">Location:</span> {generatedPrompt.metadata.location}</div>
+                <div><span className="text-emerald-300">Time:</span> {generatedPrompt.metadata.timeOfDay}</div>
+                <div><span className="text-emerald-300">Mood:</span> {generatedPrompt.metadata.mood}</div>
+                <div><span className="text-emerald-300">Style:</span> {generatedPrompt.metadata.visualStyle}</div>
+              </div>
+              {generatedPrompt.metadata.characters.length > 0 && (
+                <div className="text-gray-200">
+                  <span className="text-emerald-300">Characters:</span> {generatedPrompt.metadata.characters.join(', ')}
+                </div>
+              )}
+              {generatedPrompt.metadata.colorPalette.length > 0 && (
+                <div className="text-gray-200">
+                  <span className="text-emerald-300">Colors:</span> {generatedPrompt.metadata.colorPalette.join(', ')}
+                </div>
+              )}
+            </div>
+            <Button
+              onClick={handleCopyMetadata}
+              size={isMobile ? "default" : "sm"}
+              variant="outline"
+              className={`
+                border-emerald-400/30 text-emerald-300 hover:bg-emerald-900/30 bg-slate-800/40
+                transition-all duration-200
+                ${isMobile ? 'w-full h-10' : 'w-full sm:w-auto text-xs sm:text-sm'}
+              `}
+            >
+              <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+              Copy Metadata
+            </Button>
           </div>
         </div>
       </div>
