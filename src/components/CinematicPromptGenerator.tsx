@@ -25,8 +25,11 @@ const CinematicPromptGenerator: React.FC<CinematicPromptGeneratorProps> = ({
       setShowAuthDialog(true);
       return;
     }
+    const upgradeDetails = subscription.getUpgradeDetails();
+    if (!upgradeDetails) return;
+    
     try {
-      await subscription.createCheckout('creator');
+      await subscription.createCheckout(upgradeDetails.targetTier as 'creator' | 'studio');
     } catch (error) {
       console.error('Upgrade error:', error);
     }

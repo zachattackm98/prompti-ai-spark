@@ -25,4 +25,13 @@ export interface SubscriptionContextType {
   features: any;
   getRemainingFeatures: (currentTier: string) => string[];
   getUpgradeMessage: (feature: string, requiredTier: string) => string;
+  getNextUpgradeTier: () => string | null;
+  getUpgradeDetails: () => {
+    targetTier: string;
+    targetTierName: string;
+    currentPrompts: number;
+    nextPrompts: number;
+    additionalPrompts: number;
+    upgradeText: string;
+  } | null;
 }

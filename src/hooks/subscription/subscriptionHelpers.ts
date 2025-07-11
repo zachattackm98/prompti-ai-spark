@@ -50,6 +50,30 @@ export const createSubscriptionHelpers = (subscription: UserSubscription) => {
     return `Upgrade to ${tierName} for enhanced limits and features`;
   };
 
+  const getNextUpgradeTier = (): SubscriptionTier | null => {
+    if (subscription.tier === 'starter') return 'creator';
+    if (subscription.tier === 'creator') return 'studio';
+    return null; // Already on highest tier
+  };
+
+  const getUpgradeDetails = () => {
+    const nextTier = getNextUpgradeTier();
+    if (!nextTier) return null;
+
+    const currentPrompts = TIER_FEATURES[subscription.tier].maxPrompts;
+    const nextPrompts = TIER_FEATURES[nextTier].maxPrompts;
+    const additionalPrompts = nextPrompts - currentPrompts;
+
+    return {
+      targetTier: nextTier,
+      targetTierName: nextTier === 'creator' ? 'Creator' : 'Studio',
+      currentPrompts,
+      nextPrompts,
+      additionalPrompts,
+      upgradeText: `Upgrade to ${nextTier === 'creator' ? 'Creator' : 'Studio'}`
+    };
+  };
+
   return {
     features,
     hasFeature,
@@ -58,5 +82,7 @@ export const createSubscriptionHelpers = (subscription: UserSubscription) => {
     isSubscribed,
     getRemainingFeatures,
     getUpgradeMessage,
+    getNextUpgradeTier,
+    getUpgradeDetails,
   };
 };

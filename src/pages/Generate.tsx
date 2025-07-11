@@ -44,8 +44,11 @@ const Generate = () => {
 
   const handleUpgrade = async () => {
     if (!user) return;
+    const upgradeDetails = subscriptionContext.getUpgradeDetails();
+    if (!upgradeDetails) return;
+    
     try {
-      await subscriptionContext.createCheckout('creator');
+      await subscriptionContext.createCheckout(upgradeDetails.targetTier as 'creator' | 'studio');
     } catch (error) {
       console.error('Upgrade error:', error);
     }

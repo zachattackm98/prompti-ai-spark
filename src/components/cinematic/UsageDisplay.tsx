@@ -15,7 +15,7 @@ interface UsageDisplayProps {
 }
 
 const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
-  const { subscription } = useSubscription();
+  const { subscription, getUpgradeDetails } = useSubscription();
   const isMobile = useIsMobile();
   const { 
     usage, 
@@ -45,6 +45,7 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
   };
 
   const config = tierConfig[subscription.tier];
+  const upgradeDetails = getUpgradeDetails();
 
   return (
     <motion.div
@@ -63,7 +64,7 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
               <AlertCircle className="w-4 h-4 text-orange-400" />
             )}
           </div>
-          {onUpgrade && subscription.tier !== 'studio' && (
+          {onUpgrade && upgradeDetails && (
             <Button
               onClick={onUpgrade}
               size="sm"
@@ -72,7 +73,7 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
               }`}
             >
               <Crown className="w-3 h-3 mr-1" />
-              Upgrade
+              {upgradeDetails.upgradeText}
             </Button>
           )}
         </div>
@@ -112,18 +113,25 @@ const UsageDisplay = ({ onUpgrade }: UsageDisplayProps) => {
                 <span>Ready to create more?</span>
               </div>
               <p className="text-xs text-gray-400 mb-3 leading-relaxed">
-                {subscription.tier === 'starter' && 'Upgrade to Creator (500/month) or Studio (1000/month) for more prompts.'}
-                {subscription.tier === 'creator' && 'Upgrade to Studio plan for 1000 prompts per month.'}
-                {subscription.tier === 'studio' && 'Your usage will reset next month.'}
+                {upgradeDetails ? (
+                  <>
+                    {upgradeDetails.upgradeText} for {upgradeDetails.nextPrompts} prompts/month 
+                    <span className="text-green-400 font-medium">
+                      (+{upgradeDetails.additionalPrompts} more prompts)
+                    </span>
+                  </>
+                ) : (
+                  'Your usage will reset next month.'
+                )}
               </p>
-              {onUpgrade && subscription.tier !== 'studio' && (
+              {onUpgrade && upgradeDetails && (
                 <Button
                   onClick={onUpgrade}
                   size="sm"
                   className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white min-h-[40px]"
                 >
                   <Crown className="w-3 h-3 mr-2" />
-                  {subscription.tier === 'starter' ? 'Upgrade Now' : 'Upgrade to Studio'}
+                  {upgradeDetails.upgradeText}
                 </Button>
               )}
             </div>
