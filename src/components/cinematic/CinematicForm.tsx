@@ -14,17 +14,22 @@ import CinematicFormContent from './CinematicFormContent';
 import CinematicUpgradeSection from './CinematicUpgradeSection';
 import BackgroundAnimation from './BackgroundAnimation';
 import PromptHistory from './PromptHistory';
+import HistoryControls from './HistoryControls';
 
 interface CinematicFormProps {
   setShowAuthDialog: (show: boolean) => void;
   onUpgrade: () => void;
   showHistory?: boolean;
+  setShowHistory?: (show: boolean) => void;
+  onSignOut?: () => void;
 }
 
 const CinematicForm: React.FC<CinematicFormProps> = ({ 
   setShowAuthDialog, 
   onUpgrade,
-  showHistory = false
+  showHistory = false,
+  setShowHistory,
+  onSignOut
 }) => {
   const { user } = useAuth();
   const { subscription } = useSubscription();
@@ -173,6 +178,15 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
                 canUseFeature={subscriptionHelpers.canUseFeature}
                 subscription={subscription}
                 onUpgrade={onUpgrade}
+              />
+            )}
+
+            {/* History Controls - Only show when user is logged in */}
+            {user && setShowHistory && onSignOut && (
+              <HistoryControls
+                showHistory={showHistory}
+                setShowHistory={setShowHistory}
+                onSignOut={onSignOut}
               />
             )}
 

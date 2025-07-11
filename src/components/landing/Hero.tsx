@@ -89,35 +89,6 @@ const Hero: React.FC<HeroProps> = ({
               )}
             </motion.h1>
 
-            {/* Action Buttons - Only show when user is logged in */}
-            {currentUser && setShowHistory && onSignOut && (
-              <motion.div 
-                variants={fadeInVariants}
-                className="flex gap-2 px-4 max-w-md mx-auto mb-6"
-              >
-                <Button
-                  onClick={() => setShowHistory(!showHistory)}
-                  variant={showHistory ? "default" : "outline"}
-                  size={isMobile ? "default" : "sm"}
-                  className={`flex-1 border-white/20 hover:bg-white/10 bg-slate-800/40 text-sm min-h-[44px] ${
-                    showHistory ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'text-white'
-                  }`}
-                >
-                  <History className="w-4 h-4 mr-2" />
-                  {showHistory ? 'Hide History' : 'Show History'}
-                </Button>
-
-                <Button
-                  onClick={onSignOut}
-                  variant="outline"
-                  size={isMobile ? "default" : "sm"}
-                  className="flex-1 border-white/20 text-white hover:bg-white/10 bg-slate-800/40 text-sm min-h-[44px]"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </Button>
-              </motion.div>
-            )}
 
             {/* Feature Announcement - Slim rectangle */}
             {currentUser && subscription && (

@@ -58,7 +58,11 @@ const Generate = () => {
           onSignOut={handleSignOut}
           onUpgrade={handleUpgrade}
         />
-        <CinematicPromptGenerator showHistory={showHistory} />
+        <CinematicPromptGenerator 
+          showHistory={showHistory} 
+          setShowHistory={setShowHistory}
+          onSignOut={handleSignOut}
+        />
       </motion.div>
       
       <Footer />

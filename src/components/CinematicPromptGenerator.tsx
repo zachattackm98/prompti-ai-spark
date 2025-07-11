@@ -8,9 +8,15 @@ import ComingSoonDialog from './ComingSoonDialog';
 
 interface CinematicPromptGeneratorProps {
   showHistory?: boolean;
+  setShowHistory?: (show: boolean) => void;
+  onSignOut?: () => void;
 }
 
-const CinematicPromptGenerator = ({ showHistory }: CinematicPromptGeneratorProps) => {
+const CinematicPromptGenerator: React.FC<CinematicPromptGeneratorProps> = ({ 
+  showHistory = false,
+  setShowHistory,
+  onSignOut
+}) => {
   const { user } = useAuth();
   const { subscription } = useSubscription();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
@@ -26,6 +32,8 @@ const CinematicPromptGenerator = ({ showHistory }: CinematicPromptGeneratorProps
         setShowAuthDialog={setShowAuthDialog}
         onUpgrade={handleUpgrade}
         showHistory={showHistory}
+        setShowHistory={setShowHistory}
+        onSignOut={onSignOut}
       />
       
       <AuthDialog 
