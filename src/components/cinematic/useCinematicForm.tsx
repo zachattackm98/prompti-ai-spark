@@ -118,9 +118,9 @@ export const useCinematicForm = (
     // Reset generated prompt since we're creating a new scene
     setGeneratedPrompt(null);
     
-    // Smooth scroll to generator form for better UX
+    // Smooth scroll to scene input area for better UX
     setTimeout(() => {
-      scrollToElementById('generator-start', 'smooth', 120);
+      scrollToElementById('scene-input-area', 'smooth', 80);
     }, 100);
   };
 

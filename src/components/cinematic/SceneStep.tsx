@@ -213,8 +213,14 @@ const SceneStep: React.FC<SceneStepProps> = ({
         </p>
       </div>
       
-      <div className="w-full max-w-full overflow-hidden px-2 sm:px-0">
+      <div id="scene-input-area" className="w-full max-w-full overflow-hidden px-2 sm:px-0">
         <Textarea
+          ref={(textarea) => {
+            // Auto-focus when scrolled to
+            if (textarea && window.location.hash === '#scene-input-area') {
+              setTimeout(() => textarea.focus(), 100);
+            }
+          }}
           value={sceneIdea}
           onChange={handleTextChange}
           placeholder={isContinuingScene 

@@ -21,8 +21,8 @@ const Navigation = ({ className }: NavigationProps) => {
   const handleGenerateClick = (e: React.MouseEvent) => {
     if (isGeneratePage) {
       e.preventDefault();
-      // Scroll to the generator form if already on the generate page
-      scrollToElementById('generator-start', 'smooth', 120);
+      // Scroll to the scene input area if already on the generate page
+      scrollToElementById('scene-input-area', 'smooth', 80);
     }
   };
 

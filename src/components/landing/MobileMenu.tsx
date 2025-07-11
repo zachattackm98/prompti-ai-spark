@@ -45,8 +45,8 @@ const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps
     if (isGeneratePage) {
       e.preventDefault();
       onClose();
-      // Scroll to the generator form if already on the generate page
-      scrollToElementById('generator-start', 'smooth', 120);
+      // Scroll to the scene input area if already on the generate page
+      scrollToElementById('scene-input-area', 'smooth', 80);
     } else {
       onClose();
     }
