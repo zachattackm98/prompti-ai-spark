@@ -53,7 +53,20 @@ export const useHistoryScenes = (
           styleNotes: promptData.styleNotes,
           platform: historyItem.platform,
           sceneNumber: 1,
-          totalScenes: 2
+          totalScenes: 2,
+          // Include metadata if available (new format), or create default metadata (old format)
+          metadata: promptData.metadata || {
+            characters: [],
+            location: "Unknown location", 
+            timeOfDay: "day",
+            mood: historyItem.emotion || "neutral",
+            visualStyle: "cinematic",
+            keyProps: [],
+            colorPalette: [],
+            cameraWork: "standard framing",
+            lighting: "natural lighting",
+            storyElements: []
+          }
         }
       };
 

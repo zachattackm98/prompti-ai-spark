@@ -26,6 +26,19 @@ export interface SoundSettings {
   soundDescription?: string;
 }
 
+export interface SceneMetadata {
+  characters: string[];
+  location: string;
+  timeOfDay: string;
+  mood: string;
+  visualStyle: string;
+  keyProps: string[];
+  colorPalette: string[];
+  cameraWork: string;
+  lighting: string;
+  storyElements: string[];
+}
+
 export interface GeneratedPrompt {
   mainPrompt: string;
   technicalSpecs: string;
@@ -33,6 +46,7 @@ export interface GeneratedPrompt {
   platform: string;
   sceneNumber?: number;
   totalScenes?: number;
+  metadata: SceneMetadata;
 }
 
 export interface SceneData {

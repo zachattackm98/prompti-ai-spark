@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Film, Plus, Sparkles, ArrowRight, Lightbulb, Users, MapPin, Clock, Eye, Palette, HelpCircle, Info, Wand2 } from 'lucide-react';
 import { GeneratedPrompt, SceneData } from './hooks/types';
-import { buildEnhancedSceneContext, extractContextFromScene, generateSceneSuggestions, ExtractedContext } from './utils/contextExtractor';
+import { extractEnhancedContext, generateMetadataBasedSuggestions, EnhancedSceneContext } from './utils/metadataContextExtractor';
 
 interface StreamlinedContinuationProps {
   generatedPrompt: GeneratedPrompt;
@@ -28,7 +28,7 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
   const [projectTitle, setProjectTitle] = useState('');
   const [nextSceneIdea, setNextSceneIdea] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [extractedContext, setExtractedContext] = useState<ExtractedContext | null>(null);
+  const [enhancedContext, setEnhancedContext] = useState<EnhancedSceneContext | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   // Auto-generate project title and analyze context
@@ -48,11 +48,12 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
         generatedPrompt
       };
 
-      const context = extractContextFromScene(mockScene);
-      setExtractedContext(context);
+      // Use new metadata-based context extraction
+      const context = extractEnhancedContext([mockScene]);
+      setEnhancedContext(context);
 
-      // Generate intelligent suggestions
-      const sceneSuggestions = generateSceneSuggestions([context]);
+      // Generate intelligent suggestions using metadata
+      const sceneSuggestions = generateMetadataBasedSuggestions(context);
       setSuggestions(sceneSuggestions);
 
       // Auto-generate project title from context
@@ -62,7 +63,7 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
     }
   }, [generatedPrompt, projectTitle]);
 
-  const generateProjectTitle = (context: ExtractedContext) => {
+  const generateProjectTitle = (context: EnhancedSceneContext) => {
     // Extract keywords from the main prompt for more relevant titles
     const promptWords = generatedPrompt.mainPrompt?.toLowerCase().split(' ') || [];
     const importantWords = promptWords.filter(word => 
@@ -71,23 +72,23 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
     );
 
     // Smart title generation based on available context
-    if (context.characters.length > 0 && context.locations.length > 0) {
-      const character = context.characters[0].split(' ')[0];
-      const location = context.locations[0].split(' ').slice(0, 2).join(' ');
+    if (context.characters.primary.length > 0 && context.locations.current) {
+      const character = context.characters.primary[0].split(' ')[0];
+      const location = context.locations.current.split(' ').slice(0, 2).join(' ');
       setProjectTitle(`${character} at ${location}`);
-    } else if (context.characters.length > 0) {
-      const character = context.characters[0].split(' ').slice(0, 2).join(' ');
+    } else if (context.characters.primary.length > 0) {
+      const character = context.characters.primary[0].split(' ').slice(0, 2).join(' ');
       const suffix = ['Chronicles', 'Journey', 'Story', 'Adventures'][Math.floor(Math.random() * 4)];
       setProjectTitle(`${character} ${suffix}`);
-    } else if (context.locations.length > 0) {
-      const location = context.locations[0].split(' ').slice(0, 2).join(' ');
+    } else if (context.locations.current !== "Unknown location") {
+      const location = context.locations.current.split(' ').slice(0, 2).join(' ');
       const prefix = ['The', 'Return to', 'Escape from', 'Mystery of'][Math.floor(Math.random() * 4)];
       setProjectTitle(`${prefix} ${location}`);
     } else if (importantWords.length > 0) {
       const keyword = importantWords[0];
       const themed = ['The', 'Project', 'Mission', 'Operation'][Math.floor(Math.random() * 4)];
       setProjectTitle(`${themed} ${keyword.charAt(0).toUpperCase() + keyword.slice(1)}`);
-    } else if (context.mood) {
+    } else if (context.storyProgression.currentMood) {
       const moodTitles = {
         'dramatic': 'Dramatic Tales',
         'mysterious': 'Hidden Secrets',
@@ -97,7 +98,7 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
         'suspenseful': 'Edge of Tension',
         'serene': 'Peaceful Moments'
       };
-      setProjectTitle(moodTitles[context.mood as keyof typeof moodTitles] || 'Cinematic Story');
+      setProjectTitle(moodTitles[context.storyProgression.currentMood as keyof typeof moodTitles] || 'Cinematic Story');
     } else {
       const fallbackTitles = [
         'Untitled Story',
@@ -136,7 +137,7 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
         className="mt-6 space-y-4"
       >
         {/* Enhanced Context Summary Card */}
-        {extractedContext && (
+        {enhancedContext && (
           <Card className="bg-gradient-to-r from-slate-900/80 to-purple-900/20 border border-purple-400/20 p-4">
             <div className="space-y-3">
               <h4 className="text-sm font-semibold text-purple-300 flex items-center gap-2">
@@ -147,28 +148,27 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
               {/* Context Details */}
               <div className="space-y-2">
                 {/* Characters */}
-                {extractedContext.characters.length > 0 && (
+                {enhancedContext.characters.primary.length > 0 && (
                   <div className="flex items-start gap-2">
                     <Users className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
                     <div>
                       <span className="text-xs text-blue-300 font-medium">Characters:</span>
                       <p className="text-xs text-gray-300 mt-1">
-                        {extractedContext.characters.slice(0, 2).join(', ')}
-                        {extractedContext.characters.length > 2 && ` +${extractedContext.characters.length - 2} more`}
+                        {enhancedContext.characters.primary.slice(0, 2).join(', ')}
+                        {enhancedContext.characters.primary.length > 2 && ` +${enhancedContext.characters.primary.length - 2} more`}
                       </p>
                     </div>
                   </div>
                 )}
                 
                 {/* Locations */}
-                {extractedContext.locations.length > 0 && (
+                {enhancedContext.locations.current !== "Unknown location" && (
                   <div className="flex items-start gap-2">
                     <MapPin className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
                     <div>
-                      <span className="text-xs text-green-300 font-medium">Locations:</span>
+                      <span className="text-xs text-green-300 font-medium">Location:</span>
                       <p className="text-xs text-gray-300 mt-1">
-                        {extractedContext.locations.slice(0, 2).join(', ')}
-                        {extractedContext.locations.length > 2 && ` +${extractedContext.locations.length - 2} more`}
+                        {enhancedContext.locations.current}
                       </p>
                     </div>
                   </div>
@@ -176,22 +176,22 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
 
                 {/* Visual Elements */}
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {extractedContext.mood && (
+                  {enhancedContext.storyProgression.currentMood !== "neutral" && (
                     <Badge variant="outline" className="text-xs border-purple-400/30 text-purple-300">
                       <Eye className="w-3 h-3 mr-1" />
-                      {extractedContext.mood}
+                      {enhancedContext.storyProgression.currentMood}
                     </Badge>
                   )}
-                  {extractedContext.timeOfDay && (
+                  {enhancedContext.timeFlow.currentTimeOfDay !== "day" && (
                     <Badge variant="outline" className="text-xs border-orange-400/30 text-orange-300">
                       <Clock className="w-3 h-3 mr-1" />
-                      {extractedContext.timeOfDay}
+                      {enhancedContext.timeFlow.currentTimeOfDay}
                     </Badge>
                   )}
-                  {extractedContext.visualStyle && (
+                  {enhancedContext.visualConsistency.style !== "cinematic" && (
                     <Badge variant="outline" className="text-xs border-pink-400/30 text-pink-300">
                       <Palette className="w-3 h-3 mr-1" />
-                      {extractedContext.visualStyle}
+                      {enhancedContext.visualConsistency.style}
                     </Badge>
                   )}
                 </div>

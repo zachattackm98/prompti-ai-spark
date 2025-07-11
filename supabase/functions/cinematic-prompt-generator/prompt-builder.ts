@@ -23,11 +23,12 @@ export function buildSystemPrompt(request: PromptRequest): string {
 
   let systemPrompt = `${selectedPlatform.system}
 
-Your task is to transform user scene ideas into three distinct components:
+Your task is to transform user scene ideas into four distinct components:
 
 1. MAIN PROMPT: A detailed, cinematic description optimized for AI video generation
 2. TECHNICAL SPECS: Platform-specific technical parameters and settings
 3. STYLE NOTES: Visual style, mood, and artistic direction
+4. METADATA: Structured scene information for continuity (JSON format)
 
 Guidelines:
 - Use specific cinematography terms (wide shot, close-up, dolly zoom, etc.)
@@ -131,6 +132,24 @@ INSTRUCTIONS: Generate this scene as a direct continuation that could be edited 
     systemPrompt += `\n\nStyle reference: ${styleReference}`;
   }
 
+  // Add metadata requirements
+  systemPrompt += `\n\nMETADATA REQUIREMENTS:
+Provide a JSON object in the METADATA section with the following structure:
+{
+  "characters": ["list of character names/descriptions"],
+  "location": "primary location description",
+  "timeOfDay": "time of day (morning/afternoon/evening/night)",
+  "mood": "emotional mood of the scene",
+  "visualStyle": "visual style description",
+  "keyProps": ["important props or objects in the scene"],
+  "colorPalette": ["dominant colors in the scene"],
+  "cameraWork": "camera movement and positioning description",
+  "lighting": "lighting setup description",
+  "storyElements": ["key story beats or narrative elements"]
+}
+
+This metadata will be used for scene continuity and context building.`;
+
   return systemPrompt;
 }
 
@@ -138,7 +157,37 @@ export function parsePromptResponse(generatedContent: string, platform: string, 
   const selectedPlatform = PLATFORM_PROMPTS[platform as keyof typeof PLATFORM_PROMPTS] || PLATFORM_PROMPTS.veo3;
   
   // Parse the response into structured sections
-  const sections = generatedContent.split(/(?:MAIN PROMPT:|TECHNICAL SPECS:|STYLE NOTES:)/i);
+  const sections = generatedContent.split(/(?:MAIN PROMPT:|TECHNICAL SPECS:|STYLE NOTES:|METADATA:)/i);
+  
+  // Default metadata structure
+  const defaultMetadata = {
+    characters: [],
+    location: "Unknown location",
+    timeOfDay: "day",
+    mood: "neutral",
+    visualStyle: "cinematic",
+    keyProps: [],
+    colorPalette: [],
+    cameraWork: "standard framing",
+    lighting: "natural lighting",
+    storyElements: []
+  };
+  
+  // Try to parse metadata from the response
+  let metadata = defaultMetadata;
+  if (sections[4]) {
+    try {
+      const metadataText = sections[4].trim();
+      // Extract JSON from the text
+      const jsonMatch = metadataText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsedMetadata = JSON.parse(jsonMatch[0]);
+        metadata = { ...defaultMetadata, ...parsedMetadata };
+      }
+    } catch (error) {
+      console.error('Failed to parse metadata, using defaults:', error);
+    }
+  }
   
   return {
     mainPrompt: sections[1]?.trim() || generatedContent,
@@ -146,6 +195,7 @@ export function parsePromptResponse(generatedContent: string, platform: string, 
     styleNotes: sections[3]?.trim() || `Professional cinematic quality`,
     platform: platform,
     sceneNumber,
-    totalScenes
+    totalScenes,
+    metadata
   };
 }
