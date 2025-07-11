@@ -188,8 +188,9 @@ const SceneStep: React.FC<SceneStepProps> = ({
               disabled={!sceneIdea.trim()}
               size={isMobile ? "lg" : "sm"}
               className={`
-                bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700
-                text-white transition-all duration-200
+                bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400
+                text-white font-semibold shadow-lg hover:shadow-xl
+                transition-all duration-200
                 ${isMobile ? 'flex-1 h-12 text-base font-medium' : 'px-6'}
               `}
             >
