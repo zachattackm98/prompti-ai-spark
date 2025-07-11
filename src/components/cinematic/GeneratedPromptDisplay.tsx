@@ -28,11 +28,11 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
   const isMobile = useIsMobile();
 
   const handleCopyAll = () => {
-    const fullPrompt = `MAIN PROMPT:\n${generatedPrompt.mainPrompt}\n\nTECHNICAL SPECS:\n${generatedPrompt.technicalSpecs}\n\nSTYLE NOTES:\n${generatedPrompt.styleNotes}\n\nMETADATA:\n${JSON.stringify(generatedPrompt.metadata, null, 2)}`;
+    const fullPrompt = `MAIN PROMPT:\n${generatedPrompt.mainPrompt}\n\nTECHNICAL SPECS:\n${generatedPrompt.technicalSpecs}\n\nSTYLE NOTES:\n${generatedPrompt.styleNotes}`;
     onCopyToClipboard(fullPrompt);
     toast({
       title: "Success!",
-      description: "Complete prompt copied to clipboard.",
+      description: "Prompt sections copied to clipboard (excluding metadata).",
     });
   };
 
@@ -184,7 +184,7 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
           `}
         >
           <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-          Copy All
+          Copy All (excludes metadata)
         </Button>
         <Button
           onClick={onDownloadPrompt}
