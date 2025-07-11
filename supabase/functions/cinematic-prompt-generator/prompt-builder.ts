@@ -45,17 +45,17 @@ User subscription tier: ${tier?.toUpperCase()}`;
     systemPrompt += `\n\nMULTI-SCENE PROJECT CONTEXT:
 This is Scene ${sceneNumber} of ${totalScenes} in a cinematic sequence.
 
-IMPORTANT CONTINUITY REQUIREMENTS:
-- Maintain consistent character appearances, clothing, and mannerisms
-- Preserve environmental details and lighting consistency where appropriate
-- Ensure emotional and narrative progression flows naturally from previous scenes
-- Keep the same visual style and color palette established in earlier scenes
-- Use transitional elements that connect this scene to the story arc
+CRITICAL CONTINUITY REQUIREMENTS:
+- EXACT character appearance consistency: Keep faces, hair, clothing, and physical traits identical
+- PRECISE environmental continuity: Maintain the same locations, lighting conditions, and time of day unless explicitly changing
+- SEAMLESS narrative flow: This scene should feel like the immediate next moment in the story
+- CONSISTENT visual language: Use identical camera styles, color grading, and cinematographic approach
+- CHARACTER BEHAVIOR: Maintain established personality traits, speech patterns, and mannerisms
 
-PREVIOUS SCENE CONTEXT:
+ENHANCED STORY CONTEXT (extracted from previous scenes):
 ${sceneContext}
 
-When generating this scene, ensure it feels like a natural continuation of the story while advancing the narrative.`;
+INSTRUCTIONS: Generate this scene as a direct continuation that could be edited seamlessly with the previous footage. Focus on maintaining visual and narrative consistency above all else.`;
   }
 
   // Add dialog specifications

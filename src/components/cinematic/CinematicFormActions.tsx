@@ -2,7 +2,7 @@
 import React from 'react';
 import GeneratedPromptDisplay from './GeneratedPromptDisplay';
 import CinematicUpgradeSection from './CinematicUpgradeSection';
-import ContinueScenePrompt from './ContinueScenePrompt';
+import StreamlinedContinuation from './StreamlinedContinuation';
 import { GeneratedPrompt } from './useCinematicForm';
 
 interface CinematicFormActionsProps {
@@ -14,6 +14,7 @@ interface CinematicFormActionsProps {
   canUseFeature: (feature: string) => boolean;
   subscription: any;
   onUpgrade: () => void;
+  currentProject?: any; // Add currentProject prop
 }
 
 const CinematicFormActions: React.FC<CinematicFormActionsProps> = ({
@@ -24,7 +25,8 @@ const CinematicFormActions: React.FC<CinematicFormActionsProps> = ({
   user,
   canUseFeature,
   subscription,
-  onUpgrade
+  onUpgrade,
+  currentProject
 }) => {
   if (!generatedPrompt) return null;
 
@@ -48,12 +50,13 @@ const CinematicFormActions: React.FC<CinematicFormActionsProps> = ({
         onGenerateNew={handleGenerateNew}
       />
 
-      {/* Continue Scene Prompt for Multi-Scene */}
+      {/* Streamlined Continuation for Multi-Scene */}
       {!isMultiScene && (
-        <ContinueScenePrompt
+        <StreamlinedContinuation
           generatedPrompt={generatedPrompt}
           onContinueScene={handleContinueScene}
           onStartOver={handleGenerateNew}
+          currentScenes={currentProject?.scenes || []}
         />
       )}
 

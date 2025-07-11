@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { usePromptUsage } from '@/hooks/usePromptUsage';
 import { GeneratedPrompt, MultiSceneProject } from './types';
+import { buildEnhancedSceneContext } from '../utils/contextExtractor';
 
 interface FormState {
   sceneIdea: string;
@@ -55,16 +56,11 @@ export const usePromptGeneration = (
         sceneNumber = currentProject.currentSceneIndex + 1;
         totalScenes = currentProject.scenes.length;
         
-        // Build context from previous scenes
+        // Build enhanced context from previous scenes using the context extractor
         const previousScenes = currentProject.scenes.slice(0, currentProject.currentSceneIndex);
         if (previousScenes.length > 0) {
-          sceneContext = previousScenes.map((scene, index) => {
-            let context = `Scene ${index + 1}: ${scene.sceneIdea}`;
-            if (scene.generatedPrompt) {
-              context += `\nGenerated content: ${scene.generatedPrompt.mainPrompt.substring(0, 200)}...`;
-            }
-            return context;
-          }).join('\n\n');
+          sceneContext = buildEnhancedSceneContext(previousScenes);
+          console.log('Enhanced scene context built:', sceneContext.substring(0, 200) + '...');
         }
       }
 

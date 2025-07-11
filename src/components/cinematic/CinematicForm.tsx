@@ -152,6 +152,7 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               canUseFeature={subscriptionHelpers.canUseFeature}
               subscription={subscription}
               onUpgrade={onUpgrade}
+              currentProject={currentProject}
             />
 
             {/* History Component with create scenes functionality */}
