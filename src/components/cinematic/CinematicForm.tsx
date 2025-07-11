@@ -168,6 +168,9 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               canUseFeature={subscriptionHelpers.canUseFeature}
               subscription={subscription}
               onUpgrade={onUpgrade}
+              currentSceneIdea={sceneIdea}
+              currentPlatform={selectedPlatform}
+              currentEmotion={selectedEmotion}
             />
 
             {/* Simplified History */}

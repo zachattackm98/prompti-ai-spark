@@ -75,21 +75,31 @@ export const useCinematicForm = (
     setIsLoading
   );
 
-  // Simplified continue scene logic - just transfer metadata to current form
+  // Enhanced continue scene logic with proper metadata transfer
   const handleContinueScene = (projectTitle: string, nextSceneIdea: string) => {
-    console.log('Continuing scene with transferred metadata');
+    console.log('Continuing scene with metadata transfer:', {
+      projectTitle,
+      nextSceneIdea,
+      currentSettings: {
+        platform: selectedPlatform,
+        emotion: selectedEmotion,
+        camera: cameraSettings,
+        lighting: lightingSettings,
+        style: styleReference
+      }
+    });
     
-    // Transfer metadata from current prompt to new scene
-    if (generatedPrompt?.metadata) {
-      // Keep most form settings the same for continuity
-      setSceneIdea(nextSceneIdea);
-      // Reset to step 1 to allow user to modify settings if needed
-      setCurrentStep(1);
-    } else {
-      // Fallback if no metadata
-      setSceneIdea(nextSceneIdea);
-      setCurrentStep(1);
-    }
+    // Update scene idea for the new scene
+    setSceneIdea(nextSceneIdea);
+    
+    // All other settings (platform, emotion, camera, lighting, style) are preserved
+    // This maintains continuity between scenes
+    
+    // Reset to step 1 to allow user to review and modify settings if needed
+    setCurrentStep(1);
+    
+    // Reset generated prompt since we're creating a new scene
+    setGeneratedPrompt(null);
   };
 
   return {

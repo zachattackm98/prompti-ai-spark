@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import GeneratedPromptDisplay from './GeneratedPromptDisplay';
 import CinematicUpgradeSection from './CinematicUpgradeSection';
+import ContinueSceneDialog from './ContinueSceneDialog';
 import { GeneratedPrompt } from './types';
 
 interface CinematicFormActionsProps {
@@ -14,6 +15,10 @@ interface CinematicFormActionsProps {
   canUseFeature: (feature: string) => boolean;
   subscription: any;
   onUpgrade: () => void;
+  // Additional props for continuity
+  currentSceneIdea: string;
+  currentPlatform: string;
+  currentEmotion: string;
 }
 
 const CinematicFormActions: React.FC<CinematicFormActionsProps> = ({
@@ -25,19 +30,39 @@ const CinematicFormActions: React.FC<CinematicFormActionsProps> = ({
   user,
   canUseFeature,
   subscription,
-  onUpgrade
+  onUpgrade,
+  currentSceneIdea,
+  currentPlatform,
+  currentEmotion
 }) => {
+  const [showContinueDialog, setShowContinueDialog] = useState(false);
+
   if (!generatedPrompt) return null;
+
+  const handleOpenContinueDialog = () => {
+    setShowContinueDialog(true);
+  };
 
   return (
     <>
-      {/* Simplified GeneratedPromptDisplay with 4 action buttons */}
+      {/* GeneratedPromptDisplay with continue dialog trigger */}
       <GeneratedPromptDisplay
         generatedPrompt={generatedPrompt}
         onCopyToClipboard={onCopyToClipboard}
         onDownloadPrompt={onDownloadPrompt}
         onGenerateNew={handleGenerateNew}
-        onContinueScene={handleContinueScene}
+        onContinueScene={handleOpenContinueDialog}
+      />
+
+      {/* Continue Scene Dialog */}
+      <ContinueSceneDialog
+        open={showContinueDialog}
+        onOpenChange={setShowContinueDialog}
+        onConfirm={handleContinueScene}
+        currentPrompt={generatedPrompt}
+        currentSceneIdea={currentSceneIdea}
+        currentPlatform={currentPlatform}
+        currentEmotion={currentEmotion}
       />
 
       {/* Upgrade Section for Starter Users */}

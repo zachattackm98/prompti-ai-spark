@@ -14,7 +14,7 @@ interface GeneratedPromptDisplayProps {
   onCopyToClipboard: (text: string) => void;
   onDownloadPrompt: () => void;
   onGenerateNew: () => void;
-  onContinueScene?: (projectTitle: string, nextSceneIdea: string) => void;
+  onContinueScene?: () => void;
 }
 
 const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
@@ -214,7 +214,7 @@ const GeneratedPromptDisplay: React.FC<GeneratedPromptDisplayProps> = ({
         </Button>
         {onContinueScene && (
           <Button
-            onClick={() => onContinueScene('Cinematic Project', 'Enter your next scene idea')}
+            onClick={onContinueScene}
             variant="outline"
             size={isMobile ? "lg" : "default"}
             className={`
