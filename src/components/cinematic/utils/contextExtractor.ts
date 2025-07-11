@@ -170,36 +170,107 @@ function extractKeyVisualElements(prompt: string): string {
 }
 
 export function generateSceneSuggestions(contexts: ExtractedContext[]): string[] {
-  if (contexts.length === 0) return [];
+  if (contexts.length === 0) return getGenericSuggestions();
 
   const latestContext = contexts[contexts.length - 1];
   const suggestions: string[] = [];
 
-  // Character-driven suggestions
+  // Character-specific suggestions
   if (latestContext.characters.length > 0) {
-    suggestions.push(`Continue with the same character in a new location`);
-    suggestions.push(`Show the character's reaction to the previous scene`);
+    const character = latestContext.characters[0];
+    suggestions.push(`Follow ${character} as they react to what just happened`);
+    suggestions.push(`Show ${character} making a crucial decision`);
+    suggestions.push(`${character} encounters an unexpected obstacle`);
   }
 
-  // Location-based suggestions
+  // Location-specific suggestions
   if (latestContext.locations.length > 0) {
-    suggestions.push(`Cut to a different angle in the same location`);
-    suggestions.push(`Move to a connected location nearby`);
+    const location = latestContext.locations[0];
+    suggestions.push(`Pan to reveal more of the ${location}`);
+    suggestions.push(`Someone new enters the ${location}`);
+    suggestions.push(`The action moves from the ${location} to somewhere urgent`);
   }
 
-  // Mood progression suggestions
-  const moodProgression = {
-    'dramatic': ['intense', 'suspenseful', 'climactic'],
-    'mysterious': ['revealing', 'dramatic', 'suspenseful'], 
-    'romantic': ['intimate', 'uplifting', 'dramatic'],
-    'uplifting': ['epic', 'dramatic', 'serene'],
-    'intense': ['dramatic', 'epic', 'suspenseful']
+  // Prop-driven suggestions
+  if (latestContext.props.length > 0) {
+    const prop = latestContext.props[0];
+    suggestions.push(`The ${prop} becomes crucial to the story`);
+    suggestions.push(`A close-up reveals something important about the ${prop}`);
+  }
+
+  // Mood-driven narrative suggestions
+  const narrativeTwists = {
+    'dramatic': [
+      'The tension escalates with an unexpected reveal',
+      'Stakes are raised as time runs out',
+      'A shocking truth changes everything'
+    ],
+    'mysterious': [
+      'A clue leads to more questions than answers',
+      'Someone is watching from the shadows',
+      'The mystery deepens with a new discovery'
+    ],
+    'romantic': [
+      'A tender moment brings them closer',
+      'Misunderstanding creates romantic tension',
+      'A gesture reveals true feelings'
+    ],
+    'uplifting': [
+      'Hope emerges from an unexpected source',
+      'A breakthrough moment lifts spirits',
+      'Unity forms in the face of challenge'
+    ],
+    'intense': [
+      'The chase intensifies with higher stakes',
+      'Split-second decisions determine fate',
+      'Adrenaline peaks as time runs out'
+    ],
+    'suspenseful': [
+      'Something moves in the shadows',
+      'The calm before the storm',
+      'An ominous discovery raises alarms'
+    ],
+    'serene': [
+      'A peaceful moment of reflection',
+      'Beauty is found in the quiet details',
+      'Harmony emerges from chaos'
+    ]
   };
 
-  const nextMoods = moodProgression[latestContext.mood as keyof typeof moodProgression];
-  if (nextMoods) {
-    suggestions.push(`Transition to a ${nextMoods[0]} mood`);
+  const moodSuggestions = narrativeTwists[latestContext.mood as keyof typeof narrativeTwists];
+  if (moodSuggestions) {
+    suggestions.push(...moodSuggestions);
   }
 
-  return suggestions.slice(0, 3); // Return top 3 suggestions
+  // Time-specific suggestions
+  if (latestContext.timeOfDay) {
+    const timeSpecific = getTimeBasedSuggestions(latestContext.timeOfDay);
+    suggestions.push(...timeSpecific);
+  }
+
+  // Ensure we have enough suggestions and they're unique
+  const uniqueSuggestions = [...new Set(suggestions)];
+  return uniqueSuggestions.slice(0, 4); // Return top 4 unique suggestions
+}
+
+function getGenericSuggestions(): string[] {
+  return [
+    'The perspective shifts to reveal new information',
+    'A new character enters and changes the dynamic',
+    'The focus moves to an important detail',
+    'Time jumps forward to show the consequences'
+  ];
+}
+
+function getTimeBasedSuggestions(timeOfDay: string): string[] {
+  const timeMap: Record<string, string[]> = {
+    'morning': ['The day takes an unexpected turn', 'Morning light reveals something hidden'],
+    'afternoon': ['The midday heat intensifies the situation', 'Lunch hour brings an interruption'],
+    'evening': ['As evening approaches, urgency grows', 'Golden hour light creates magic'],
+    'night': ['Under cover of darkness, secrets emerge', 'The night brings danger'],
+    'dawn': ['A new day brings new possibilities', 'First light reveals the truth'],
+    'dusk': ['As day turns to night, everything changes', 'Twilight shadows hide mysteries']
+  };
+
+  return timeMap[timeOfDay.toLowerCase()] || [];
 }
