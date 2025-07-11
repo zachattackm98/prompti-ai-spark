@@ -51,7 +51,8 @@ export const useCinematicForm = (
     updateCurrentScene,
     setCurrentSceneIndex,
     updateScenePrompt,
-    resetProject
+    resetProject,
+    loadProjectById
   } = useFormState();
 
   const { totalSteps, handleNext, handlePrevious, scrollToForm } = useStepNavigation(
@@ -152,6 +153,7 @@ export const useCinematicForm = (
     // Expose multi-scene state functions for history integration
     startNewProject,
     loadSceneDataToCurrentState,
-    setCurrentStep
+    setCurrentStep,
+    loadProjectById
   };
 };

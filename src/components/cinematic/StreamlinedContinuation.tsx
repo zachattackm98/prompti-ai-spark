@@ -209,37 +209,63 @@ const StreamlinedContinuation: React.FC<StreamlinedContinuationProps> = ({
               <Sparkles className="w-5 h-5" />
             </div>
             
-            <div className="space-y-4">
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Ready to continue your cinematic story? Our AI will automatically maintain character consistency, 
-                location continuity, and visual style across scenes.
-              </p>
+              <div className="space-y-4">
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Ready to turn this into a multi-scene project? Our AI will automatically create a cinematic story 
+                  with consistent characters, settings, and visual style.
+                </p>
 
-              {/* Enhanced Help Section */}
-              <div className="bg-slate-800/40 border border-purple-400/20 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-purple-300 mb-2">
-                  <Info className="w-4 h-4" />
-                  <span className="text-sm font-medium">AI Continuity Features</span>
+                {/* Enhanced Project Creation Explanation */}
+                <div className="bg-slate-800/40 border border-purple-400/20 rounded-lg p-4">
+                  <div className="flex items-center gap-2 text-purple-300 mb-3">
+                    <Info className="w-4 h-4" />
+                    <span className="text-sm font-medium">What happens when you create a project?</span>
+                  </div>
+                  <div className="space-y-2 text-xs text-slate-300">
+                    <div className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                      <span>Your current scene becomes Scene 1 of a new project</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                      <span>AI analyzes characters, locations, and visual style</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                      <span>Automatic continuity across all future scenes</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                      <span>Project management and scene organization tools</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-400">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-3 h-3 text-blue-400" />
-                    <span>Character consistency</span>
+
+                {/* AI Continuity Features */}
+                <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-400/20 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-blue-300 mb-2">
+                    <Wand2 className="w-4 h-4" />
+                    <span className="text-sm font-medium">AI Continuity System</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-3 h-3 text-green-400" />
-                    <span>Location continuity</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Palette className="w-3 h-3 text-pink-400" />
-                    <span>Visual style matching</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-3 h-3 text-orange-400" />
-                    <span>Timeline coherence</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-400">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-3 h-3 text-blue-400" />
+                      <span>Character consistency</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-3 h-3 text-green-400" />
+                      <span>Location continuity</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Palette className="w-3 h-3 text-pink-400" />
+                      <span>Visual style matching</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-3 h-3 text-orange-400" />
+                      <span>Timeline coherence</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
               {/* Intelligent Suggestions */}
               {suggestions.length > 0 && (

@@ -14,7 +14,7 @@ import CinematicFormHeader from './CinematicFormHeader';
 import CinematicFormContent from './CinematicFormContent';
 import CinematicFormActions from './CinematicFormActions';
 import BackgroundAnimation from './BackgroundAnimation';
-import PromptHistory from './PromptHistory';
+import HistoryProjectTabs from './HistoryProjectTabs';
 
 interface CinematicFormProps {
   setShowAuthDialog: (show: boolean) => void;
@@ -67,7 +67,8 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     // Multi-scene state functions
     startNewProject,
     loadSceneDataToCurrentState,
-    setCurrentStep
+    setCurrentStep,
+    loadProjectById
   } = useCinematicForm(
     user,
     subscription,
@@ -81,6 +82,11 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
     loadSceneDataToCurrentState,
     setCurrentStep
   );
+
+  // Handle project loading from the tabbed interface
+  const handleLoadProject = async (projectId: string) => {
+    await loadProjectById(projectId);
+  };
 
   return (
     <>
@@ -155,11 +161,12 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               currentProject={currentProject}
             />
 
-            {/* History Component with create scenes functionality */}
+            {/* Enhanced History and Project Tabs */}
             <div className={isMobile ? 'px-2' : ''}>
-              <PromptHistory 
+              <HistoryProjectTabs 
                 showHistory={showHistory} 
                 onCreateScenesFromHistory={createScenesFromHistory}
+                onLoadProject={handleLoadProject}
               />
             </div>
           </div>

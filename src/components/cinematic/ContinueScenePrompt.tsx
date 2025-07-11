@@ -50,9 +50,24 @@ const ContinueScenePrompt: React.FC<ContinueScenePromptProps> = ({
             </div>
             
             <p className="text-white text-base font-semibold bg-gradient-to-r from-purple-100 to-pink-100 bg-clip-text text-transparent">
-              Turn it into a multi-scene cinematic story! Continue with Scene 2 while maintaining 
-              character consistency and narrative flow.
+              Create a cinematic story project! Our AI will maintain character consistency, 
+              visual style, and narrative flow across multiple scenes.
             </p>
+
+            {/* Enhanced explanation */}
+            <div className="bg-slate-800/40 border border-purple-400/20 rounded-lg p-4 text-left">
+              <h4 className="text-sm font-medium text-purple-300 mb-2 flex items-center gap-2">
+                <Film className="w-4 h-4" />
+                What happens when you continue?
+              </h4>
+              <ul className="space-y-1 text-xs text-slate-300">
+                <li>• Your scene becomes Scene 1 of a new project</li>
+                <li>• AI automatically maintains character appearances</li>
+                <li>• Visual style and mood stay consistent</li>
+                <li>• Settings and timeline continuity preserved</li>
+                <li>• Access to project management and scene organization</li>
+              </ul>
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
               <Button
@@ -87,24 +102,28 @@ const ContinueScenePrompt: React.FC<ContinueScenePromptProps> = ({
       <Card className="bg-gradient-to-br from-slate-900/80 to-purple-900/30 border border-purple-400/30 p-6">
         <div className="space-y-4">
           <div className="text-center">
-            <h3 className="text-xl font-bold text-white mb-2">Continue Your Story</h3>
+            <h3 className="text-xl font-bold text-white mb-2">Create Your Project</h3>
             <p className="text-gray-300 text-sm">
-              Create Scene 2 with automatic character and setting continuity
+              Set up a multi-scene cinematic project with AI-powered continuity
             </p>
           </div>
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="project-title" className="text-purple-300">
+              <Label htmlFor="project-title" className="text-purple-300 flex items-center gap-2">
+                <Film className="w-4 h-4" />
                 Project Title
               </Label>
               <Input
                 id="project-title"
                 value={projectTitle}
                 onChange={(e) => setProjectTitle(e.target.value)}
-                placeholder="e.g., The Heist Chronicles"
+                placeholder="e.g., The Midnight Heist, Sarah's Journey, City Lights"
                 className="bg-slate-800/60 border-purple-400/30 text-white"
               />
+              <p className="text-xs text-gray-400 mt-1">
+                Choose a memorable name for your cinematic story project
+              </p>
             </div>
 
             <div>
