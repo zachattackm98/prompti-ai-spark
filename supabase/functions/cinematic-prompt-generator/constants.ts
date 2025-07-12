@@ -11,6 +11,7 @@ export const CORS_HEADERS = {
 } as const;
 
 // Configuration for switching between approaches
+// Default to bot approach (false) unless explicitly set to true
 export const USE_LEGACY_APPROACH = Deno.env.get('USE_LEGACY_APPROACH') === 'true';
 
 // Bot API configuration
