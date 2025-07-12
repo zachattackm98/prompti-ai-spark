@@ -1,5 +1,5 @@
 import type { PromptRequest, GeneratedPrompt } from './types.ts';
-import { BOT_ID, BOT_API_BASE_URL } from './constants.ts';
+import { BOT_ID } from './constants.ts';
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
@@ -8,35 +8,43 @@ export async function generatePromptWithBot(request: PromptRequest): Promise<Gen
     throw new Error('OpenAI API key not configured');
   }
 
+  console.log('Calling bot API for prompt generation with bot ID:', BOT_ID);
+  
   // Build the streamlined message with only essential information
   const message = buildStreamlinedMessage(request);
 
   try {
-    // Call the bot API instead of OpenAI directly
-    const response = await fetch(`${BOT_API_BASE_URL}/v1/chat/completions`, {
+    // Call the OpenAI responses.create() API with bot ID
+    const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        bot_id: BOT_ID,
-        message: message,
+        bot: BOT_ID,
+        input: message,
         stream: false
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Bot API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('Bot API error response:', errorText);
+      throw new Error(`Bot API call failed: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
-    const generatedContent = data.response || data.message || data.text;
+    
+    // Extract the generated content from the bot response
+    const generatedContent = data.output || data.content || data.text || data.response || data.message;
 
     if (!generatedContent) {
-      throw new Error('No response from bot API');
+      console.error('No content in bot response:', data);
+      throw new Error('Bot API returned no content');
     }
 
+    console.log('Bot API response received successfully');
     // Parse the response and return in the expected format
     return parseStreamlinedResponse(generatedContent, request);
   } catch (error) {
