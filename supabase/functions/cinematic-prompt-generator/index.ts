@@ -53,7 +53,8 @@ serve(async (req) => {
       });
     }
 
-    // Generate the prompt using OpenAI with multi-scene context
+    // Generate the prompt using the selected approach (bot or legacy OpenAI)
+    console.log('Generating prompt with approach:', Deno.env.get('USE_LEGACY_APPROACH') === 'true' ? 'legacy' : 'bot');
     const prompt = await generatePromptWithOpenAI({
       ...requestData,
       sceneContext,
