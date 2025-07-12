@@ -53,11 +53,7 @@ serve(async (req) => {
       });
     }
 
-    // Generate the prompt using the selected approach (bot or legacy OpenAI)
-    const approachUsed = Deno.env.get('USE_LEGACY_APPROACH') === 'true' ? 'legacy' : 'bot';
-    console.log('Generating prompt with approach:', approachUsed);
-    console.log('Environment variable USE_LEGACY_APPROACH:', Deno.env.get('USE_LEGACY_APPROACH'));
-    console.log('Request details:', { platform, emotion, sceneIdea: sceneIdea.substring(0, 50) + '...' });
+    // Generate the prompt using OpenAI with multi-scene context
     const prompt = await generatePromptWithOpenAI({
       ...requestData,
       sceneContext,
@@ -65,9 +61,6 @@ serve(async (req) => {
       totalScenes,
       isMultiScene
     });
-
-    console.log('Prompt generation successful using:', approachUsed, 'approach');
-    console.log('Generated prompt preview:', prompt.mainPrompt?.substring(0, 100) + '...');
 
     // Increment prompt count for all tiers after successful generation
     await incrementPromptCount(user.id, tier);

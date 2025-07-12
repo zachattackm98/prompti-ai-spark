@@ -10,13 +10,6 @@ export const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 } as const;
 
-// Configuration for switching between approaches
-// Default to bot approach (false) unless explicitly set to true
-export const USE_LEGACY_APPROACH = Deno.env.get('USE_LEGACY_APPROACH') === 'true';
-
-// Bot API configuration
-export const BOT_ID = 'pmpt_6871afe3e2488195b4f42067f15f9a200933641e7fae9214';
-
 export const PLATFORM_PROMPTS = {
   'veo3': {
     system: "You are an expert in Veo3 AI video generation. Create production-quality prompts optimized for Veo3's cinematic realism capabilities, focusing on photorealistic scenes, professional cinematography, and cinematic storytelling.",

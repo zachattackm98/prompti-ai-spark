@@ -47,9 +47,6 @@ major_version = 15
 [functions.cinematic-prompt-generator]
 verify_jwt = true
 
-[functions.cinematic-prompt-generator.env]
-USE_LEGACY_APPROACH = "false"
-
 [functions.chat-gpt]
 verify_jwt = true
 
