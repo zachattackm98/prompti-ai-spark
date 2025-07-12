@@ -8,13 +8,14 @@ export async function generatePromptWithBot(request: PromptRequest): Promise<Gen
     throw new Error('OpenAI API key not configured');
   }
 
-  console.log('Calling bot API for prompt generation with bot ID:', BOT_ID);
+  console.log('Calling OpenAI Responses API with bot ID:', BOT_ID);
   
   // Build the streamlined message with only essential information
   const message = buildStreamlinedMessage(request);
+  console.log('Bot input message:', message.substring(0, 200) + '...');
 
   try {
-    // Call the OpenAI responses.create() API with bot ID
+    // Call the OpenAI Responses API with correct endpoint and payload structure
     const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
@@ -22,34 +23,63 @@ export async function generatePromptWithBot(request: PromptRequest): Promise<Gen
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        bot: BOT_ID,
-        input: message,
-        stream: false
+        prompt: {
+          id: BOT_ID,
+          version: 1
+        },
+        inputs: [
+          {
+            content: message
+          }
+        ]
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Bot API error response:', errorText);
-      throw new Error(`Bot API call failed: ${response.status} ${response.statusText} - ${errorText}`);
+      console.error('OpenAI Responses API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: errorText.substring(0, 500)
+      });
+      throw new Error(`OpenAI Responses API failed: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
+    console.log('OpenAI Responses API response structure:', Object.keys(data));
     
-    // Extract the generated content from the bot response
-    const generatedContent = data.output || data.content || data.text || data.response || data.message;
-
-    if (!generatedContent) {
-      console.error('No content in bot response:', data);
-      throw new Error('Bot API returned no content');
+    // Extract the generated content from the response
+    // The response structure may vary, so we'll check multiple possible paths
+    let generatedContent = '';
+    
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      generatedContent = data.choices[0].message.content;
+    } else if (data.outputs && data.outputs[0]) {
+      generatedContent = data.outputs[0].content || data.outputs[0].text;
+    } else if (data.content) {
+      generatedContent = data.content;
+    } else if (data.text) {
+      generatedContent = data.text;
+    } else if (data.response) {
+      generatedContent = data.response;
     }
 
-    console.log('Bot API response received successfully');
+    if (!generatedContent) {
+      console.error('No content found in OpenAI Responses API response:', data);
+      throw new Error('OpenAI Responses API returned no usable content');
+    }
+
+    console.log('Bot API response received successfully, content length:', generatedContent.length);
+    console.log('Response preview:', generatedContent.substring(0, 100) + '...');
+    
     // Parse the response and return in the expected format
     return parseStreamlinedResponse(generatedContent, request);
   } catch (error) {
-    console.error('Bot API error:', error);
-    throw new Error(`Failed to generate prompt via bot: ${error.message}`);
+    console.error('OpenAI Responses API error details:', {
+      message: error.message,
+      stack: error.stack
+    });
+    throw new Error(`Failed to generate prompt via OpenAI Responses API: ${error.message}`);
   }
 }
 
