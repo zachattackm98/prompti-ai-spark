@@ -44,15 +44,15 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
 
       {/* Desktop Step Circles */}
       {!isMobile && (
-        <div className="px-4">
+        <div className="px-2">
           <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex items-center justify-center min-w-max mx-auto gap-4">
+            <div className="flex items-center justify-start min-w-max gap-3 pb-2">
               {/* Numbered steps 1-7 */}
               {Array.from({ length: displaySteps }, (_, i) => i + 1).map((step) => (
                 <div key={step} className="flex items-center flex-shrink-0">
                   <motion.div
                     className={`
-                      w-9 h-9 rounded-full flex items-center justify-center font-medium transition-all duration-300 text-sm
+                      w-8 h-8 rounded-full flex items-center justify-center font-medium transition-all duration-300 text-sm
                       ${currentStep >= step
                         ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
                         : 'bg-slate-700 text-gray-400'
@@ -66,7 +66,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
                   {step < displaySteps && (
                     <div
                       className={`
-                        w-16 h-1 mx-1 transition-all duration-300
+                        w-12 h-1 mx-1 transition-all duration-300
                         ${currentStep > step 
                           ? 'bg-gradient-to-r from-purple-600 to-pink-600' 
                           : 'bg-slate-700'
