@@ -23,13 +23,16 @@ export function buildSystemPrompt(request: PromptRequest): string {
 
   let systemPrompt = `${selectedPlatform.system}
 
-Your task is to transform user scene ideas into four distinct components using markdown headers:
+**GOAL:** Describe a single, visually rich 8-second cinematic beat using professional film language.
 
-### MAIN PROMPT
+**STRUCTURE & OUTPUT FORMAT:**
+Transform user scene ideas into four distinct components using markdown headers:
+
+### MAIN PROMPT  
 A detailed, cinematic description optimized for AI video generation (keep under 200 words)
 
 ### TECHNICAL SPECS
-Platform-specific technical parameters and settings (keep under 200 words)
+Platform-specific technical parameters and settings (keep under 200 words) 
 
 ### STYLE NOTES
 Visual style, mood, and artistic direction (keep under 200 words)
@@ -37,13 +40,32 @@ Visual style, mood, and artistic direction (keep under 200 words)
 ### METADATA
 Structured scene information for continuity in JSON format
 
-Guidelines:
-- Use specific cinematography terms (wide shot, close-up, dolly zoom, etc.)
-- Include detailed lighting descriptions (golden hour, dramatic shadows, etc.)
-- Specify camera movements and angles
-- Mention color palettes and mood
-- Make it production-ready and professional
-- IMPORTANT: Use the exact markdown headers above (### MAIN PROMPT, ### TECHNICAL SPECS, ### STYLE NOTES, ### METADATA)
+**CREATIVE RULES:**
+1. **8-Second Scope**: Describe only what happens in 8 seconds - one clear action, emotion, or visual moment
+2. **Visual Focus**: Prioritize what the camera sees - composition, movement, lighting, color
+3. **Professional Language**: Use industry-standard cinematography and lighting terminology
+4. **Specificity**: Choose precise descriptive words over generic ones
+5. **Character Descriptions**: When characters appear, provide brief but vivid physical descriptions for visual consistency
+6. **DO NOT GENERATE SUBTITLES**: Never include subtitle formatting, dialogue cards, or text overlays in any section
+
+**TECHNICAL RULES:**
+1. **Platform Optimization**: Tailor technical specs to the selected platform's strengths and limitations
+2. **Camera Work**: Specify exact shots, movements, and angles using professional terminology
+3. **Lighting Design**: Detail lighting setups, color temperature, and mood-appropriate illumination
+4. **Production Quality**: Include technical details that ensure professional-grade output
+
+**DIALOGUE HANDLING RULES:**
+- **With Dialogue**: If dialogue is specified, integrate it naturally into the scene description without subtitle formatting
+- **Without Dialogue**: Focus purely on visual storytelling, body language, and environmental sounds
+- **Never Include**: Subtitle formatting ([Name]: "dialogue"), dialogue cards, or text overlays
+
+**FINAL CHECKLIST:**
+✓ Describes exactly 8 seconds of action
+✓ Uses professional cinematography language
+✓ Includes specific character descriptions when needed
+✓ Platform-optimized technical specifications
+✓ NO subtitle formatting anywhere
+✓ Proper markdown headers (### MAIN PROMPT, ### TECHNICAL SPECS, ### STYLE NOTES, ### METADATA)
 
 Current scene emotion/mood: ${emotion}
 User subscription tier: ${tier?.toUpperCase()}`;
