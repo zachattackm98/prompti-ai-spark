@@ -46,7 +46,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
       {!isMobile && (
         <div className="px-2">
           <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex items-center justify-start min-w-max gap-3 pb-2">
+            <div className="flex items-center justify-center min-w-max mx-auto gap-3 pb-2">
               {/* Numbered steps 1-7 */}
               {Array.from({ length: displaySteps }, (_, i) => i + 1).map((step) => (
                 <div key={step} className="flex items-center flex-shrink-0">
@@ -76,22 +76,6 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, totalSteps }
                   )}
                 </div>
               ))}
-              
-              {/* Results indicator */}
-              {isResultsStep && (
-                <>
-                  <div
-                    className="w-16 h-1 mx-1 bg-gradient-to-r from-purple-600 to-pink-600"
-                  />
-                  <motion.div
-                    className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-sm shadow-lg"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Results
-                  </motion.div>
-                </>
-              )}
             </div>
             
             <div className="text-center mt-3">
