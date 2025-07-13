@@ -36,6 +36,9 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
   const subscriptionHelpers = createSubscriptionHelpers(subscription);
   const { loadPromptHistory } = usePromptHistory();
   const isMobile = useIsMobile();
+  
+  // Check if user can access prompt history
+  const canAccessHistory = subscriptionHelpers.canUseFeature('promptHistory');
 
   const {
     currentStep,
@@ -198,8 +201,8 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               />
             )}
 
-            {/* History Controls - Only show when user is logged in */}
-            {user && setShowHistory && onSignOut && (
+            {/* History Controls - Only show when user is logged in and has access */}
+            {user && canAccessHistory && setShowHistory && onSignOut && (
               <HistoryControls
                 showHistory={showHistory}
                 setShowHistory={setShowHistory}
@@ -207,8 +210,41 @@ const CinematicForm: React.FC<CinematicFormProps> = ({
               />
             )}
 
-            {/* Simplified History */}
-            {showHistory && (
+            {/* Upgrade prompt for Starter users */}
+            {user && !canAccessHistory && (
+              <motion.div 
+                className={`max-w-md mx-auto mb-6 ${isMobile ? 'px-2' : ''}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <div className="bg-slate-800/40 border border-white/10 rounded-lg p-6 text-center">
+                  <div className="mb-4">
+                    <div className="w-12 h-12 bg-purple-600/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <span className="text-xl">📚</span>
+                    </div>
+                    <h3 className="text-white text-lg font-semibold mb-2">
+                      Prompt History
+                    </h3>
+                    <p className="text-slate-300 text-sm mb-4">
+                      Save and revisit your favorite prompts with Creator plan
+                    </p>
+                  </div>
+                  <button
+                    onClick={onUpgrade}
+                    className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-6 py-3 rounded-lg transition-colors w-full"
+                  >
+                    Upgrade to Creator
+                  </button>
+                  <p className="text-slate-400 text-xs mt-3">
+                    Access unlimited prompt history and more features
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* History section - Only show if user has access and history is visible */}
+            {user && canAccessHistory && showHistory && (
               <div className={isMobile ? 'px-2' : ''}>
                 <PromptHistory 
                   showHistory={showHistory} 
