@@ -68,7 +68,7 @@ const StyleStep: React.FC<StyleStepProps> = ({
           <p className="text-xs sm:text-sm text-white px-1">
             Examples: "Cinematic like Blade Runner 2049", "Warm golden hour lighting", "Film noir aesthetic"
           </p>
-          <div className="text-xs text-gray-500 px-1">
+          <div className="text-xs text-white px-1">
             {styleReference.length}/300 characters (optional)
           </div>
         </div>
