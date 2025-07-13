@@ -26,7 +26,7 @@ export const pricingPlans: PricingPlan[] = [
   {
     name: "Creator",
     icon: Crown,
-    price: "$19",
+    price: "$12",
     period: "/month",
     description: "For serious content creators who need more",
     features: [
@@ -45,7 +45,7 @@ export const pricingPlans: PricingPlan[] = [
   {
     name: "Studio",
     icon: Rocket,
-    price: "$49",
+    price: "$20",
     period: "/month",
     description: "For teams and agencies with high volume needs",
     features: [
