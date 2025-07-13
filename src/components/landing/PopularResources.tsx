@@ -1,10 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Video, Lightbulb, Users } from 'lucide-react';
 import { fadeInVariants, staggerContainer, cardVariants, viewportOptions } from '@/utils/animations';
+import ComingSoonDialog from '@/components/ComingSoonDialog';
 
 const PopularResources = () => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<string>('');
+
+  const handleResourceClick = (title: string) => {
+    setSelectedResource(title);
+    setDialogOpen(true);
+  };
+
   const resources = [
     {
       icon: BookOpen,
@@ -58,21 +67,27 @@ const PopularResources = () => {
           className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
         >
           {resources.map((resource, index) => (
-            <motion.a
+            <motion.div
               key={resource.title}
-              href={resource.link}
               variants={cardVariants}
-              className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all duration-300 group block will-change-transform hover:scale-[1.02]"
+              onClick={() => handleResourceClick(resource.title)}
+              className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all duration-300 group cursor-pointer will-change-transform hover:scale-[1.02]"
             >
               <div className="bg-gradient-to-r from-purple-500 to-pink-500 w-12 h-12 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <resource.icon className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white mb-4">{resource.title}</h3>
               <p className="text-gray-300 leading-relaxed">{resource.description}</p>
-            </motion.a>
+            </motion.div>
           ))}
         </motion.div>
       </div>
+
+      <ComingSoonDialog 
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        resourceTitle={selectedResource}
+      />
     </section>
   );
 };

@@ -13,9 +13,10 @@ import { Video, Clock } from 'lucide-react';
 interface ComingSoonDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  resourceTitle?: string;
 }
 
-const ComingSoonDialog = ({ open, onOpenChange }: ComingSoonDialogProps) => {
+const ComingSoonDialog = ({ open, onOpenChange, resourceTitle }: ComingSoonDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-slate-900 border border-white/20 text-white">
@@ -24,10 +25,13 @@ const ComingSoonDialog = ({ open, onOpenChange }: ComingSoonDialogProps) => {
             <Video className="w-8 h-8 text-purple-400" />
           </div>
           <DialogTitle className="text-xl font-bold text-white">
-            Demo Video Coming Soon!
+            {resourceTitle ? `${resourceTitle} Coming Soon!` : 'Feature Coming Soon!'}
           </DialogTitle>
           <DialogDescription className="text-gray-300 mt-2">
-            We're working hard to create an amazing demo video that showcases all the incredible features of AiPromptMachine. Stay tuned!
+            {resourceTitle 
+              ? `We're working hard to bring you ${resourceTitle.toLowerCase()}. This feature will be available soon!`
+              : 'We\'re working hard to create amazing features for AiPromptMachine. Stay tuned!'
+            }
           </DialogDescription>
         </DialogHeader>
         
