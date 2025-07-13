@@ -17,7 +17,6 @@ export const pricingPlans: PricingPlan[] = [
       "Sound design & music options",
       "Dialog & narration features",
       "Style reference enhancement",
-      "Enhanced prompt quality",
       "Email support"
     ],
     cta: "Start Free",
@@ -36,7 +35,8 @@ export const pricingPlans: PricingPlan[] = [
       "Multi-scene projects",
       "Priority support",
       "Prompt history saving",
-      "Advanced analytics"
+      "Advanced analytics",
+      "Enhanced prompt quality"
     ],
     cta: "Upgrade to Creator",
     popular: true,
