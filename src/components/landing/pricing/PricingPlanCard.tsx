@@ -127,9 +127,9 @@ const PricingPlanCard: React.FC<PricingPlanCardProps> = ({
         {plan.features.map((feature, i) => (
           <li key={i} className="flex items-start text-gray-300">
             <div className="flex-shrink-0 mt-0.5">
-              {feature.includes('camera controls') ? (
+              {plan.tier !== 'starter' && feature.includes('camera controls') ? (
                 <Camera className="w-4 h-4 text-purple-400 mr-3" />
-              ) : feature.includes('lighting') || feature.includes('Advanced lighting') ? (
+              ) : plan.tier !== 'starter' && (feature.includes('lighting') || feature.includes('Advanced lighting')) ? (
                 <Lightbulb className={`w-4 h-4 mr-3 ${
                   isStudioPlan ? 'text-yellow-400' : 'text-yellow-400'
                 }`} />
