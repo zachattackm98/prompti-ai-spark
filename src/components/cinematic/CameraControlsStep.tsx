@@ -203,7 +203,7 @@ const CameraControlsStep: React.FC<CameraControlsStepProps> = ({
               onClick={handleClearSettings}
               variant="ghost"
               size="sm"
-              className="text-orange-300 bg-red-900/20 border border-red-700/40 hover:bg-red-800/30 hover:text-orange-200 text-sm px-4 py-2"
+              className="text-white bg-red-900/20 border border-red-700/40 hover:bg-red-800/30 hover:text-white text-sm px-4 py-2"
             >
               Clear All Camera Settings
             </Button>
