@@ -51,9 +51,6 @@ export const pricingPlans: PricingPlan[] = [
     features: [
       "1000 prompts per month",
       "Everything in Creator plan", 
-      "Team collaboration tools",
-      "API access for integrations",
-      "Multi-scene projects",
       "Priority access to new platforms",
       "Dedicated support manager"
     ],
