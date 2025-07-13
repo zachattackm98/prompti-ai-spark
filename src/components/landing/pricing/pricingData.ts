@@ -18,7 +18,6 @@ export const pricingPlans: PricingPlan[] = [
       "Dialog & narration features",
       "Style reference enhancement",
       "Enhanced prompt quality",
-      "Batch processing",
       "Email support"
     ],
     cta: "Start Free",
@@ -34,6 +33,7 @@ export const pricingPlans: PricingPlan[] = [
     features: [
       "500 prompts per month",
       "Everything in Starter plan",
+      "Multi-scene projects",
       "Priority support",
       "Prompt history saving",
       "Advanced analytics"

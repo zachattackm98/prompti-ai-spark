@@ -18,6 +18,7 @@ export interface TierFeatures {
   styleReference: boolean;
   enhancedPrompts: boolean;
   batchProcessing: boolean;
+  multiSceneProjects: boolean;
   teamCollaboration: boolean;
   apiAccess: boolean;
 }
@@ -32,7 +33,8 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     visualStyles: true,
     styleReference: true,
     enhancedPrompts: true,
-    batchProcessing: true,
+    batchProcessing: false,
+    multiSceneProjects: false,
     teamCollaboration: false,
     apiAccess: false,
   },
@@ -46,6 +48,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     styleReference: true,
     enhancedPrompts: true,
     batchProcessing: true,
+    multiSceneProjects: true,
     teamCollaboration: false,
     apiAccess: false,
   },
@@ -59,6 +62,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     styleReference: true,
     enhancedPrompts: true,
     batchProcessing: true,
+    multiSceneProjects: true,
     teamCollaboration: true,
     apiAccess: true,
   },
