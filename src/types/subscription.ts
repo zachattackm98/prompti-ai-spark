@@ -41,7 +41,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     apiAccess: false,
   },
   creator: {
-    maxPrompts: 500,
+    maxPrompts: 150,
     platforms: ['veo3', 'sora', 'runway', 'pika'],
     emotions: ['Dramatic', 'Mysterious', 'Uplifting', 'Melancholic', 'Intense', 'Serene', 'Suspenseful', 'Romantic', 'Epic', 'Intimate'],
     cameraControls: true,
@@ -56,7 +56,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     apiAccess: false,
   },
   studio: {
-    maxPrompts: 1000,
+    maxPrompts: 300,
     platforms: ['veo3', 'sora', 'runway', 'pika'],
     emotions: ['Dramatic', 'Mysterious', 'Uplifting', 'Melancholic', 'Intense', 'Serene', 'Suspenseful', 'Romantic', 'Epic', 'Intimate'],
     cameraControls: true,

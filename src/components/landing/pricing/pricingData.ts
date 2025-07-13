@@ -30,7 +30,7 @@ export const pricingPlans: PricingPlan[] = [
     period: "/month",
     description: "For serious content creators who need more",
     features: [
-      "500 prompts per month",
+      "150 prompts per month",
       "Everything in Starter plan",
       "Multi-scene projects",
       "Priority support",
@@ -49,7 +49,7 @@ export const pricingPlans: PricingPlan[] = [
     period: "/month",
     description: "For teams and agencies with high volume needs",
     features: [
-      "1000 prompts per month",
+      "300 prompts per month",
       "Everything in Creator plan", 
       "Priority access to new platforms",
       "Dedicated support manager"

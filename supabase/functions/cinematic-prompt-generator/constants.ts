@@ -1,8 +1,8 @@
 
 export const TIER_LIMITS = {
   starter: 5,
-  creator: 500,
-  studio: 1000
+  creator: 150,
+  studio: 300
 } as const;
 
 export const CORS_HEADERS = {
