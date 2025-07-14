@@ -17,7 +17,7 @@ interface MobileMenuProps {
 const MobileMenu = ({ isOpen, onAuthClick, onSignOut, onClose }: MobileMenuProps) => {
   const { user } = useAuth();
   const location = useLocation();
-  const showTestingLink = isAdminUser(user?.email);
+  const showTestingLink = false; // Hide testing link for admin user
   
   // Check if we're on the Generate page to determine link behavior
   const isGeneratePage = location.pathname === '/generate';
