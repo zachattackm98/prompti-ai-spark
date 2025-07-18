@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { UserSubscription } from '@/types/subscription';
 import { BillingDetails, checkSubscription as apiCheckSubscription, showToast, clearSubscriptionCache } from './subscriptionApi';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useSubscriptionEffects = (
   user: any,
@@ -213,15 +214,34 @@ export const useSubscriptionEffects = (
       // Clear all cache and pending states
       clearSubscriptionCache();
       
-      // IMMEDIATE verification - this is the key change
-      verifySubscriptionStatus();
+      // Handle potential upgrade completion
+      const handleUpgradeSuccess = async () => {
+        try {
+          console.log('[SUBSCRIPTION] Checking for upgrade to process...');
+          const { data, error } = await supabase.functions.invoke('handle-upgrade-success');
+          
+          if (error) {
+            console.warn('[SUBSCRIPTION] Upgrade handler error:', error);
+          } else {
+            console.log('[SUBSCRIPTION] Upgrade handler response:', data);
+          }
+        } catch (error) {
+          console.warn('[SUBSCRIPTION] Failed to call upgrade handler:', error);
+        }
+        
+        // Always verify subscription status after attempting upgrade processing
+        await verifySubscriptionStatus();
+      };
       
-      // Give Stripe and our webhook time to process, then verify again as backup
+      // IMMEDIATE processing including upgrade handling
+      handleUpgradeSuccess();
+      
+      // Give Stripe additional time to sync, then verify again as backup
       setTimeout(() => {
         verifySubscriptionStatus();
       }, 3000);
       
-      // Additional verification after a longer delay to ensure everything is synced
+      // Final verification after a longer delay to ensure everything is synced
       setTimeout(() => {
         verifySubscriptionStatus();
         // Clear the flag after all checks are complete

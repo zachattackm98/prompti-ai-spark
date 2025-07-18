@@ -65,9 +65,9 @@ export class StripeService {
     return displayNames[tier] || tier;
   }
 
-  async checkAndCancelExistingSubscription(customerId: string, requestedTier: string): Promise<void> {
+  async validateUpgrade(customerId: string, requestedTier: string): Promise<{ hasUpgrade: boolean, existingSubscription?: any }> {
     try {
-      logStep("Checking for existing active subscriptions", { customerId, requestedTier });
+      logStep("Validating upgrade request", { customerId, requestedTier });
       
       const subscriptions = await this.stripe.subscriptions.list({
         customer: customerId,
@@ -77,7 +77,7 @@ export class StripeService {
 
       if (subscriptions.data.length === 0) {
         logStep("No active subscriptions found");
-        return;
+        return { hasUpgrade: false };
       }
 
       const tierHierarchy = this.getTierHierarchy();
@@ -115,51 +115,36 @@ export class StripeService {
           throw new Error(`Cannot downgrade from ${currentTierDisplay} to ${requestedTierDisplay} through checkout. Please use the customer portal to manage your subscription.`);
 
         } else if (requestedTierLevel > currentTierLevel) {
-          // Upgrading to higher tier - schedule cancellation at period end
+          // Valid upgrade - return subscription info for post-payment processing
           const currentTierDisplay = this.getTierDisplayName(currentTier);
           const requestedTierDisplay = this.getTierDisplayName(requestedTier);
           
-          logStep("Upgrading subscription - scheduling cancellation at period end", {
+          logStep("Valid upgrade detected", {
             from: currentTier,
             to: requestedTier,
             subscriptionId: subscription.id,
             currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString()
           });
 
-          // Check if already scheduled for cancellation
-          if (subscription.cancel_at_period_end) {
-            logStep("Subscription already scheduled for cancellation", {
-              subscriptionId: subscription.id,
-              cancelAt: new Date(subscription.current_period_end * 1000).toISOString()
-            });
-            // Continue with checkout - new subscription will start after current period
-          } else {
-            // Schedule current subscription for cancellation at period end
-            await this.stripe.subscriptions.update(subscription.id, {
-              cancel_at_period_end: true,
-              metadata: {
-                cancelled_for_upgrade: 'true',
-                upgrade_to_tier: requestedTier,
-                upgrade_timestamp: new Date().toISOString()
-              }
-            });
-
-            logStep("Successfully scheduled existing subscription for cancellation", {
-              subscriptionId: subscription.id,
-              previousTier: currentTier,
-              upgradeToTier: requestedTier,
-              willCancelAt: new Date(subscription.current_period_end * 1000).toISOString()
-            });
-          }
-
-          // Add informative message for user
-          logStep("UPGRADE_INFO: Current subscription continues until period end", {
+          logStep("UPGRADE_INFO: Current subscription will continue until new plan is activated", {
             currentTier: currentTierDisplay,
             newTier: requestedTierDisplay,
             currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString()
           });
+
+          return { 
+            hasUpgrade: true, 
+            existingSubscription: {
+              id: subscription.id,
+              currentTier,
+              priceId,
+              cancelAtPeriodEnd: subscription.cancel_at_period_end
+            }
+          };
         }
       }
+
+      return { hasUpgrade: false };
 
     } catch (error: any) {
       if (error.message.includes('already have') || 
@@ -167,8 +152,8 @@ export class StripeService {
           error.message.includes('customer portal')) {
         throw error; // Re-throw user-facing errors
       }
-      logStep("ERROR: Failed to check/cancel existing subscriptions", error);
-      throw new Error("Failed to process existing subscriptions");
+      logStep("ERROR: Failed to validate upgrade", error);
+      throw new Error("Failed to validate upgrade request");
     }
   }
 
@@ -191,9 +176,10 @@ export class StripeService {
       displayName: this.getTierDisplayName(planType)
     });
 
-    // If customer exists, check and handle existing subscriptions
+    // If customer exists, validate upgrade (but don't cancel immediately)
+    let upgradeInfo = { hasUpgrade: false, existingSubscription: undefined };
     if (customerId) {
-      await this.checkAndCancelExistingSubscription(customerId, planType);
+      upgradeInfo = await this.validateUpgrade(customerId, planType);
     }
 
     try {
@@ -215,7 +201,8 @@ export class StripeService {
           user_id: userId,
           plan_type: planType,
           user_email: userEmail,
-          upgrade_flow: customerId ? 'true' : 'false',
+          upgrade_flow: upgradeInfo.hasUpgrade ? 'true' : 'false',
+          existing_subscription_id: upgradeInfo.existingSubscription?.id || '',
           checkout_timestamp: new Date().toISOString()
         },
         allow_promotion_codes: true,
