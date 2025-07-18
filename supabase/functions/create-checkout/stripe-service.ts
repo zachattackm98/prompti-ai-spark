@@ -3,6 +3,7 @@ import Stripe from "https://esm.sh/stripe@14.21.0";
 import { logStep } from './logger.ts';
 import { priceConfig } from './config.ts';
 import { PlanConfig } from './types.ts';
+import { getTierFromPriceId } from '../shared/subscription-config.ts';
 
 export class StripeService {
   private stripe: Stripe;
@@ -46,15 +47,6 @@ export class StripeService {
     };
   }
 
-  private getTierFromPriceId(priceId: string): string {
-    for (const [tier, config] of Object.entries(priceConfig)) {
-      if (config.priceId === priceId) {
-        return tier;
-      }
-    }
-    logStep("WARNING: Unknown price ID, defaulting to starter", { priceId });
-    return 'starter';
-  }
 
   private getTierDisplayName(tier: string): string {
     const displayNames: Record<string, string> = {
@@ -90,7 +82,7 @@ export class StripeService {
           continue;
         }
 
-        const currentTier = this.getTierFromPriceId(priceId);
+        const currentTier = getTierFromPriceId(priceId);
         const currentTierLevel = tierHierarchy[currentTier] || 0;
 
         logStep("Found active subscription", {
