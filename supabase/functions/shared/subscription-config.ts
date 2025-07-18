@@ -11,11 +11,11 @@ export const PRICE_TO_TIER_MAP: Record<string, SubscriptionTierConfig['tier']> =
   // Creator plan - $12/month (1200 cents)
   'price_1Rm3ujICZdHRMUzHAeOSK5eP': 'creator',
   
-  // Studio plan - $49/month (4900 cents)
-  'price_1Rm3pxICZdHRMUzHCW9t1q6d': 'studio',
+  // Studio plan - $18/month (1800 cents)
+  'price_1Rm4vfICZdHRMUzHbzIY2lyz': 'studio',
   
   // Legacy price IDs for backward compatibility
-  // Add any old price IDs here if they exist
+  'price_1Rm3pxICZdHRMUzHCW9t1q6d': 'studio', // Old studio price ID
 };
 
 // Subscription tier configurations
@@ -35,7 +35,7 @@ export const TIER_CONFIGS: Record<SubscriptionTierConfig['tier'], SubscriptionTi
   studio: {
     tier: 'studio',
     name: 'Studio Plan',
-    priceId: 'price_1Rm3pxICZdHRMUzHCW9t1q6d',
+    priceId: 'price_1Rm4vfICZdHRMUzHbzIY2lyz',
     description: '1000 prompts per month, all platforms, priority support'
   }
 };

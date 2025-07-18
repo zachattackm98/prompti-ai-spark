@@ -45,7 +45,7 @@ export const pricingPlans: PricingPlan[] = [
   {
     name: "Studio",
     icon: Rocket,
-    price: "$20",
+    price: "$18",
     period: "/month",
     description: "For teams and agencies with high volume needs",
     features: [
