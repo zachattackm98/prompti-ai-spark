@@ -30,8 +30,28 @@ export const useSubscriptionEffects = (
       
       // Handle subscription state properly
       const isSubscribed = data.subscribed || false;
-      const isCancelling = data.billing_details?.cancel_at_period_end || false;
       const subscriptionTier = data.subscription_tier || 'starter';
+      
+      // Smart cancellation logic: For starter plans, only consider it "cancelling" 
+      // if it's actually ending soon (within current period)
+      let isCancelling = false;
+      if (data.billing_details?.cancel_at_period_end) {
+        if (subscriptionTier === 'starter') {
+          // For starter plans, check if subscription is actually ending
+          const currentPeriodEnd = data.billing_details?.current_period_end;
+          if (currentPeriodEnd) {
+            const endDate = new Date(currentPeriodEnd);
+            const now = new Date();
+            const daysUntilEnd = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+            
+            // Only show as cancelling if ending within 7 days
+            isCancelling = daysUntilEnd <= 7;
+          }
+        } else {
+          // For non-starter plans, keep existing logic
+          isCancelling = true;
+        }
+      }
       
       // For active subscriptions, even if scheduled for cancellation, they're still active until period end
       const effectivelyActive = isSubscribed;
