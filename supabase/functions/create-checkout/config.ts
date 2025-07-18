@@ -1,6 +1,7 @@
 
 import { logStep } from './logger.ts';
 import { PlanConfig } from './types.ts';
+import { TIER_CONFIGS } from '../shared/subscription-config.ts';
 
 export const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,14 +10,14 @@ export const corsHeaders = {
 
 export const priceConfig: Record<string, PlanConfig> = {
   creator: {
-    name: "Creator Plan",
-    priceId: "price_1Rm3ujICZdHRMUzHAeOSK5eP", // Live price for $19/month
-    description: "Unlimited prompts, all platforms, advanced features"
+    name: TIER_CONFIGS.creator.name,
+    priceId: TIER_CONFIGS.creator.priceId,
+    description: TIER_CONFIGS.creator.description
   },
   studio: {
-    name: "Studio Plan", 
-    priceId: "price_1Rm3pxICZdHRMUzHCW9t1q6d", // Live price for $49/month
-    description: "Everything in Creator plus team collaboration and API access"
+    name: TIER_CONFIGS.studio.name,
+    priceId: TIER_CONFIGS.studio.priceId,
+    description: TIER_CONFIGS.studio.description
   }
 };
 

@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { getTierFromPriceId } from "../shared/subscription-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -241,18 +242,13 @@ serve(async (req) => {
         subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
         logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
         
-        // Determine subscription tier from price
+        // Determine subscription tier from price ID using shared configuration
         const priceId = subscription.items.data[0].price.id;
         const price = await stripe.prices.retrieve(priceId);
         const amount = price.unit_amount || 0;
         
-        if (amount >= 4900) {
-          subscriptionTier = "studio";
-        } else if (amount >= 1900) {
-          subscriptionTier = "creator";
-        } else {
-          subscriptionTier = "starter";
-        }
+        // Use price ID mapping for tier determination
+        subscriptionTier = getTierFromPriceId(priceId);
 
         // Get billing details
         billingDetails = {
